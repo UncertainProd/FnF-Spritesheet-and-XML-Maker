@@ -12,20 +12,20 @@ Click the button named "Add Frame Image" to add each pose as frame in the sprite
 <img src="./docs/added-sprites.png" />
 
 Each "frame" of your spritesheet has 2 buttons on either side:
-<img src="./docs/frame-buttons.png" />
+<img src="./docs/frame-buttons.png" /><br/>
 Use the "Pose Names" button to name each pose (Eg: 'gfPixel sing down' or 'gfPixel idle') and to delete any individual frame click the "Delete Frame" button.
 
 ### Clip to bounding box
-If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files.
-<img src="./docs/bbox-comparison.png" width="100px" />
+If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files.<br/>
+<img src="./docs/bbox-comparison.png" width="400px" /><br />
 On left is how the image will be considered if this checkbox is left unchecked. On the right is how it'll be considered if it is checked. <small>(Side note: Most of the time you won't really have to use this feature, but it is provided just in case)</small>
 
 ### Generating the final XML and PNG files
 When you're done adding all the frames and giving them pose names, it's time to generate the final PNG and XML files!
-To do so, just click the "Generate XML" button. Select the location you want the files saved and the xml and png files will be generated.
+To do so, just click the "Generate XML" button. Select the location you want the files saved and the xml and png files will be generated.<br />
 <img src="./docs/final-files.png" width="500px" />
 
-
+<br/><br/>
 <small>Note: Although the main functionality of this application is complete, there are still minor crashing issues and bugs that may need fixing. Updates will be on the way soon. Stay tuned!</small>
 
 ## Running from source:
