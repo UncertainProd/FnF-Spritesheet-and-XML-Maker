@@ -2,7 +2,7 @@
 A Friday Night Funkin' mod making helper tool that allows you to generate XML files and spritesheets from induvidual pngs. This is a free and open-source mini-replacement tool to the "Generate Spritesheet" functionality in Adobe Animate/Flash
 
 ## How to use this tool:
-<img src="./docs/initScreen.png" />
+<img src="./docs/InitScreen.png" />
 The name of your character goes into the textbox at the top. This is necessary as the final xml and png files will be named accordingly.
 Eg: If you name you character <b>Pixel-GF</b> the files generated will be named <b>Pixel-GF.png</b> and <b>Pixel-GF.xml</b>
 <strong>Do not leave this box blank as it will crash the application!</strong>
