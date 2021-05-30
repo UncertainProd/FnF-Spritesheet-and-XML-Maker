@@ -5,7 +5,7 @@ A Friday Night Funkin' mod making helper tool that allows you to generate XML fi
 <img src="./docs/InitScreen.png" />
 The name of your character goes into the textbox at the top. This is necessary as the final xml and png files will be named accordingly.
 Eg: If you name you character <b>Pixel-GF</b> the files generated will be named <b>Pixel-GF.png</b> and <b>Pixel-GF.xml</b>
-<strong>Do not leave this box blank as it will crash the application!</strong>
+Leaving this box blank will cause an error to show up.
 
 ### Adding sprite frames
 Click the button named "Add Frame Image" to add each pose as frame in the spritesheet, as shown below:
