@@ -71,7 +71,7 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
         subtexture_element = ET.Element("SubTexture")
         subtexture_element.tail = os.linesep
         subtexture_element.attrib = {
-            "name" : newPoseNames[i],
+            "name" : character_name + " " + newPoseNames[i],
             "x": f'{csx}',
             "y": f'{csy}',
             "width": f'{new_img.width}',
