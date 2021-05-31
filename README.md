@@ -1,6 +1,8 @@
 # FnF-Spritesheet-and-XML-Maker
 A Friday Night Funkin' mod making helper tool that allows you to generate XML files and spritesheets from induvidual pngs. This is a free and open-source mini-replacement tool to the "Generate Spritesheet" functionality in Adobe Animate/Flash
 
+##### Disclaimer: The execuatable on gamebanana only works on windows. Other operating system users should run this from source. Instructions at the bottom of this page.
+
 ## How to use this tool:
 <img src="./docs/InitScreen.png" />
 The name of your character goes into the textbox at the top. This is necessary as the final xml and png files will be named accordingly.
@@ -39,4 +41,4 @@ Keep in mind:
 <br />
 
 ## Running from source:
-In order to run this from source, you will need <a href="https://www.python.org/downloads/release/python-390/">python v3.9</a> (minimum) and pip installed on your device (pip should come pre-installed with python). Install the dependencies first by opening the command line, navigating to this directory and typing ``` pip install -r requirements.txt ```. Once that is done type ``` python xmlpngUI.py ``` to run the application (Sometimes you need to type ``` python3 ``` instead of just ``` python ```).
+In order to run this from source, you will need <a href="https://www.python.org/downloads/release/python-390/">python v3.9</a> (minimum) and pip installed on your device (pip should come pre-installed with python). Install the dependencies first by opening the command line, navigating to this directory and typing ``` pip install -r requirements.txt ```. Once that is done type ``` python xmlpngUI.py ``` to run the application (Sometimes you need to type ``` python3 ``` instead of just ``` python ```). This is a required step for non-windows users!
