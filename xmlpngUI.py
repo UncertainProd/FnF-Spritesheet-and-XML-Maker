@@ -114,13 +114,14 @@ class MyApp(QWidget):
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
-            xmlpngengine.make_png_xml([lab.imgpath for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
-            self.successbox = QMessageBox(self)
-            self.successbox.setWindowTitle("Done!")
-            self.successbox.setText("Your files have been generated!\nCheck the folder you had selected")
-            self.successbox.setIcon(QMessageBox.Information)
-            x = self.successbox.exec_()
-            print("[DEBUG] Exit status of error box: "+str(x))
+            if savedir != '':
+                xmlpngengine.make_png_xml([lab.imgpath for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
+                self.successbox = QMessageBox(self)
+                self.successbox.setWindowTitle("Done!")
+                self.successbox.setText("Your files have been generated!\nCheck the folder you had selected")
+                self.successbox.setIcon(QMessageBox.Information)
+                x = self.successbox.exec_()
+                print("[DEBUG] Exit status of error box: "+str(x))
         else:
             self.errbox = QMessageBox(self)
             self.errbox.setWindowTitle("Error!")
