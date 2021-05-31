@@ -13,7 +13,7 @@ Click the button named "Add Frame Image" to add each pose as frame in the sprite
 
 Each "frame" of your spritesheet has 2 buttons on either side:
 <img src="./docs/frame-buttons.png" /><br/>
-Use the "Pose Names" button to name each pose (Eg: 'gfPixel sing down' or 'gfPixel idle') and to delete any individual frame click the "Delete Frame" button.
+Use the "Pose Names" button to name each pose (Eg: 'gfPixel sing down' or 'gfPixel idle') and to delete any individual frame click the "Delete Frame" button. Pose names can repeat if needed (Eg: You can name 2 frames 'gfPixel sing up' and it'll be taken care of in the xml)
 
 ### Clip to bounding box
 If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files.<br/>
@@ -27,6 +27,16 @@ To do so, just click the "Generate XML" button. Select the location you want the
 
 <br/><br/>
 <small>Note: Although the main functionality of this application is complete, there are still minor crashing issues and bugs that may need fixing. Updates will be on the way soon. Stay tuned!</small>
+
+### How to use these files in the source code
+Now that you have the .xml and the .png files you can follow the instructions as per <a href="https://gamebanana.com/tuts/13798">this guide by Tuxsuper on gamebanana</a> to add your character into the game. This particular application, as of now, is to help with section 1.3 of the guide in particular (without the use of adobe animate), excluding the parts that have to do with the icon grid. Basically, inside of Character.hx, inside the switch statement shown below:<br />
+<img src="./docs/place-to-find-addByPrefix-character-hx.png"/><br /><br />
+Add another case like so:<br />
+<img src="./docs/addYourOwnCharacter-char-hx.png"/>
+<br/>
+Keep in mind:
+<img src="./docs/character-name-pose-example.png" />
+<br />
 
 ## Running from source:
 In order to run this from source, you will need <a href="https://www.python.org/downloads/release/python-390/">python v3.9</a> (minimum) and pip installed on your device (pip should come pre-installed with python). Install the dependencies first by opening the command line, navigating to this directory and typing ``` pip install -r requirements.txt ```. Once that is done type ``` python xmlpngUI.py ``` to run the application (Sometimes you need to type ``` python3 ``` instead of just ``` python ```).
