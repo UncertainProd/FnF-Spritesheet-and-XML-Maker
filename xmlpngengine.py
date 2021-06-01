@@ -43,7 +43,7 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
 
     max_heights = []
     for i in range(0, len(heights), 4):
-        max_heights.append(max(heights[i:i+3]))
+        max_heights.append(max(heights[i:i+4]))
     final_img_height = sum(max_heights)
 
     # XML Stuff
