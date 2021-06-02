@@ -22,7 +22,7 @@ class SpriteFrame(QWidget):
 
         self.remove_btn = QPushButton(self)
         self.remove_btn.move(90, 90)
-        self.remove_btn.setIcon(QIcon('./image-assets/remove_img_new.png'))
+        self.remove_btn.setIcon(QIcon('./image-assets/remove-frame-icon.svg'))
         self.remove_btn.setIconSize(QSize(40, 40))
         self.remove_btn.setFixedSize(40, 40)
         self.remove_btn.setToolTip("Delete Frame")
@@ -30,7 +30,7 @@ class SpriteFrame(QWidget):
 
         self.info_btn = QPushButton(self)
         self.info_btn.move(0, 90)
-        self.info_btn.setIcon(QIcon('./image-assets/info_icon.svg'))
+        self.info_btn.setIcon(QIcon('./image-assets/set-pose-icon.svg'))
         self.info_btn.setIconSize(QSize(35, 35))
         self.info_btn.setFixedSize(40, 40)
         self.info_btn.setToolTip("Frame Info")
