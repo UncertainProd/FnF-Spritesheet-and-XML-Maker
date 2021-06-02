@@ -33,7 +33,7 @@ class SpriteFrame(QWidget):
         self.info_btn.setIcon(QIcon('./image-assets/set-pose-icon.svg'))
         self.info_btn.setIconSize(QSize(35, 35))
         self.info_btn.setFixedSize(40, 40)
-        self.info_btn.setToolTip("Frame Info")
+        self.info_btn.setToolTip("Change Pose Name (Animation Prefix)")
         self.info_btn.clicked.connect(self.display_frame_info)
     
     def remove_self(self, parent):
