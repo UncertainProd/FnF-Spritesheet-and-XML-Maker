@@ -141,11 +141,11 @@
      </property>
     </widget>
    </widget>
-   <!-- <widget class="QWidget" name="from_spritesheet_tab">
+   <widget class="QWidget" name="from_spritesheet_tab">
     <attribute name="title">
-     <string>XML from Spritesheet</string>
+     <string>Add Icon to Icon-grid</string>
     </attribute>
-    <widget class="QScrollArea" name="PNG_holder_area">
+    <widget class="QScrollArea" name="Icongrid_holder_area">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -183,7 +183,7 @@
       </property>
      </widget>
     </widget>
-    <widget class="QPushButton" name="xmlgenbutton2">
+    <widget class="QPushButton" name="icongridgenbutton">
      <property name="geometry">
       <rect>
        <x>650</x>
@@ -193,7 +193,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Generate XML</string>
+      <string>Generate New Icon-grid</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pngUploadButton">
@@ -206,7 +206,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Upload PNG</string>
+      <string>Upload Icon-grid PNG</string>
      </property>
     </widget>
     <widget class="QLabel" name="tipLabel">
@@ -235,7 +235,7 @@
       <string>Zoom:</string>
      </property>
     </widget>
-   </widget> -->
+   </widget>
   </widget>
  </widget>
  <resources/>
