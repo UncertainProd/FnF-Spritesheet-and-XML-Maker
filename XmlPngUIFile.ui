@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>834</width>
-    <height>520</height>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -78,7 +78,7 @@
      <x>0</x>
      <y>80</y>
      <width>831</width>
-     <height>441</height>
+     <height>461</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -115,7 +115,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>360</y>
+       <y>370</y>
        <width>151</width>
        <height>31</height>
       </rect>
@@ -127,10 +127,10 @@
     <widget class="QPushButton" name="xml_generate_button">
      <property name="geometry">
       <rect>
-       <x>660</x>
-       <y>350</y>
-       <width>161</width>
-       <height>51</height>
+       <x>650</x>
+       <y>360</y>
+       <width>171</width>
+       <height>61</height>
       </rect>
      </property>
      <property name="statusTip">
@@ -177,19 +177,44 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>829</width>
-        <height>339</height>
+        <width>831</width>
+        <height>341</height>
        </rect>
       </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>831</width>
+        <height>341</height>
+       </size>
+      </property>
+      <widget class="QLabel" name="icongrid_holder_label">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>811</width>
+         <height>341</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QPushButton" name="icongridgenbutton">
      <property name="geometry">
       <rect>
        <x>650</x>
-       <y>350</y>
+       <y>360</y>
        <width>171</width>
-       <height>51</height>
+       <height>61</height>
       </rect>
      </property>
      <property name="text">
@@ -200,20 +225,20 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>350</y>
-       <width>141</width>
-       <height>51</height>
+       <y>360</y>
+       <width>101</width>
+       <height>61</height>
       </rect>
      </property>
      <property name="text">
-      <string>Upload Icon-grid PNG</string>
+      <string>Upload Icon-grid</string>
      </property>
     </widget>
     <widget class="QLabel" name="tipLabel">
      <property name="geometry">
       <rect>
-       <x>230</x>
-       <y>340</y>
+       <x>320</x>
+       <y>380</y>
        <width>331</width>
        <height>31</height>
       </rect>
@@ -225,14 +250,68 @@
     <widget class="QLabel" name="zoomLabel">
      <property name="geometry">
       <rect>
-       <x>230</x>
-       <y>370</y>
+       <x>400</x>
+       <y>410</y>
        <width>151</width>
        <height>21</height>
       </rect>
      </property>
      <property name="text">
       <string>Zoom:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="icon_upload_button">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>360</y>
+       <width>93</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Upload Icon</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="howto_label">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>350</y>
+       <width>331</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Black</family>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Adds ONE icon to the icon-grid.
+To add multiple,reuse the output icongrid</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="curr_icon_label">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>360</y>
+       <width>91</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Current Icon:
+None</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </widget>

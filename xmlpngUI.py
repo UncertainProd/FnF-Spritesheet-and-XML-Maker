@@ -61,7 +61,8 @@ class MyApp(QWidget):
         super().__init__()
 
         uic.loadUi('XmlPngUIFile.ui', self)
-        self.setFixedSize(834, 520)
+        # self.setFixedSize(834, 520)
+        self.setFixedSize(834, 545)
         self.xml_generate_button.clicked.connect(self.generate_xml)
         self.setWindowTitle("XML Generator")
         self.sprite_frames.setWidgetResizable(True)
@@ -83,6 +84,12 @@ class MyApp(QWidget):
         self.myTabs.setCurrentIndex(0)
 
         self.setWindowIcon(QIcon("./image-assets/appicon.png"))
+        self.pngUploadButton.clicked.connect(self.uploadIconGrid)
+        self.icongridgenbutton.clicked.connect(self.getNewIconGrid)
+        self.icon_upload_button.clicked.connect(self.appendIcon)
+
+        self.iconpath:str = ""
+        self.icongrid_path:str = ""
     
     def open_file_dialog(self):
         imgpaths = QFileDialog.getOpenFileNames(
@@ -130,6 +137,35 @@ class MyApp(QWidget):
             self.errbox.setIcon(QMessageBox.Critical)
             x = self.errbox.exec_()
             print("[DEBUG] Exit status of error box: "+str(x))
+    
+    def uploadIconGrid(self):
+        print("Uploading icongrid...")
+        self.icongrid_path = QFileDialog.getOpenFileName(
+            caption="Select the Icon-grid", 
+            filter="PNG Images (*.png)",
+            directory=os.getcwd()
+        )[0]
+        icongrid_pixmap = QPixmap(self.icongrid_path)
+        self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+        self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+        self.icongrid_holder_label.setPixmap(icongrid_pixmap)
+    
+    def getNewIconGrid(self):
+        print("Making new icon grid....")
+        print("Grid path:{} and Icon path:{}".format(self.icongrid_path, self.iconpath))
+    
+    def appendIcon(self):
+        print("Appending icon")
+        self.iconpath = QFileDialog.getOpenFileName(
+            caption="Select your character icon", 
+            filter="PNG Images (*.png)",
+            directory=os.getcwd()
+        )[0]
+        print("Got icon: ", self.iconpath)
+        if self.iconpath != '':
+            print("Valid selected")
+            self.curr_icon_label.setText("Current Icon:\n{}".format(self.iconpath.split('/')[-1]))
+
 
 
 

@@ -102,14 +102,8 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
         xmltree.write(f, xml_declaration=True, encoding='utf-8')
     print("Done!")
 
+def appendIconToIconGrid():
+    print("This function is incomplete!! Come back later!")
 
 if __name__ == '__main__':
-    # Just a test script ignore this...
-    print(add_pose_numbers([
-        "Dad Sing Note DOWN", "Dad Sing Note DOWN", "Dad Sing Note DOWN", "Dad Sing Note DOWN", 
-        "Dad Sing Note LEFT", 
-        "Dad Sing Note RIGHT", "Dad Sing Note RIGHT", "Dad Sing Note RIGHT", 
-        "Dad Sing Note UP", "Dad Sing Note UP", "Dad Sing Note UP", "Dad Sing Note UP",
-        "Dad Sing Note DOWN", "Dad Sing Note DOWN",
-        "Dad Sing Note RIGHT", "Dad Sing Note RIGHT"
-    ]))
+    print("To run the actual application, Please type: python xmlpngUI.py or python3 xmlpngUI.py depending on what works")
