@@ -153,6 +153,13 @@ class MyApp(QWidget):
     def getNewIconGrid(self):
         print("Making new icon grid....")
         print("Grid path:{} and Icon path:{}".format(self.icongrid_path, self.iconpath))
+        if self.icongrid_path != '' and self.iconpath != '':
+            print("Valid!!")
+            savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
+            stat = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpath, savedir)
+            print("[DEBUG] Function finished with status: ", stat)
+        else:
+            print("Invalid!")
     
     def appendIcon(self):
         print("Appending icon")

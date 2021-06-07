@@ -102,8 +102,43 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
         xmltree.write(f, xml_declaration=True, encoding='utf-8')
     print("Done!")
 
-def appendIconToIconGrid():
-    print("This function is incomplete!! Come back later!")
+def appendIconToIconGrid(icongrid_path:str, iconpath:str, savedir:str, iconsize=150) -> int:
+    retval:int = -1
+    print("Icongrid from:{} \n Icon from:{}".format(icongrid_path, iconpath))
+    icongrid = Image.open(icongrid_path)
+    iconimg = Image.open(iconpath)
+
+    # Icongrid manipulation code
+    lastrow_y = icongrid.getbbox()[-1] # lower bound of the icongrid is on the last row
+    row_index = lastrow_y // iconsize
+
+    last_row_img = icongrid.crop((0, row_index*iconsize, icongrid.width, row_index*iconsize + iconsize))
+    box = last_row_img.getbbox()
+
+    if box:
+        lastrow_x = box[2]
+        col_index = lastrow_x // iconsize
+
+        new_index = row_index*10 + col_index + 1
+
+        newrow_index = new_index // 10
+        newcol_index = new_index % 10
+        print("New pic to put at index={}: row={}, col={}".format(new_index, newrow_index, newcol_index))
+        imgy, imgx = newrow_index*iconsize, newcol_index*iconsize
+        print("Coords to put new pic: row={} col={}".format(imgy, imgx))
+        
+        print("Pasting new img.....")
+        new_icongrid = icongrid.copy()
+        new_icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
+        new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
+        print("Done!")
+        retval = 0
+    else:
+        print("Something's sus!")
+
+    icongrid.close()
+    iconimg.close()
+    return retval
 
 if __name__ == '__main__':
     print("To run the actual application, Please type: python xmlpngUI.py or python3 xmlpngUI.py depending on what works")
