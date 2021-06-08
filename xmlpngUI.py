@@ -123,20 +123,18 @@ class MyApp(QWidget):
             print("Stuff saved to: ", savedir)
             if savedir != '':
                 xmlpngengine.make_png_xml([lab.imgpath for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
-                self.successbox = QMessageBox(self)
-                self.successbox.setWindowTitle("Done!")
-                self.successbox.setText("Your files have been generated!\nCheck the folder you had selected")
-                self.successbox.setIcon(QMessageBox.Information)
-                x = self.successbox.exec_()
-                print("[DEBUG] Exit status of error box: "+str(x))
+                self.display_msg_box(
+                    window_title="Done!", 
+                    text="Your files have been generated!\nCheck the folder you had selected",
+                    icon=QMessageBox.Information
+                )
         else:
-            self.errbox = QMessageBox(self)
-            self.errbox.setWindowTitle("Error!")
             errtxt = "Please enter some frames" if self.num_labels <= 0 else "Please enter the name of your character"
-            self.errbox.setText(errtxt)
-            self.errbox.setIcon(QMessageBox.Critical)
-            x = self.errbox.exec_()
-            print("[DEBUG] Exit status of error box: "+str(x))
+            self.display_msg_box(
+                window_title="Error!", 
+                text=errtxt,
+                icon=QMessageBox.Critical
+            )
     
     def uploadIconGrid(self):
         print("Uploading icongrid...")
@@ -151,15 +149,45 @@ class MyApp(QWidget):
         self.icongrid_holder_label.setPixmap(icongrid_pixmap)
     
     def getNewIconGrid(self):
-        print("Making new icon grid....")
-        print("Grid path:{} and Icon path:{}".format(self.icongrid_path, self.iconpath))
         if self.icongrid_path != '' and self.iconpath != '':
-            print("Valid!!")
+            print("Valid!")
             savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
-            stat = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpath, savedir)
-            print("[DEBUG] Function finished with status: ", stat)
+            if savedir != '':
+                stat = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpath, savedir)
+                print("[DEBUG] Function finished with status: ", stat)
+                errmsgs = [
+                    'Icon grid was too full to insert a new icon', 
+                    'Your character icon is too big! Max size: 150 x 150',
+                    'Unable to find suitable location to insert your icon'
+                ]
+
+                if stat == 0:
+                    self.display_msg_box(
+                        window_title="Done!", 
+                        text="Your new spritesheet has been generated!\nCheck the folder you had selected.\nFile name: Result-icongrid.png",
+                        icon=QMessageBox.Information
+                    )
+                elif stat == 4:
+                    self.display_msg_box(
+                        window_title="Warning!", 
+                        text="The selected icon is smaller than the 150 x 150 icon size!\nHowever, your spritesheet is generated but the icon has been re-adjusted",
+                        icon=QMessageBox.Warning
+                    )
+                else:
+                    self.display_msg_box(
+                        window_title="Error!", 
+                        text=errmsgs[stat - 1],
+                        icon=QMessageBox.Critical
+                    )
+            else:
+                print("Cancel pressed")
         else:
-            print("Invalid!")
+            errtxt = "Please add an icon-grid image" if self.icongrid_path == '' else "Please add an icon"
+            self.display_msg_box(
+                window_title="Error!", 
+                text=errtxt,
+                icon=QMessageBox.Critical
+            )
     
     def appendIcon(self):
         print("Appending icon")
@@ -172,6 +200,17 @@ class MyApp(QWidget):
         if self.iconpath != '':
             print("Valid selected")
             self.curr_icon_label.setText("Current Icon:\n{}".format(self.iconpath.split('/')[-1]))
+    
+    def display_msg_box(self, window_title="MessageBox", text="Text Here", icon=None):
+        self.msgbox = QMessageBox(self)
+        self.msgbox.setWindowTitle(window_title)
+        self.msgbox.setText(text)
+        if not icon:
+            self.msgbox.setIcon(QMessageBox.Information)
+        else:
+            self.msgbox.setIcon(icon)
+        x = self.msgbox.exec_()
+        print("[DEBUG] Exit status of msgbox: "+str(x))
 
 
 

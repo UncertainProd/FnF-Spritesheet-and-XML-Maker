@@ -102,14 +102,28 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
         xmltree.write(f, xml_declaration=True, encoding='utf-8')
     print("Done!")
 
+def clean_up(*args):
+    for img in args:
+        img.close()
+
 def appendIconToIconGrid(icongrid_path:str, iconpath:str, savedir:str, iconsize=150) -> int:
-    retval:int = -1
-    print("Icongrid from:{} \n Icon from:{}".format(icongrid_path, iconpath))
+    ''' 
+        Adds the selected Icon into the icon grid. Returns a value based on if it was successful or not, as follows:
+        0 : Successful addition!
+        1 : Icon grid (possibly) too full
+        2 : Icon is too big to fit neatly into the icon grid
+        3 : An Error occured in finding the right row to insert (It is possible that the icon grid wasn't transparent)
+        4 : Icon image was too small for the icon space (This is a warning not an error, as the app will center the image if this happens)
+    '''
+    print("Icongrid from:{} \nIcon from:{}".format(icongrid_path, iconpath))
     icongrid = Image.open(icongrid_path)
     iconimg = Image.open(iconpath)
 
     # Icongrid manipulation code
     lastrow_y = icongrid.getbbox()[-1] # lower bound of the icongrid is on the last row
+    if lastrow_y >= icongrid.height:
+        clean_up(icongrid, iconimg)
+        return 1
     row_index = lastrow_y // iconsize
 
     last_row_img = icongrid.crop((0, row_index*iconsize, icongrid.width, row_index*iconsize + iconsize))
@@ -129,16 +143,38 @@ def appendIconToIconGrid(icongrid_path:str, iconpath:str, savedir:str, iconsize=
         
         print("Pasting new img.....")
         new_icongrid = icongrid.copy()
-        new_icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
-        new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
-        print("Done!")
-        retval = 0
+        # last ditch try catch block
+        try:
+            # icon size check
+            w, h = iconimg.size
+            if w > iconsize or h > iconsize:
+                clean_up(icongrid, iconimg)
+                return 2
+            if w != iconsize and h != iconsize:
+                print("Bad icon size....")
+                # we will try to center the smaller image into the grid space
+                dx = (iconsize//2) - (w//2)
+                dy = (iconsize//2) - (h//2)
+                imgx += dx
+                imgy += dy
+                new_icongrid.paste(iconimg, (imgx, imgy, imgx+w, imgy+h))
+                new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
+                clean_up(icongrid, iconimg)
+                return 4
+            new_icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
+            new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
+            print("Done!")
+        except:
+            print("Problem at try except block!")
+            return 1
+
     else:
         print("Something's sus!")
+        return 3
 
     icongrid.close()
     iconimg.close()
-    return retval
+    return 0
 
 if __name__ == '__main__':
-    print("To run the actual application, Please type: python xmlpngUI.py or python3 xmlpngUI.py depending on what works")
+    print("This program is just the engine! To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")
