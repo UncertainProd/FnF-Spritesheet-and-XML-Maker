@@ -88,7 +88,7 @@ class MyApp(QWidget):
         self.icongridgenbutton.clicked.connect(self.getNewIconGrid)
         self.icon_upload_button.clicked.connect(self.appendIcon)
 
-        self.iconpath:str = ""
+        self.iconpaths:list = []
         self.icongrid_path:str = ""
     
     def open_file_dialog(self):
@@ -149,34 +149,34 @@ class MyApp(QWidget):
         self.icongrid_holder_label.setPixmap(icongrid_pixmap)
     
     def getNewIconGrid(self):
-        if self.icongrid_path != '' and self.iconpath != '':
+        if self.icongrid_path != '' and len(self.iconpaths) > 0:
             print("Valid!")
             savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
             if savedir != '':
-                stat = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpath, savedir)
+                stat, newind, problemimg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths, savedir)
                 print("[DEBUG] Function finished with status: ", stat)
                 errmsgs = [
                     'Icon grid was too full to insert a new icon', 
-                    'Your character icon is too big! Max size: 150 x 150',
+                    'Your character icon: {} is too big! Max size: 150 x 150',
                     'Unable to find suitable location to insert your icon'
                 ]
 
                 if stat == 0:
                     self.display_msg_box(
                         window_title="Done!", 
-                        text="Your new spritesheet has been generated!\nCheck the folder you had selected.\nFile name: Result-icongrid.png",
+                        text="Your new spritesheet has been generated!\nCheck the folder you had selected.\nFile name: Result-icongrid.png. \nYour icon's index is {}".format(newind),
                         icon=QMessageBox.Information
                     )
                 elif stat == 4:
                     self.display_msg_box(
                         window_title="Warning!", 
-                        text="The selected icon is smaller than the 150 x 150 icon size!\nHowever, your spritesheet is generated but the icon has been re-adjusted",
+                        text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your spritesheet is generated but the icon has been re-adjusted. \nYour icon's index is {}".format(newind),
                         icon=QMessageBox.Warning
                     )
                 else:
                     self.display_msg_box(
                         window_title="Error!", 
-                        text=errmsgs[stat - 1],
+                        text=errmsgs[stat - 1].format(problemimg),
                         icon=QMessageBox.Critical
                     )
             else:
@@ -191,15 +191,16 @@ class MyApp(QWidget):
     
     def appendIcon(self):
         print("Appending icon")
-        self.iconpath = QFileDialog.getOpenFileName(
+        self.iconpaths = QFileDialog.getOpenFileNames(
             caption="Select your character icon", 
             filter="PNG Images (*.png)",
             directory=os.getcwd()
         )[0]
-        print("Got icon: ", self.iconpath)
-        if self.iconpath != '':
+        print("Got icon: ", self.iconpaths)
+        if len(self.iconpaths) > 0:
             print("Valid selected")
-            self.curr_icon_label.setText("Current Icon:\n{}".format(self.iconpath.split('/')[-1]))
+            # self.curr_icon_label.setText("Current Icon:\n{}".format(self.iconpaths.split('/')[-1]))
+            self.curr_icon_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
     
     def display_msg_box(self, window_title="MessageBox", text="Text Here", icon=None):
         self.msgbox = QMessageBox(self)

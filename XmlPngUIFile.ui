@@ -237,9 +237,9 @@
     <widget class="QLabel" name="tipLabel">
      <property name="geometry">
       <rect>
-       <x>320</x>
-       <y>380</y>
-       <width>331</width>
+       <x>330</x>
+       <y>360</y>
+       <width>321</width>
        <height>31</height>
       </rect>
      </property>
@@ -250,8 +250,8 @@
     <widget class="QLabel" name="zoomLabel">
      <property name="geometry">
       <rect>
-       <x>400</x>
-       <y>410</y>
+       <x>390</x>
+       <y>390</y>
        <width>151</width>
        <height>21</height>
       </rect>
@@ -273,42 +273,19 @@
       <string>Upload Icon</string>
      </property>
     </widget>
-    <widget class="QLabel" name="howto_label">
-     <property name="geometry">
-      <rect>
-       <x>320</x>
-       <y>350</y>
-       <width>331</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Segoe UI Black</family>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Adds ONE icon to the icon-grid.
-To add multiple,reuse the output icongrid</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-    </widget>
     <widget class="QLabel" name="curr_icon_label">
      <property name="geometry">
       <rect>
        <x>220</x>
        <y>360</y>
-       <width>91</width>
+       <width>111</width>
        <height>61</height>
       </rect>
      </property>
      <property name="text">
-      <string>Current Icon:
-None</string>
+      <string>Number of
+icons selected:
+0</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

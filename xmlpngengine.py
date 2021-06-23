@@ -106,7 +106,7 @@ def clean_up(*args):
     for img in args:
         img.close()
 
-def appendIconToIconGrid(icongrid_path:str, iconpath:str, savedir:str, iconsize=150) -> int:
+def appendIconToIconGrid(icongrid_path:str, iconpaths:list, savedir:str, iconsize=150) -> tuple:
     ''' 
         Adds the selected Icon into the icon grid. Returns a value based on if it was successful or not, as follows:
         0 : Successful addition!
@@ -115,66 +115,78 @@ def appendIconToIconGrid(icongrid_path:str, iconpath:str, savedir:str, iconsize=
         3 : An Error occured in finding the right row to insert (It is possible that the icon grid wasn't transparent)
         4 : Icon image was too small for the icon space (This is a warning not an error, as the app will center the image if this happens)
     '''
-    print("Icongrid from:{} \nIcon from:{}".format(icongrid_path, iconpath))
-    icongrid = Image.open(icongrid_path)
-    iconimg = Image.open(iconpath)
+    print("Icongrid from: {} \nIcons: {}".format(icongrid_path, len(iconpaths)))
+    retval = 0
+    problem_img = None
+    for iconpath in iconpaths:
+        icongrid = Image.open(icongrid_path)
+        iconimg = Image.open(iconpath)
+        new_index = None
 
-    # Icongrid manipulation code
-    lastrow_y = icongrid.getbbox()[-1] # lower bound of the icongrid is on the last row
-    if lastrow_y >= icongrid.height:
-        clean_up(icongrid, iconimg)
-        return 1
-    row_index = lastrow_y // iconsize
+        # Icongrid manipulation code
+        lastrow_y = icongrid.getbbox()[-1] # lower bound of the bbox is on the last row
+        if lastrow_y >= icongrid.height:
+            clean_up(icongrid, iconimg)
+            return 1, new_index, None # 1, None, None
+        row_index = lastrow_y // iconsize
 
-    last_row_img = icongrid.crop((0, row_index*iconsize, icongrid.width, row_index*iconsize + iconsize))
-    box = last_row_img.getbbox()
+        last_row_img = icongrid.crop((0, row_index*iconsize, icongrid.width, row_index*iconsize + iconsize))
+        box = last_row_img.getbbox()
+        last_row_img.close()
 
-    if box:
-        lastrow_x = box[2]
-        col_index = lastrow_x // iconsize
+        if box:
+            lastrow_x = box[2]
+            col_index = lastrow_x // iconsize
 
-        new_index = row_index*10 + col_index + 1
+            new_index = row_index*10 + col_index + 1
 
-        newrow_index = new_index // 10
-        newcol_index = new_index % 10
-        print("New pic to put at index={}: row={}, col={}".format(new_index, newrow_index, newcol_index))
-        imgy, imgx = newrow_index*iconsize, newcol_index*iconsize
-        print("Coords to put new pic: row={} col={}".format(imgy, imgx))
-        
-        print("Pasting new img.....")
-        new_icongrid = icongrid.copy()
-        # last ditch try catch block
-        try:
-            # icon size check
-            w, h = iconimg.size
-            if w > iconsize or h > iconsize:
-                clean_up(icongrid, iconimg)
-                return 2
-            if w != iconsize and h != iconsize:
-                print("Bad icon size....")
-                # we will try to center the smaller image into the grid space
-                dx = (iconsize//2) - (w//2)
-                dy = (iconsize//2) - (h//2)
-                imgx += dx
-                imgy += dy
-                new_icongrid.paste(iconimg, (imgx, imgy, imgx+w, imgy+h))
-                new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
-                clean_up(icongrid, iconimg)
-                return 4
-            new_icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
-            new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
-            print("Done!")
-        except:
-            print("Problem at try except block!")
-            return 1
+            newrow_index = new_index // 10
+            newcol_index = new_index % 10
+            print("New pic to put at index={}: row={}, col={}".format(new_index, newrow_index, newcol_index))
+            imgy, imgx = newrow_index*iconsize, newcol_index*iconsize
+            print("Coords to put new pic: row={} col={}".format(imgy, imgx))
+            
+            print("Pasting new img.....")
+            # icongrid = icongrid.copy()
+            # last ditch try catch block
+            try:
+                # icon size check
+                w, h = iconimg.size
+                if w > iconsize or h > iconsize:
+                    clean_up(icongrid, iconimg)
+                    problem_img = iconpath
+                    return 2, new_index, problem_img # 2, None, iconpath
+                if w != iconsize and h != iconsize:
+                    print("Bad icon size....")
+                    # we will try to center the smaller image into the grid space
+                    dx = (iconsize//2) - (w//2)
+                    dy = (iconsize//2) - (h//2)
+                    imgx += dx
+                    imgy += dy
+                    icongrid.paste(iconimg, (imgx, imgy, imgx+w, imgy+h))
+                    # icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
+                    icongrid.save(icongrid_path)
+                    clean_up(icongrid, iconimg)
+                    retval = 4
+                    problem_img = iconpath
+                    # return 4, new_index
+                icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
+                # new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
+                icongrid.save(icongrid_path)
+                print("Done!")
+            except:
+                print("Problem at try except block!")
+                problem_img = iconpath
+                return 1, new_index, problem_img # 1, None, iconpath
 
-    else:
-        print("Something's sus!")
-        return 3
+        else:
+            print("Something's sus!")
+            problem_img = iconpath
+            return 3, new_index, problem_img
 
-    icongrid.close()
-    iconimg.close()
-    return 0
+        iconimg.close()
+        icongrid.close()
+    return 0, new_index, problem_img
 
 if __name__ == '__main__':
     print("This program is just the engine! To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")
