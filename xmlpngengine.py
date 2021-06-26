@@ -123,8 +123,8 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
     for iconpath in iconpaths:
         icongrid = Image.open(icongrid_path)
         grid_w, grid_h = icongrid.size
-        # max_col = grid_w // iconsize
-        # max_row = grid_h // iconsize
+        max_col = grid_w // iconsize
+        max_row = grid_h // iconsize
         iconimg = Image.open(iconpath)
         new_index = None
 
@@ -142,6 +142,9 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
         if box:
             lastrow_x = box[2]
             col_index = lastrow_x // iconsize
+
+            if row_index >= max_row - 1 and col_index >= max_col - 1:
+                return 1, new_index, None
 
             new_index = row_index*10 + col_index + 1
 
@@ -174,10 +177,11 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
                     clean_up(icongrid, iconimg)
                     retval = 4
                     problem_img = iconpath
-                    # return 4, new_index
-                icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
-                # new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
-                icongrid.save(icongrid_path)
+                    return 4, new_index, problem_img
+                else:
+                    icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
+                    # new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
+                    icongrid.save(icongrid_path)
                 print("Done!")
             except:
                 print("Problem at try except block!")

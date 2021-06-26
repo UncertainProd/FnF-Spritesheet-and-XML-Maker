@@ -167,10 +167,6 @@ class MyApp(QWidget):
                     text="Your new spritesheet has been generated!\nCheck the folder you had selected.\nFile name: Result-icongrid.png. \nYour icon's indices is from {} to {}".format(newind - len(self.iconpaths) + 1, newind),
                     icon=QMessageBox.Information
                 )
-                icongrid_pixmap = QPixmap(self.icongrid_path)
-                self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-                self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-                self.icongrid_holder_label.setPixmap(icongrid_pixmap)
             elif stat == 4:
                 self.display_msg_box(
                     window_title="Warning!", 
@@ -183,6 +179,10 @@ class MyApp(QWidget):
                     text=errmsgs[stat - 1].format(problemimg),
                     icon=QMessageBox.Critical
                 )
+            icongrid_pixmap = QPixmap(self.icongrid_path)
+            self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.icongrid_holder_label.setPixmap(icongrid_pixmap)
             # else:
             #     print("Cancel pressed")
         else:
