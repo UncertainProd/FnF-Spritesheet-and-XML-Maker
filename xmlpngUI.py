@@ -1,10 +1,12 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QApplication, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 # import os
 import ntpath
+
+from PyQt5.uic.uiparser import QtCore
 import xmlpngengine
 
 class SpriteFrame(QWidget):
@@ -84,9 +86,22 @@ class MyApp(QWidget):
         self.myTabs.setCurrentIndex(0)
 
         self.setWindowIcon(QIcon("./image-assets/appicon.png"))
+        self.icongrid_zoom = 1
         self.pngUploadButton.clicked.connect(self.uploadIconGrid)
         self.icongridgenbutton.clicked.connect(self.getNewIconGrid)
         self.icon_upload_button.clicked.connect(self.appendIcon)
+
+        self.action_zoom_in = QAction(self.icongrid_holder_label)
+        self.icongrid_holder_label.addAction(self.action_zoom_in)
+        self.action_zoom_in.triggered.connect(self.zoomInPixmap)
+        self.action_zoom_in.setShortcut("Ctrl+i")
+
+        self.action_zoom_out = QAction(self.icongrid_holder_label)
+        self.icongrid_holder_label.addAction(self.action_zoom_out)
+        self.action_zoom_out.triggered.connect(self.zoomOutPixmap)
+        self.action_zoom_out.setShortcut("Ctrl+o")
+
+        self.zoomLabel.setText("Zoom: 100%")
 
         self.iconpaths:list = []
         self.icongrid_path:str = ""
@@ -135,6 +150,31 @@ class MyApp(QWidget):
                 text=errtxt,
                 icon=QMessageBox.Critical
             )
+    
+    def zoomInPixmap(self):
+        if self.icongrid_path and self.icongrid_zoom <= 5:
+            self.icongrid_zoom *= 1.1
+            icongrid_pixmap = QPixmap(self.icongrid_path)
+            w = icongrid_pixmap.width()
+            h = icongrid_pixmap.height()
+            icongrid_pixmap = icongrid_pixmap.scaled(int(w*self.icongrid_zoom), int(h*self.icongrid_zoom), 1)
+            self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.icongrid_holder_label.setPixmap(icongrid_pixmap)
+            self.zoomLabel.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
+
+
+    def zoomOutPixmap(self):
+        if self.icongrid_path and self.icongrid_zoom >= 0.125:
+            self.icongrid_zoom /= 1.1
+            icongrid_pixmap = QPixmap(self.icongrid_path)
+            w = icongrid_pixmap.width()
+            h = icongrid_pixmap.height()
+            icongrid_pixmap = icongrid_pixmap.scaled(int(w*self.icongrid_zoom), int(h*self.icongrid_zoom), 1)
+            self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.icongrid_holder_label.setPixmap(icongrid_pixmap)
+            self.zoomLabel.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
     
     def uploadIconGrid(self):
         print("Uploading icongrid...")

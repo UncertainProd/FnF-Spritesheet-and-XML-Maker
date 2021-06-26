@@ -82,7 +82,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="xml_from_frames_tab">
     <attribute name="title">
@@ -143,7 +143,7 @@
    </widget>
    <widget class="QWidget" name="from_spritesheet_tab">
     <attribute name="title">
-     <string>Add Icon to Icon-grid</string>
+     <string>Add Icons to Icon-grid</string>
     </attribute>
     <widget class="QScrollArea" name="Icongrid_holder_area">
      <property name="geometry">
@@ -270,7 +270,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Upload Icon</string>
+      <string>Upload Icons</string>
      </property>
     </widget>
     <widget class="QLabel" name="curr_icon_label">
