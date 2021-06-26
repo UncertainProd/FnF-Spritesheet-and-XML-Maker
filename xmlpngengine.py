@@ -1,4 +1,4 @@
-import os
+# import os
 import xml.etree.ElementTree as ET
 from PIL import Image
 
@@ -48,7 +48,7 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
 
     # XML Stuff
     root = ET.Element("TextureAtlas")
-    root.tail = os.linesep
+    root.tail = '\n' # os.linesep
     root.attrib['imagePath'] = character_name + ".png"
 
     final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
@@ -69,7 +69,7 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
         csy = sum(max_heights[:row])
         
         subtexture_element = ET.Element("SubTexture")
-        subtexture_element.tail = os.linesep
+        subtexture_element.tail = '\n' # os.linesep
         subtexture_element.attrib = {
             "name" : character_name + " " + newPoseNames[i],
             "x": f'{csx}',
@@ -92,13 +92,15 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
 
     # Saving png
     print(f"Saving final image....")
-    final_img.save(os.path.join(save_dir, character_name) + ".png")
+    # final_img.save(os.path.join(save_dir, character_name) + ".png")
+    final_img.save(save_dir + '\\' + character_name + ".png")
     final_img.close()
 
     # Saving XML
     print("Saving XML")
     xmltree = ET.ElementTree(root)
-    with open(os.path.join(save_dir, character_name) + ".xml", 'wb') as f:
+    # with open(os.path.join(save_dir, character_name) + ".xml", 'wb') as f:
+    with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
         xmltree.write(f, xml_declaration=True, encoding='utf-8')
     print("Done!")
 
@@ -106,7 +108,7 @@ def clean_up(*args):
     for img in args:
         img.close()
 
-def appendIconToIconGrid(icongrid_path:str, iconpaths:list, savedir:str, iconsize=150) -> tuple:
+def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tuple: # savedir:str,
     ''' 
         Adds the selected Icon into the icon grid. Returns a value based on if it was successful or not, as follows:
         0 : Successful addition!
@@ -120,6 +122,9 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, savedir:str, iconsiz
     problem_img = None
     for iconpath in iconpaths:
         icongrid = Image.open(icongrid_path)
+        grid_w, grid_h = icongrid.size
+        # max_col = grid_w // iconsize
+        # max_row = grid_h // iconsize
         iconimg = Image.open(iconpath)
         new_index = None
 

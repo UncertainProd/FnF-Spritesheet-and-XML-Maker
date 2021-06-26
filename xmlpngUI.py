@@ -3,7 +3,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
-import os
+# import os
 import ntpath
 import xmlpngengine
 
@@ -95,7 +95,7 @@ class MyApp(QWidget):
         imgpaths = QFileDialog.getOpenFileNames(
             caption="Select sprite frames", 
             filter="PNG Images (*.png)",
-            directory=os.getcwd()
+            # directory=os.getcwd()
         )[0]
         for pth in imgpaths:
             self.add_img(pth)
@@ -141,7 +141,7 @@ class MyApp(QWidget):
         self.icongrid_path = QFileDialog.getOpenFileName(
             caption="Select the Icon-grid", 
             filter="PNG Images (*.png)",
-            directory=os.getcwd()
+            # directory=os.getcwd()
         )[0]
         icongrid_pixmap = QPixmap(self.icongrid_path)
         self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
@@ -151,36 +151,40 @@ class MyApp(QWidget):
     def getNewIconGrid(self):
         if self.icongrid_path != '' and len(self.iconpaths) > 0:
             print("Valid!")
-            savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
-            if savedir != '':
-                stat, newind, problemimg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths, savedir)
-                print("[DEBUG] Function finished with status: ", stat)
-                errmsgs = [
-                    'Icon grid was too full to insert a new icon', 
-                    'Your character icon: {} is too big! Max size: 150 x 150',
-                    'Unable to find suitable location to insert your icon'
-                ]
+            # savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
+            # if savedir != '':
+            stat, newind, problemimg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths) #, savedir)
+            print("[DEBUG] Function finished with status: ", stat)
+            errmsgs = [
+                'Icon grid was too full to insert a new icon', 
+                'Your character icon: {} is too big! Max size: 150 x 150',
+                'Unable to find suitable location to insert your icon'
+            ]
 
-                if stat == 0:
-                    self.display_msg_box(
-                        window_title="Done!", 
-                        text="Your new spritesheet has been generated!\nCheck the folder you had selected.\nFile name: Result-icongrid.png. \nYour icon's index is {}".format(newind),
-                        icon=QMessageBox.Information
-                    )
-                elif stat == 4:
-                    self.display_msg_box(
-                        window_title="Warning!", 
-                        text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your spritesheet is generated but the icon has been re-adjusted. \nYour icon's index is {}".format(newind),
-                        icon=QMessageBox.Warning
-                    )
-                else:
-                    self.display_msg_box(
-                        window_title="Error!", 
-                        text=errmsgs[stat - 1].format(problemimg),
-                        icon=QMessageBox.Critical
-                    )
+            if stat == 0:
+                self.display_msg_box(
+                    window_title="Done!", 
+                    text="Your new spritesheet has been generated!\nCheck the folder you had selected.\nFile name: Result-icongrid.png. \nYour icon's indices is from {} to {}".format(newind - len(self.iconpaths) + 1, newind),
+                    icon=QMessageBox.Information
+                )
+                icongrid_pixmap = QPixmap(self.icongrid_path)
+                self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+                self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+                self.icongrid_holder_label.setPixmap(icongrid_pixmap)
+            elif stat == 4:
+                self.display_msg_box(
+                    window_title="Warning!", 
+                    text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your spritesheet is generated but the icon has been re-adjusted. \nYour icon's index is {}".format(newind),
+                    icon=QMessageBox.Warning
+                )
             else:
-                print("Cancel pressed")
+                self.display_msg_box(
+                    window_title="Error!", 
+                    text=errmsgs[stat - 1].format(problemimg),
+                    icon=QMessageBox.Critical
+                )
+            # else:
+            #     print("Cancel pressed")
         else:
             errtxt = "Please add an icon-grid image" if self.icongrid_path == '' else "Please add an icon"
             self.display_msg_box(
@@ -194,7 +198,7 @@ class MyApp(QWidget):
         self.iconpaths = QFileDialog.getOpenFileNames(
             caption="Select your character icon", 
             filter="PNG Images (*.png)",
-            directory=os.getcwd()
+            # directory=os.getcwd()
         )[0]
         print("Got icon: ", self.iconpaths)
         if len(self.iconpaths) > 0:
