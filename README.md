@@ -5,7 +5,7 @@ To download the application for windows instead of running it from source click 
 
 ##### Disclaimer: The execuatable on gamebanana only works on windows. Other operating system users should run this from source. Instructions at the bottom of this page.
 
-## How to use this tool:
+## How to generate spritesheet and XML files for your character:
 <img src="./docs/InitScreen.png" />
 The name of your character goes into the textbox at the top. This is necessary as the final xml and png files will be named accordingly.
 Eg: If you name you character <b>Pixel-GF</b> the files generated will be named <b>Pixel-GF.png</b> and <b>Pixel-GF.xml</b>
@@ -41,6 +41,24 @@ Add another case like so:<br />
 Keep in mind:
 <img src="./docs/character-name-pose-example.png" />
 <br />
+
+## How to add your character's icon into the icon-grid PNG using this tool:
+The latest version of this tool now comes with icon-grid support, so now you can add your character's icon(s) into the icon grid provided in the game files of FNF. Here's how to add your icons into the icon-grid ( Funkin\assets\preload\images\iconGrid.png )
+
+### Click on the tab named "Add Icons to Icon-grid"
+<img src="./docs/AddIcon_blank.png" />
+
+### Upload your iconGrid.png file into the application
+Click on the "Upload Icon-grid" button to upload your "iconGrid.png" file (Note the this application will OVERWRITE this iconGrid image, so keep some backups of the iconGrid.png file at hand, just in case).
+<img src="./docs/IconGrid_withGrid.png" />
+
+### Add your icon(s):
+Friday Night Funkin' healthbar icons MUST be 150x150 pixels in size (according to it's source code). So make sure your icon(s) are all 150x150 pixels. If it's smaller, the application will just center the image into the next available 150x150 square so it can still work sometimes. However, the app will give you an error if your icon is any bigger than 150x150 pixels. Once you have added your icon(s), the number of icons that will be added will be shown at the bottom of the window as shown here:
+<img src="./docs/IconGrid_after_adding_icon.png"/>
+
+### Generate your new icongrid
+Click the "Generate New Icon-grid" button and it will modify the iconGrid.png that was uploaded, adding your character icons to the grid, wherever it finds free space. In case the grid is full, it will show an error. But if it's successful, it will tell you the indices at which the icons were added. Now you have successfully generated your new iconGrid.png file.
+<!-- INSERT IMAGE SHOWING SUCCESS (AND WARNING AND FAILURE MESSAGEBOXES) -->
 
 ## Running from source:
 In order to run this from source, you will need <a href="https://www.python.org/downloads/release/python-390/">python v3.9</a> (minimum) and pip installed on your device (pip should come pre-installed with python). Install the dependencies first by opening the command line, navigating to this directory and typing ``` pip install -r requirements.txt ```. Once that is done type ``` python xmlpngUI.py ``` to run the application (Sometimes you need to type ``` python3 ``` instead of just ``` python ```). This is a required step for non-windows users!

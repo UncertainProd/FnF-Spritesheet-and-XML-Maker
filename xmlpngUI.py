@@ -204,13 +204,13 @@ class MyApp(QWidget):
             if stat == 0:
                 self.display_msg_box(
                     window_title="Done!", 
-                    text="Your new spritesheet has been generated!\nCheck the folder you had selected.\nFile name: Result-icongrid.png. \nYour icon's indices is from {} to {}".format(newind - len(self.iconpaths) + 1, newind),
+                    text="Your icon-grid has been generated!\nYour icon's indices is from {} to {}".format(newind - len(self.iconpaths) + 1, newind),
                     icon=QMessageBox.Information
                 )
             elif stat == 4:
                 self.display_msg_box(
                     window_title="Warning!", 
-                    text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your spritesheet is generated but the icon has been re-adjusted. \nYour icon's index is {}".format(newind),
+                    text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your icon-grid is generated but the icon has been re-adjusted. \nYour icon's index is {}".format(newind),
                     icon=QMessageBox.Warning
                 )
             else:
