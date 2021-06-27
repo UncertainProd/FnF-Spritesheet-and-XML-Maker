@@ -193,7 +193,7 @@ class MyApp(QWidget):
             print("Valid!")
             # savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
             # if savedir != '':
-            stat, newind, problemimg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths) #, savedir)
+            stat, newinds, problemimg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths) #, savedir)
             print("[DEBUG] Function finished with status: ", stat)
             errmsgs = [
                 'Icon grid was too full to insert a new icon', 
@@ -204,13 +204,13 @@ class MyApp(QWidget):
             if stat == 0:
                 self.display_msg_box(
                     window_title="Done!", 
-                    text="Your icon-grid has been generated!\nYour icon's indices is from {} to {}".format(newind - len(self.iconpaths) + 1, newind),
+                    text="Your icon-grid has been generated!\nYour icon's indices are {}".format(newinds),
                     icon=QMessageBox.Information
                 )
             elif stat == 4:
                 self.display_msg_box(
                     window_title="Warning!", 
-                    text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your icon-grid is generated but the icon has been re-adjusted. \nYour icon's index is {}".format(newind),
+                    text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your icon-grid is generated but the icon has been re-adjusted. \nYour icon's indices: {}".format(newinds),
                     icon=QMessageBox.Warning
                 )
             else:

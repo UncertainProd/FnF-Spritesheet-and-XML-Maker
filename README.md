@@ -57,7 +57,16 @@ Friday Night Funkin' healthbar icons MUST be 150x150 pixels in size (according t
 <img src="./docs/IconGrid_after_adding_icon.png"/>
 
 ### Generate your new icongrid
-Click the "Generate New Icon-grid" button and it will modify the iconGrid.png that was uploaded, adding your character icons to the grid, wherever it finds free space. In case the grid is full, it will show an error. But if it's successful, it will tell you the indices at which the icons were added. Now you have successfully generated your new iconGrid.png file.
+Click the "Generate New Icon-grid" button and it will modify the iconGrid.png that was uploaded, adding your character icons to the grid, wherever it finds free space. In case the grid is full, it will show an error. But if it's successful, it will tell you the indices at which the icons were added (which is needed in order to add the icons into the game). Now you have successfully generated your new iconGrid.png file.
+<img src="./docs/IconGrid_done_successful.png"/>
+<center>Dialog box when icons are added successfully</center>
+
+<img src="./docs/IconGrid_done_warning.png"/>
+<center>Dialog box when one of the icons are smaller than 150 x 150</center>
+
+<img src="./docs/IconGrid_done_icon_too_big.png"/>
+<center>Dialog box when one of the icons is bigger than 150 x 150</center>
+
 <!-- INSERT IMAGE SHOWING SUCCESS (AND WARNING AND FAILURE MESSAGEBOXES) -->
 
 ## Running from source:

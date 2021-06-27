@@ -120,6 +120,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
     print("Icongrid from: {} \nIcons: {}".format(icongrid_path, len(iconpaths)))
     retval = 0
     problem_img = None
+    indices = []
     for iconpath in iconpaths:
         icongrid = Image.open(icongrid_path)
         grid_w, grid_h = icongrid.size
@@ -177,25 +178,27 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
                     clean_up(icongrid, iconimg)
                     retval = 4
                     problem_img = iconpath
-                    return 4, new_index, problem_img
+                    indices.append(new_index)
+                    # return 4, new_index, problem_img
                 else:
                     icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
+                    indices.append(new_index)
                     # new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
                     icongrid.save(icongrid_path)
                 print("Done!")
             except:
                 print("Problem at try except block!")
                 problem_img = iconpath
-                return 1, new_index, problem_img # 1, None, iconpath
+                return 1, indices, problem_img # 1, [...], iconpath
 
         else:
             print("Something's sus!")
             problem_img = iconpath
-            return 3, new_index, problem_img
+            return 3, indices, problem_img
 
         iconimg.close()
         icongrid.close()
-    return 0, new_index, problem_img
+    return retval, indices, problem_img
 
 if __name__ == '__main__':
     print("This program is just the engine! To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")
