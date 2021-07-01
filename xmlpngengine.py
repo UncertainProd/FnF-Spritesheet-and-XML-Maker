@@ -26,16 +26,23 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
     # PNG stuff
     widths = []
     heights = []
+    exceptionmsg = None
     for impath in imgpaths:
-        im = Image.open(impath)
-        if not clip:
-            widths.append(im.width + 4) # 2 pixels padding on each side
-            heights.append(im.height + 4)
+        try:
+            im = Image.open(impath)
+        except Exception as e:
+            exceptionmsg = str(e)
+            print("Error: ", exceptionmsg)
+            return 1, exceptionmsg
         else:
-            box = im.getbbox()
-            widths.append(box[2] - box[0] + 4)
-            heights.append(box[3] - box[1] + 4)
-        im.close()
+            if not clip:
+                widths.append(im.width + 4) # 2 pixels padding on each side
+                heights.append(im.height + 4)
+            else:
+                box = im.getbbox()
+                widths.append(box[2] - box[0] + 4)
+                heights.append(box[3] - box[1] + 4)
+            im.close()
     row_width_sums = []
     for i in range(0, len(widths), 4):
         row_width_sums.append(sum(widths[i:i+4]))
@@ -58,51 +65,67 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
     newPoseNames = add_pose_numbers(pose_names)
     for i, imgpath in enumerate(imgpaths):
         print("Adding {} to final_image...".format(imgpath))
-        old_img = Image.open(imgpath)
-        new_img = pad_img(old_img, clip)
+        try:
+            old_img = Image.open(imgpath)
+        except Exception as e:
+            exceptionmsg = str(e)
+            return 1, exceptionmsg
+        else:
+            new_img = pad_img(old_img, clip)
 
-        row = i // num_cols
-        col = i % num_cols
+            row = i // num_cols
+            col = i % num_cols
 
-        if col == 0:
-            csx = 0
-        csy = sum(max_heights[:row])
-        
-        subtexture_element = ET.Element("SubTexture")
-        subtexture_element.tail = '\n' # os.linesep
-        subtexture_element.attrib = {
-            "name" : character_name + " " + newPoseNames[i],
-            "x": f'{csx}',
-            "y": f'{csy}',
-            "width": f'{new_img.width}',
-            "height": f'{new_img.height}',
-            "frameX": '0',
-            "frameY": '0',
-            "frameWidth": f'{new_img.width}',
-            "frameHeight": f'{new_img.height}',
-        }
-        root.append(subtexture_element)
+            if col == 0:
+                csx = 0
+            csy = sum(max_heights[:row])
+            
+            subtexture_element = ET.Element("SubTexture")
+            subtexture_element.tail = '\n' # os.linesep
+            subtexture_element.attrib = {
+                "name" : character_name + " " + newPoseNames[i],
+                "x": f'{csx}',
+                "y": f'{csy}',
+                "width": f'{new_img.width}',
+                "height": f'{new_img.height}',
+                "frameX": '0',
+                "frameY": '0',
+                "frameWidth": f'{new_img.width}',
+                "frameHeight": f'{new_img.height}',
+            }
+            root.append(subtexture_element)
 
-        final_img.paste(new_img, (csx, csy))
-        
-        csx += new_img.width
-        
-        old_img.close()
-        new_img.close()
+            final_img.paste(new_img, (csx, csy))
+            
+            csx += new_img.width
+            
+            old_img.close()
+            new_img.close()
 
     # Saving png
     print(f"Saving final image....")
     # final_img.save(os.path.join(save_dir, character_name) + ".png")
-    final_img.save(save_dir + '\\' + character_name + ".png")
-    final_img.close()
+    try:
+        final_img.save(save_dir + '\\' + character_name + ".png")
+    except Exception as e:
+        exceptionmsg = str(e)
+        return 1, exceptionmsg
+    else:
+        final_img.close()
 
     # Saving XML
     print("Saving XML")
     xmltree = ET.ElementTree(root)
     # with open(os.path.join(save_dir, character_name) + ".xml", 'wb') as f:
-    with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
-        xmltree.write(f, xml_declaration=True, encoding='utf-8')
-    print("Done!")
+    try:
+        with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
+            xmltree.write(f, xml_declaration=True, encoding='utf-8')
+        print("Done!")
+    except Exception as e:
+        exceptionmsg = str(e)
+        return 1, exceptionmsg
+    
+    return 0, None
 
 def clean_up(*args):
     for img in args:
@@ -121,6 +144,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
     retval = 0
     problem_img = None
     indices = []
+    exception_msg = None
     for iconpath in iconpaths:
         icongrid = Image.open(icongrid_path)
         grid_w, grid_h = icongrid.size
@@ -133,7 +157,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
         lastrow_y = icongrid.getbbox()[-1] # lower bound of the bbox is on the last row
         if lastrow_y >= icongrid.height:
             clean_up(icongrid, iconimg)
-            return 1, new_index, None # 1, None, None
+            return 1, new_index, None, exception_msg # 1, None, None, None
         row_index = lastrow_y // iconsize
 
         last_row_img = icongrid.crop((0, row_index*iconsize, icongrid.width, row_index*iconsize + iconsize))
@@ -145,7 +169,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
             col_index = lastrow_x // iconsize
 
             if row_index >= max_row - 1 and col_index >= max_col - 1:
-                return 1, new_index, None
+                return 1, new_index, None, exception_msg
 
             new_index = row_index*10 + col_index + 1
 
@@ -164,7 +188,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
                 if w > iconsize or h > iconsize:
                     clean_up(icongrid, iconimg)
                     problem_img = iconpath
-                    return 2, new_index, problem_img # 2, None, iconpath
+                    return 2, new_index, problem_img, exception_msg # 2, None, iconpath
                 if w != iconsize and h != iconsize:
                     print("Bad icon size....")
                     # we will try to center the smaller image into the grid space
@@ -186,19 +210,20 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
                     # new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
                     icongrid.save(icongrid_path)
                 print("Done!")
-            except:
+            except Exception as e:
                 print("Problem at try except block!")
                 problem_img = iconpath
-                return 1, indices, problem_img # 1, [...], iconpath
+                exception_msg - str(e)
+                return 1, indices, problem_img, exception_msg # 1, [...], iconpath
 
         else:
             print("Something's sus!")
             problem_img = iconpath
-            return 3, indices, problem_img
+            return 3, indices, problem_img, exception_msg
 
         iconimg.close()
         icongrid.close()
-    return retval, indices, problem_img
+    return retval, indices, problem_img, exception_msg
 
 if __name__ == '__main__':
     print("This program is just the engine! To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")

@@ -137,12 +137,19 @@ class MyApp(QWidget):
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
             if savedir != '':
-                xmlpngengine.make_png_xml([lab.imgpath for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
-                self.display_msg_box(
-                    window_title="Done!", 
-                    text="Your files have been generated!\nCheck the folder you had selected",
-                    icon=QMessageBox.Information
-                )
+                statuscode, errmsg = xmlpngengine.make_png_xml([lab.imgpath for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
+                if errmsg is None:
+                    self.display_msg_box(
+                        window_title="Done!", 
+                        text="Your files have been generated!\nCheck the folder you had selected",
+                        icon=QMessageBox.Information
+                    )
+                else:
+                    self.display_msg_box(
+                        window_title="Error!",
+                        text=("Some error occured! Error message: " + errmsg),
+                        icon=QMessageBox.Critical
+                    )
         else:
             errtxt = "Please enter some frames" if self.num_labels <= 0 else "Please enter the name of your character"
             self.display_msg_box(
@@ -193,13 +200,20 @@ class MyApp(QWidget):
             print("Valid!")
             # savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
             # if savedir != '':
-            stat, newinds, problemimg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths) #, savedir)
+            stat, newinds, problemimg, exception_msg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths) #, savedir)
             print("[DEBUG] Function finished with status: ", stat)
             errmsgs = [
                 'Icon grid was too full to insert a new icon', 
                 'Your character icon: {} is too big! Max size: 150 x 150',
                 'Unable to find suitable location to insert your icon'
             ]
+
+            if exception_msg is not None:
+                self.display_msg_box(
+                    window_title="An Error occured", 
+                    text=("An Exception (Error) oeccured somewhere\nError message:"+exception_msg),
+                    icon=QMessageBox.Critical
+                )
 
             if stat == 0:
                 self.display_msg_box(
