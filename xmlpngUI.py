@@ -64,7 +64,7 @@ class MyApp(QWidget):
 
         uic.loadUi('XmlPngUIFile.ui', self)
         # self.setFixedSize(834, 520)
-        self.setFixedSize(834, 545)
+        # self.setFixedSize(834, 545)
         self.xml_generate_button.clicked.connect(self.generate_xml)
         self.setWindowTitle("XML Generator")
         self.sprite_frames.setWidgetResizable(True)

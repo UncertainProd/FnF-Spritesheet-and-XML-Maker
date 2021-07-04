@@ -6,293 +6,313 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>834</width>
-    <height>545</height>
+    <width>912</width>
+    <height>690</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>0</y>
-     <width>711</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>16</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Spritesheet XML Generator for Friday Night Funkin'</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="characterName">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>40</y>
-     <width>131</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Character Name:</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="character_name_textbox">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>40</y>
-     <width>371</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="placeholderText">
-    <string/>
-   </property>
-  </widget>
-  <widget class="QTabWidget" name="myTabs">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>80</y>
-     <width>831</width>
-     <height>461</height>
-    </rect>
-   </property>
-   <property name="currentIndex">
-    <number>0</number>
-   </property>
-   <widget class="QWidget" name="xml_from_frames_tab">
-    <attribute name="title">
-     <string>XML from Frames</string>
-    </attribute>
-    <widget class="QScrollArea" name="sprite_frames">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>821</width>
-       <height>341</height>
-      </rect>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,10">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>16</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
+     <property name="text">
+      <string>Spritesheet XML Generator for Friday Night Funkin'</string>
      </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>819</width>
-        <height>339</height>
-       </rect>
-      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="characterName">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Character Name:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="character_name_textbox">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="myTabs">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="xml_from_frames_tab">
+      <attribute name="title">
+       <string>XML from Frames</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QFrame" name="frame_2">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,1">
+          <item>
+           <widget class="QScrollArea" name="sprite_frames">
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>836</width>
+               <height>429</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_4">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
+             <property name="spacing">
+              <number>11</number>
+             </property>
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
+             <property name="topMargin">
+              <number>11</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="border_clip_checkbox">
+               <property name="text">
+                <string>Clip to bounding box</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="xml_generate_button">
+               <property name="statusTip">
+                <string>Generates XML File</string>
+               </property>
+               <property name="text">
+                <string>Generate XML</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
-    </widget>
-    <widget class="QCheckBox" name="border_clip_checkbox">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>370</y>
-       <width>151</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Clip to bounding box</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="xml_generate_button">
-     <property name="geometry">
-      <rect>
-       <x>650</x>
-       <y>360</y>
-       <width>171</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="statusTip">
-      <string>Generates XML File</string>
-     </property>
-     <property name="text">
-      <string>Generate XML</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="from_spritesheet_tab">
-    <attribute name="title">
-     <string>Add Icons to Icon-grid</string>
-    </attribute>
-    <widget class="QScrollArea" name="Icongrid_holder_area">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>831</width>
-       <height>341</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>831</width>
-       <height>341</height>
-      </size>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAsNeeded</enum>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents_2">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>831</width>
-        <height>341</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>831</width>
-        <height>341</height>
-       </size>
-      </property>
-      <widget class="QLabel" name="icongrid_holder_label">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>811</width>
-         <height>341</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </widget>
-    </widget>
-    <widget class="QPushButton" name="icongridgenbutton">
-     <property name="geometry">
-      <rect>
-       <x>650</x>
-       <y>360</y>
-       <width>171</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Generate New Icon-grid</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pngUploadButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>360</y>
-       <width>101</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Upload Icon-grid</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="tipLabel">
-     <property name="geometry">
-      <rect>
-       <x>330</x>
-       <y>360</y>
-       <width>321</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Tip: Use ctrl+i and ctrl+o to zoom in or out respectively</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="zoomLabel">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>390</y>
-       <width>151</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Zoom:</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="icon_upload_button">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>360</y>
-       <width>93</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Upload Icons</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="curr_icon_label">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>360</y>
-       <width>111</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Number of
+     <widget class="QWidget" name="from_spritesheet_tab">
+      <attribute name="title">
+       <string>Add Icons to Icon-grid</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0">
+       <item>
+        <widget class="QFrame" name="frame_3">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0">
+          <item>
+           <widget class="QScrollArea" name="Icongrid_holder_area">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>831</width>
+              <height>341</height>
+             </size>
+            </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarAsNeeded</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents_2">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>831</width>
+               <height>341</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>831</width>
+               <height>341</height>
+              </size>
+             </property>
+             <widget class="QLabel" name="icongrid_holder_label">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>811</width>
+                <height>341</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_5">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QPushButton" name="pngUploadButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Upload Icon-grid</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="icon_upload_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Upload Icons</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="curr_icon_label">
+               <property name="text">
+                <string>Number of
 icons selected:
 0</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="tipLabel">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Tip: Use ctrl+i and ctrl+o to zoom in or out respectively</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="zoomLabel">
+               <property name="text">
+                <string>Zoom:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="icongridgenbutton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Generate New Icon-grid</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
-   </widget>
-  </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
