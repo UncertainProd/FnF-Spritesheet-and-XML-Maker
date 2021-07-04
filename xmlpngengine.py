@@ -218,7 +218,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
             except Exception as e:
                 print("Problem at try except block!")
                 problem_img = iconpath
-                exception_msg - str(e)
+                exception_msg = str(e)
                 return 1, indices, problem_img, exception_msg # 1, [...], iconpath
 
         else:
