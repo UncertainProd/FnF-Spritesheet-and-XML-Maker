@@ -103,8 +103,8 @@ class MyApp(QWidget):
 
         self.zoomLabel.setText("Zoom: 100%")
 
-        self.iconpaths:list = []
-        self.icongrid_path:str = ""
+        self.iconpaths = []
+        self.icongrid_path = ""
     
     def open_file_dialog(self):
         imgpaths = QFileDialog.getOpenFileNames(
@@ -130,7 +130,7 @@ class MyApp(QWidget):
         self.layout.addWidget(self.add_img_button, self.num_labels // 4, self.num_labels % 4, Qt.AlignmentFlag(0x1|0x20))
     
     def generate_xml(self):
-        charname:str = self.character_name_textbox.text()
+        charname = self.character_name_textbox.text()
         charname = charname.strip()
         clip = self.border_clip_checkbox.checkState()
         if self.num_labels > 0 and charname != '':

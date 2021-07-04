@@ -13,7 +13,7 @@ def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     result.paste(img, (left, top))
     return result
 
-def add_pose_numbers(pose_arr:list[str]):
+def add_pose_numbers(pose_arr):
     unique_poses = list(set(pose_arr))
     pose_counts = dict([ (ele, 0) for ele in unique_poses ])
     new_pose_arr = list(pose_arr)
@@ -22,7 +22,7 @@ def add_pose_numbers(pose_arr:list[str]):
         new_pose_arr[i] = new_pose_arr[i] + str(pose_counts[new_pose_arr[i]] - 1).zfill(4)
     return new_pose_arr
 
-def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, character_name:str="Result", clip=False):
+def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=False):
     try:
         # PNG stuff
         widths = []
@@ -136,7 +136,7 @@ def clean_up(*args):
     for img in args:
         img.close()
 
-def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tuple: # savedir:str,
+def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150):
     ''' 
         Adds the selected Icon into the icon grid. Returns a value based on if it was successful or not, as follows:
         0 : Successful addition!
@@ -145,7 +145,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
         3 : An Error occured in finding the right row to insert (It is possible that the icon grid wasn't transparent)
         4 : Icon image was too small for the icon space (This is a warning not an error, as the app will center the image if this happens)
     '''
-    print("Icongrid from: {} \nIcons: {}".format(icongrid_path, len(iconpaths)))
+    print("Icongrid from: {} \nIcons:  {}".format(icongrid_path, len(iconpaths)))
     retval = 0
     problem_img = None
     indices = []
@@ -160,6 +160,11 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
 
         # Icongrid manipulation code
         lastrow_y = icongrid.getbbox()[-1] # lower bound of the bbox is on the last row
+        dat = list(icongrid.getdata())
+        lastrow_data = dat[-icongrid.width:len(dat)]
+        secondlastrow_data = dat[-2*icongrid.width:-icongrid.width]
+        print(f"Last row: {set(lastrow_data)}, Second last row: {set(secondlastrow_data)}")
+        print(f"lastrow_y: {lastrow_y}, Image height: {icongrid.height}")
         if lastrow_y >= icongrid.height:
             clean_up(icongrid, iconimg)
             return 1, new_index, None, exception_msg # 1, None, None, None
@@ -174,6 +179,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
             col_index = lastrow_x // iconsize
 
             if row_index >= max_row - 1 and col_index >= max_col - 1:
+                print(f"row_index: {row_index}, col_index: {col_index}\nmax_row: {max_row}, max_col: {max_col}")
                 return 1, new_index, None, exception_msg
 
             new_index = row_index*10 + col_index + 1
@@ -218,7 +224,8 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
             except Exception as e:
                 print("Problem at try except block!")
                 problem_img = iconpath
-                exception_msg - str(e)
+                exception_msg = str(e)
+                print(f"[ERROR] {exception_msg}")
                 return 1, indices, problem_img, exception_msg # 1, [...], iconpath
 
         else:
