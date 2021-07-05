@@ -15,7 +15,7 @@ Leaving this box blank will cause an error to show up.
 Click the button named "Add Frame Image" to add each pose as frame in the spritesheet, as shown below:
 <img src="./docs/added-sprites-new.png" />
 
-Each "frame" of your spritesheet has 2 buttons on either side:
+Each "frame" of your spritesheet has 2 buttons on either side:<br />
 <img src="./docs/frame-buttons-new.png" /><br/>
 Use the "Pose Names" button to name each pose (Eg: 'gfPixel sing down' or 'gfPixel idle') and to delete any individual frame click the "Delete Frame" button. Pose names can repeat if needed (Eg: You can name 2 frames 'gfPixel sing up' and it'll be taken care of in the xml)
 
