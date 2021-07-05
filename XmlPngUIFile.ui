@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>958</width>
-    <height>690</height>
+    <width>954</width>
+    <height>726</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,7 +73,7 @@
    <item>
     <widget class="QTabWidget" name="myTabs">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="xml_from_frames_tab">
       <attribute name="title">
@@ -99,8 +99,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>882</width>
-               <height>429</height>
+               <width>878</width>
+               <height>449</height>
               </rect>
              </property>
             </widget>
@@ -133,6 +133,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="xml_generate_button">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>40</height>
+                </size>
+               </property>
                <property name="statusTip">
                 <string>Generates XML File</string>
                </property>
@@ -228,36 +234,60 @@
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0,1">
              <item>
-              <widget class="QPushButton" name="pngUploadButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+              <widget class="QFrame" name="frame_6">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
                </property>
-               <property name="font">
-                <font>
-                 <pointsize>8</pointsize>
-                </font>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
                </property>
-               <property name="text">
-                <string>Upload Icon-grid</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="icon_upload_button">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Upload Icons</string>
-               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <item>
+                 <widget class="QPushButton" name="pngUploadButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Upload Icon-grid</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="icon_upload_button">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Upload Icons</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
              <item>
@@ -293,16 +323,35 @@ icons selected:
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="icongridgenbutton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+              <widget class="QFrame" name="frame_7">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
                </property>
-               <property name="text">
-                <string>Generate New Icon-grid</string>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
                </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <item>
+                 <widget class="QPushButton" name="icongridgenbutton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Generate New
+Icon-grid</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
             </layout>
