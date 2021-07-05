@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
+    <width>958</width>
     <height>690</height>
    </rect>
   </property>
@@ -25,6 +25,9 @@
      </property>
      <property name="text">
       <string>Spritesheet XML Generator for Friday Night Funkin'</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
@@ -96,7 +99,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>836</width>
+               <width>882</width>
                <height>429</height>
               </rect>
              </property>
