@@ -18,7 +18,7 @@ class SpriteFrame(QWidget):
         self.myframe = QFrame(self)
 
         self.img_label = QLabel(self.myframe)
-        self.img_label.setToolTip(self.get_tooltip_string())
+        self.img_label.setToolTip(self.get_tooltip_string(parent))
         self.img_label.setPixmap(self.image_pixmap.scaled(128, 128))
 
         self.setFixedSize(QSize(130, 130))
@@ -46,6 +46,22 @@ class SpriteFrame(QWidget):
         # self.posename_label = QLabel(self.myframe)
         # self.posename_label.setText("Pose: "+self.pose_name)
         # self.posename_label.move(2, 100)
+        self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
+    
+    # overriding the default mousePressEvent
+    def mousePressEvent(self, event):
+        prevstate = self.select_checkbox.checkState()
+        print("prevstate:", prevstate)
+        newstate = 0 if prevstate != 0 else 1
+        print("newstate:", newstate)
+        self.select_checkbox.setChecked(newstate)
+    
+    def enterEvent(self, event):
+        # print("Entered", self.pose_name)
+        self.myframe.setStyleSheet("QFrame{ border-style:solid; border-color:#FFC9DEF5; border-width:4px }")
+    
+    def leaveEvent(self, event):
+        # print("Left", self.pose_name)
         self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
     
     def remove_self(self, parent):
@@ -76,8 +92,10 @@ class SpriteFrame(QWidget):
         else:
             parent.selected_labels.append(self)
     
-    def get_tooltip_string(self):
-        return f"Image: {ntpath.basename(self.imgpath)}\nCurrent Pose: {self.pose_name}"
+    def get_tooltip_string(self, parent):
+        charname:str = parent.character_name_textbox.text()
+        charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
+        return f"Image: {ntpath.basename(self.imgpath)}\nCurrent Pose: {self.pose_name}\nWill appear in XML as:\n\t<SubTexture name=\"{charname} {self.pose_name}####\" (...) >\n\t# = digit from 0-9"
 
 
 class MyApp(QWidget):
@@ -130,6 +148,11 @@ class MyApp(QWidget):
         self.icongrid_path:str = ""
 
         self.set_animation_button.clicked.connect(self.setAnimationNames)
+        self.character_name_textbox.textChanged.connect(self.onCharacterNameChange)
+    
+    def onCharacterNameChange(self):
+        for label in self.labels:
+            label.img_label.setToolTip(label.get_tooltip_string(self))
     
     def open_file_dialog(self):
         imgpaths = QFileDialog.getOpenFileNames(
@@ -296,7 +319,7 @@ class MyApp(QWidget):
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:
                     label.pose_name = text
-                    label.img_label.setToolTip(label.get_tooltip_string())
+                    label.img_label.setToolTip(label.get_tooltip_string(self))
                     # label.posename_label.setText("Pose: "+label.pose_name)
                     # label.posename_label.adjustSize()
                 
