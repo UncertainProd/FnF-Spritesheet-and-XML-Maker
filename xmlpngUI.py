@@ -3,10 +3,8 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
-# import os
 import ntpath
 
-from PyQt5.uic.uiparser import QtCore
 import xmlpngengine
 
 class SpriteFrame(QWidget):
@@ -31,21 +29,10 @@ class SpriteFrame(QWidget):
         self.remove_btn.setToolTip("Delete Frame")
         self.remove_btn.clicked.connect(lambda: self.remove_self(parent))
 
-        # self.info_btn = QPushButton(self.myframe)
-        # self.info_btn.move(0, 90)
-        # self.info_btn.setIcon(QIcon('./image-assets/set-pose-icon.svg'))
-        # self.info_btn.setIconSize(QSize(35, 35))
-        # self.info_btn.setFixedSize(40, 40)
-        # self.info_btn.setToolTip("Change Pose Name (Animation Prefix)")
-        # self.info_btn.clicked.connect(self.display_frame_info)
-
         self.select_checkbox = QCheckBox(self.myframe)
         self.select_checkbox.move(5, 5)
         self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(parent))
 
-        # self.posename_label = QLabel(self.myframe)
-        # self.posename_label.setText("Pose: "+self.pose_name)
-        # self.posename_label.move(2, 100)
         self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
     
     # overriding the default mousePressEvent
@@ -54,12 +41,12 @@ class SpriteFrame(QWidget):
         newstate = 0 if prevstate != 0 else 1
         self.select_checkbox.setChecked(newstate)
     
+    # overriding the default enterEvent
     def enterEvent(self, event):
-        # print("Entered", self.pose_name)
         self.myframe.setStyleSheet("QFrame{ border-style:solid; border-color:#FFC9DEF5; border-width:4px }")
     
+    # overriding the default leaveEvent
     def leaveEvent(self, event):
-        # print("Left", self.pose_name)
         self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
     
     def remove_self(self, parent):
@@ -73,15 +60,6 @@ class SpriteFrame(QWidget):
         print("Deleting image, count: ", parent.num_labels, "Len of labels", len(parent.labels))
         if len(parent.labels) == 0:
             parent.set_animation_button.setDisabled(True)
-    
-    # def display_frame_info(self):
-    #     print(self.imgpath)
-    #     text, okPressed = QInputDialog.getText(None, "Change Animation (Pose) Prefix Name", "Current Animation (Pose) prefix:"+(" "*50), QLineEdit.Normal, self.pose_name) # very hack-y soln but it works!
-    #     if okPressed and text != '':
-    #         print("new pose prefix = ", text)
-    #         self.pose_name = text
-    #     else:
-    #         print("Cancel pressed!")
     
     def add_to_selected_arr(self, parent):
         if self.select_checkbox.checkState() == 0:
@@ -155,7 +133,6 @@ class MyApp(QWidget):
         imgpaths = QFileDialog.getOpenFileNames(
             caption="Select sprite frames", 
             filter="PNG Images (*.png)",
-            # directory=os.getcwd()
         )[0]
         for pth in imgpaths:
             self.add_img(pth)
@@ -235,7 +212,6 @@ class MyApp(QWidget):
         self.icongrid_path = QFileDialog.getOpenFileName(
             caption="Select the Icon-grid", 
             filter="PNG Images (*.png)",
-            # directory=os.getcwd()
         )[0]
         icongrid_pixmap = QPixmap(self.icongrid_path)
         self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
@@ -284,8 +260,6 @@ class MyApp(QWidget):
             self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.icongrid_holder_label.setPixmap(icongrid_pixmap)
-            # else:
-            #     print("Cancel pressed")
         else:
             errtxt = "Please add an icon-grid image" if self.icongrid_path == '' else "Please add an icon"
             self.display_msg_box(
@@ -299,12 +273,10 @@ class MyApp(QWidget):
         self.iconpaths = QFileDialog.getOpenFileNames(
             caption="Select your character icon", 
             filter="PNG Images (*.png)",
-            # directory=os.getcwd()
         )[0]
         print("Got icon: ", self.iconpaths)
         if len(self.iconpaths) > 0:
             print("Valid selected")
-            # self.curr_icon_label.setText("Current Icon:\n{}".format(self.iconpaths.split('/')[-1]))
             self.curr_icon_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
     
     def setAnimationNames(self):
@@ -317,8 +289,6 @@ class MyApp(QWidget):
                 for label in self.selected_labels:
                     label.pose_name = text
                     label.img_label.setToolTip(label.get_tooltip_string(self))
-                    # label.posename_label.setText("Pose: "+label.pose_name)
-                    # label.posename_label.adjustSize()
                 
                 for label in list(self.selected_labels):
                     label.select_checkbox.setChecked(False)
