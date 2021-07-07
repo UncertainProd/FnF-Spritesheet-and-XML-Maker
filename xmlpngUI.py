@@ -51,9 +51,7 @@ class SpriteFrame(QWidget):
     # overriding the default mousePressEvent
     def mousePressEvent(self, event):
         prevstate = self.select_checkbox.checkState()
-        print("prevstate:", prevstate)
         newstate = 0 if prevstate != 0 else 1
-        print("newstate:", newstate)
         self.select_checkbox.setChecked(newstate)
     
     def enterEvent(self, event):
@@ -76,17 +74,16 @@ class SpriteFrame(QWidget):
         if len(parent.labels) == 0:
             parent.set_animation_button.setDisabled(True)
     
-    def display_frame_info(self):
-        print(self.imgpath)
-        text, okPressed = QInputDialog.getText(None, "Change Animation (Pose) Prefix Name", "Current Animation (Pose) prefix:"+(" "*50), QLineEdit.Normal, self.pose_name) # very hack-y soln but it works!
-        if okPressed and text != '':
-            print("new pose prefix = ", text)
-            self.pose_name = text
-        else:
-            print("Cancel pressed!")
+    # def display_frame_info(self):
+    #     print(self.imgpath)
+    #     text, okPressed = QInputDialog.getText(None, "Change Animation (Pose) Prefix Name", "Current Animation (Pose) prefix:"+(" "*50), QLineEdit.Normal, self.pose_name) # very hack-y soln but it works!
+    #     if okPressed and text != '':
+    #         print("new pose prefix = ", text)
+    #         self.pose_name = text
+    #     else:
+    #         print("Cancel pressed!")
     
     def add_to_selected_arr(self, parent):
-        print("Changing state:", self.pose_name)
         if self.select_checkbox.checkState() == 0:
             parent.selected_labels.remove(self)
         else:
