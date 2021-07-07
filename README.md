@@ -15,9 +15,9 @@ Leaving this box blank will cause an error to show up.
 Click the button named "Add Frame Image" to add each pose as frame in the spritesheet, as shown below:
 <img src="./docs/added-sprites-new.png" />
 
-Each "frame" of your spritesheet has 2 buttons on either side:<br />
+Each "frame" of your spritesheet has a button (to delete that frame) and a checkbox (to change it's animation name):<br />
 <img src="./docs/frame-buttons-new.png" /><br/>
-Use the "Pose Names" button to name each pose (Eg: 'gfPixel sing down' or 'gfPixel idle') and to delete any individual frame click the "Delete Frame" button. Pose names can repeat if needed (Eg: You can name 2 frames 'gfPixel sing up' and it'll be taken care of in the xml)
+Use the "Set Animation (Pose) Name" button to name each pose that has been selected (has its checkbox checked). Animation names refer to names like: 'sing down' or 'idle'. To delete any individual frame click the "Delete Frame" button. Pose names can repeat if needed (Eg: You can name 2 or moreframes 'sing left' and it'll be taken care of in the xml)
 
 ### Clip to bounding box
 If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files.<br/>
@@ -25,7 +25,7 @@ If your induvidual frames have extra whitespace in them and you want them all cr
 On left is how the image will be considered if this checkbox is left unchecked. On the right is how it'll be considered if it is checked. <small>(Side note: Most of the time you won't really have to use this feature, but it is provided just in case)</small>
 
 ### Generating the final XML and PNG files
-When you're done adding all the frames and giving them pose names, it's time to generate the final PNG and XML files!
+When you're done adding all the frames and giving them animation names, it's time to generate the final PNG and XML files!
 To do so, just click the "Generate XML" button. Select the location you want the files saved and the xml and png files will be generated.<br />
 <img src="./docs/final-files-new.png" width="500px" />
 
@@ -38,7 +38,8 @@ Now that you have the .xml and the .png files you can follow the instructions as
 Add another case like so:<br />
 <img src="./docs/addYourOwnCharacter-char-hx.png"/>
 <br/>
-Keep in mind:
+
+#### Keep in mind:
 <img src="./docs/character-name-pose-example-new.png" />
 <br />
 
