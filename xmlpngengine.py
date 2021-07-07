@@ -202,6 +202,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
                     dy = (iconsize//2) - (h//2)
                     imgx += dx
                     imgy += dy
+                    iconimg = iconimg.convert('RGBA')
                     icongrid.paste(iconimg, (imgx, imgy, imgx+w, imgy+h))
                     # icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
                     icongrid.save(icongrid_path)
@@ -211,6 +212,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
                     indices.append(new_index)
                     # return 4, new_index, problem_img
                 else:
+                    iconimg = iconimg.convert('RGBA')
                     icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
                     indices.append(new_index)
                     # new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
