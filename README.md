@@ -17,7 +17,10 @@ Click the button named "Add Frame Image" to add each pose as frame in the sprite
 
 Each "frame" of your spritesheet has a button (to delete that frame) and a checkbox (to change it's animation name):<br />
 <img src="./docs/frame-buttons-new.png" /><br/>
-Use the "Set Animation (Pose) Name" button to name each pose that has been selected (has its checkbox checked). Animation names refer to names like: 'sing down' or 'idle'. To delete any individual frame click the "Delete Frame" button. Pose names can repeat if needed (Eg: You can name 2 or moreframes 'sing left' and it'll be taken care of in the xml)
+Use the "Set Animation (Pose) Name" button to name each pose that has been selected (has its checkbox checked). Animation names refer to names like: 'sing down' or 'idle'. To delete any individual frame click the "Delete Frame" button. Pose names can repeat if needed (Eg: You can name 2 or moreframes 'sing left' and it'll be taken care of in the xml). 
+
+#### To find out current animation (pose) name of any frame, simply hover the mouse over it and it'll display information about that particular frame. <br />
+<img src="./docs/on-mouse-hover.png"> <br />
 
 ### Clip to bounding box
 If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files.<br/>
