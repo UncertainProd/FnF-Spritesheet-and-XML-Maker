@@ -1,12 +1,10 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
-# import os
 import ntpath
 
-from PyQt5.uic.uiparser import QtCore
 import xmlpngengine
 
 class SpriteFrame(QWidget):
@@ -15,14 +13,15 @@ class SpriteFrame(QWidget):
         self.imgpath = imgpath
         self.image_pixmap = QPixmap(imgpath)
         self.pose_name = "idle"
+        self.myframe = QFrame(self)
 
-        self.img_label = QLabel(self)
-        self.img_label.setToolTip(ntpath.basename(imgpath))
-        self.img_label.setPixmap(self.image_pixmap.scaled(130, 130))
+        self.img_label = QLabel(self.myframe)
+        self.img_label.setToolTip(self.get_tooltip_string(parent))
+        self.img_label.setPixmap(self.image_pixmap.scaled(128, 128))
 
         self.setFixedSize(QSize(130, 130))
 
-        self.remove_btn = QPushButton(self)
+        self.remove_btn = QPushButton(self.myframe)
         self.remove_btn.move(90, 90)
         self.remove_btn.setIcon(QIcon('./image-assets/remove-frame-icon.svg'))
         self.remove_btn.setIconSize(QSize(40, 40))
@@ -30,13 +29,25 @@ class SpriteFrame(QWidget):
         self.remove_btn.setToolTip("Delete Frame")
         self.remove_btn.clicked.connect(lambda: self.remove_self(parent))
 
-        self.info_btn = QPushButton(self)
-        self.info_btn.move(0, 90)
-        self.info_btn.setIcon(QIcon('./image-assets/set-pose-icon.svg'))
-        self.info_btn.setIconSize(QSize(35, 35))
-        self.info_btn.setFixedSize(40, 40)
-        self.info_btn.setToolTip("Change Pose Name (Animation Prefix)")
-        self.info_btn.clicked.connect(self.display_frame_info)
+        self.select_checkbox = QCheckBox(self.myframe)
+        self.select_checkbox.move(5, 5)
+        self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(parent))
+
+        self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
+    
+    # overriding the default mousePressEvent
+    def mousePressEvent(self, event):
+        prevstate = self.select_checkbox.checkState()
+        newstate = 0 if prevstate != 0 else 1
+        self.select_checkbox.setChecked(newstate)
+    
+    # overriding the default enterEvent
+    def enterEvent(self, event):
+        self.myframe.setStyleSheet("QFrame{ border-style:solid; border-color:#FFC9DEF5; border-width:4px }")
+    
+    # overriding the default leaveEvent
+    def leaveEvent(self, event):
+        self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
     
     def remove_self(self, parent):
         parent.labels.remove(self)
@@ -47,15 +58,19 @@ class SpriteFrame(QWidget):
 
         parent.re_render_grid()
         print("Deleting image, count: ", parent.num_labels, "Len of labels", len(parent.labels))
+        if len(parent.labels) == 0:
+            parent.set_animation_button.setDisabled(True)
     
-    def display_frame_info(self):
-        print(self.imgpath)
-        text, okPressed = QInputDialog.getText(None, "Change Pose Prefix Name", "Current Pose prefix:"+(" "*50), QLineEdit.Normal, self.pose_name) # very hack-y soln but it works!
-        if okPressed and text != '':
-            print("new pose prefix = ", text)
-            self.pose_name = text
+    def add_to_selected_arr(self, parent):
+        if self.select_checkbox.checkState() == 0:
+            parent.selected_labels.remove(self)
         else:
-            print("Cancel pressed!")
+            parent.selected_labels.append(self)
+    
+    def get_tooltip_string(self, parent):
+        charname = parent.character_name_textbox.text()
+        charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
+        return f"Image: {ntpath.basename(self.imgpath)}\nCurrent Pose: {self.pose_name}\nWill appear in XML as:\n\t<SubTexture name=\"{charname} {self.pose_name}####\" (...) >\n\t# = digit from 0-9"
 
 
 class MyApp(QWidget):
@@ -64,7 +79,7 @@ class MyApp(QWidget):
 
         uic.loadUi('XmlPngUIFile.ui', self)
         # self.setFixedSize(834, 520)
-        self.setFixedSize(834, 545)
+        # self.setFixedSize(834, 545)
         self.xml_generate_button.clicked.connect(self.generate_xml)
         self.setWindowTitle("XML Generator")
         self.sprite_frames.setWidgetResizable(True)
@@ -74,6 +89,7 @@ class MyApp(QWidget):
 
         self.num_labels = 0
         self.labels = []
+        self.selected_labels = []
 
         self.add_img_button = QPushButton()
         self.add_img_button.setIcon(QIcon("./image-assets/AddImg.png"))
@@ -105,15 +121,23 @@ class MyApp(QWidget):
 
         self.iconpaths = []
         self.icongrid_path = ""
+
+        self.set_animation_button.clicked.connect(self.setAnimationNames)
+        self.character_name_textbox.textChanged.connect(self.onCharacterNameChange)
+    
+    def onCharacterNameChange(self):
+        for label in self.labels:
+            label.img_label.setToolTip(label.get_tooltip_string(self))
     
     def open_file_dialog(self):
         imgpaths = QFileDialog.getOpenFileNames(
             caption="Select sprite frames", 
             filter="PNG Images (*.png)",
-            # directory=os.getcwd()
         )[0]
         for pth in imgpaths:
             self.add_img(pth)
+        if len(self.labels) > 0:
+            self.set_animation_button.setDisabled(False)
     
     def add_img(self, imgpath):
         print("Adding image, prevcount: ", self.num_labels)
@@ -188,7 +212,6 @@ class MyApp(QWidget):
         self.icongrid_path = QFileDialog.getOpenFileName(
             caption="Select the Icon-grid", 
             filter="PNG Images (*.png)",
-            # directory=os.getcwd()
         )[0]
         icongrid_pixmap = QPixmap(self.icongrid_path)
         self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
@@ -237,8 +260,6 @@ class MyApp(QWidget):
             self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.icongrid_holder_label.setPixmap(icongrid_pixmap)
-            # else:
-            #     print("Cancel pressed")
         else:
             errtxt = "Please add an icon-grid image" if self.icongrid_path == '' else "Please add an icon"
             self.display_msg_box(
@@ -252,13 +273,27 @@ class MyApp(QWidget):
         self.iconpaths = QFileDialog.getOpenFileNames(
             caption="Select your character icon", 
             filter="PNG Images (*.png)",
-            # directory=os.getcwd()
         )[0]
         print("Got icon: ", self.iconpaths)
         if len(self.iconpaths) > 0:
             print("Valid selected")
-            # self.curr_icon_label.setText("Current Icon:\n{}".format(self.iconpaths.split('/')[-1]))
             self.curr_icon_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
+    
+    def setAnimationNames(self):
+        if len(self.selected_labels) == 0:
+            self.display_msg_box(window_title="Error", text="Please select some frames to rename by checking the checkboxes on them", icon=QMessageBox.Critical)
+        else:
+            text, okPressed = QInputDialog.getText(None, "Change Animation (Pose) Prefix Name", "Current Animation (Pose) prefix:"+(" "*50), QLineEdit.Normal) # very hack-y soln but it works!
+            if okPressed and text != '':
+                print("new pose prefix = ", text)
+                for label in self.selected_labels:
+                    label.pose_name = text
+                    label.img_label.setToolTip(label.get_tooltip_string(self))
+                
+                for label in list(self.selected_labels):
+                    label.select_checkbox.setChecked(False)
+            else:
+                print("Cancel pressed!")
     
     def display_msg_box(self, window_title="MessageBox", text="Text Here", icon=None):
         self.msgbox = QMessageBox(self)

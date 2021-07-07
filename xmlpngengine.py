@@ -9,7 +9,7 @@ def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     width, height = img.size
     new_width = width + right + left
     new_height = height + top + bottom
-    result = Image.new(img.mode, (new_width, new_height), (0, 0, 0, 0))
+    result = Image.new('RGBA', (new_width, new_height), (0, 0, 0, 0))
     result.paste(img, (left, top))
     return result
 
@@ -96,6 +96,7 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
                 }
                 root.append(subtexture_element)
 
+                new_img = new_img.convert('RGBA')
                 final_img.paste(new_img, (csx, csy))
                 
                 csx += new_img.width
@@ -207,6 +208,7 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150):
                     dy = (iconsize//2) - (h//2)
                     imgx += dx
                     imgy += dy
+                    iconimg = iconimg.convert('RGBA')
                     icongrid.paste(iconimg, (imgx, imgy, imgx+w, imgy+h))
                     # icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
                     icongrid.save(icongrid_path)
@@ -216,6 +218,7 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150):
                     indices.append(new_index)
                     # return 4, new_index, problem_img
                 else:
+                    iconimg = iconimg.convert('RGBA')
                     icongrid.paste(iconimg, (imgx, imgy, imgx+iconsize, imgy+iconsize))
                     indices.append(new_index)
                     # new_icongrid.save(os.path.join(savedir, "Result-icongrid.png"))
@@ -225,7 +228,6 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150):
                 print("Problem at try except block!")
                 problem_img = iconpath
                 exception_msg = str(e)
-                print(f"[ERROR] {exception_msg}")
                 return 1, indices, problem_img, exception_msg # 1, [...], iconpath
 
         else:
