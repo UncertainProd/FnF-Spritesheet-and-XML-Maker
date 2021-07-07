@@ -9,7 +9,7 @@ def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     width, height = img.size
     new_width = width + right + left
     new_height = height + top + bottom
-    result = Image.new(img.mode, (new_width, new_height), (0, 0, 0, 0))
+    result = Image.new('RGBA', (new_width, new_height), (0, 0, 0, 0))
     result.paste(img, (left, top))
     return result
 
@@ -96,6 +96,7 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
                 }
                 root.append(subtexture_element)
 
+                new_img = new_img.convert('RGBA')
                 final_img.paste(new_img, (csx, csy))
                 
                 csx += new_img.width
