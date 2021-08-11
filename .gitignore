@@ -3,3 +3,4 @@ xmlpngengine.pyo
 .vscode
 env
 .python-version
+.venv
