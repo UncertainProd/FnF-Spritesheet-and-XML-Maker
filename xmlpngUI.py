@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
 from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
@@ -124,10 +124,24 @@ class MyApp(QWidget):
 
         self.set_animation_button.clicked.connect(self.setAnimationNames)
         self.character_name_textbox.textChanged.connect(self.onCharacterNameChange)
+
+        self.num_cols = 4
     
     def onCharacterNameChange(self):
         for label in self.labels:
             label.img_label.setToolTip(label.get_tooltip_string(self))
+    
+    def resizeEvent(self, a0):
+        w = self.width()
+        # print("Current width", w)
+        if w < 1228:
+            self.num_cols = 4
+        elif 1228 <= w <= 1652:
+            self.num_cols = 8
+        else:
+            self.num_cols = 12
+        self.re_render_grid()
+        return super().resizeEvent(a0)
     
     def open_file_dialog(self):
         imgpaths = QFileDialog.getOpenFileNames(
@@ -143,9 +157,9 @@ class MyApp(QWidget):
         print("Adding image, prevcount: ", self.num_labels)
         self.labels.append(SpriteFrame(imgpath, self))
         self.layout.removeWidget(self.add_img_button)
-        self.layout.addWidget(self.labels[-1], self.num_labels // 4, self.num_labels % 4, Qt.AlignmentFlag(0x1|0x20))
+        self.layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.num_labels += 1
-        self.layout.addWidget(self.add_img_button, self.num_labels // 4, self.num_labels % 4, Qt.AlignmentFlag(0x1|0x20))
+        self.layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
     
     def re_render_grid(self):
         for i, sp in enumerate(self.labels):
