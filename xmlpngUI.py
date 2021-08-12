@@ -163,9 +163,9 @@ class MyApp(QWidget):
     
     def re_render_grid(self):
         for i, sp in enumerate(self.labels):
-            self.layout.addWidget(sp, i//4, i%4, Qt.AlignmentFlag(0x1|0x20))
+            self.layout.addWidget(sp, i//self.num_cols, i%self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.layout.removeWidget(self.add_img_button)
-        self.layout.addWidget(self.add_img_button, self.num_labels // 4, self.num_labels % 4, Qt.AlignmentFlag(0x1|0x20))
+        self.layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
     
     def generate_xml(self):
         charname = self.character_name_textbox.text()
