@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
 
@@ -53,7 +53,8 @@ class SpriteFrame(QWidget):
     
     def remove_self(self, parent):
         parent.labels.remove(self)
-        parent.selected_labels.remove(self)
+        if self in parent.selected_labels:
+            parent.selected_labels.remove(self)
         parent.num_labels -= 1
 
         parent.frames_layout.removeWidget(self)
@@ -126,7 +127,7 @@ class MyApp(QMainWindow):
         self.posename_btn.clicked.connect(self.setAnimationNames)
         self.charname_textbox.textChanged.connect(self.onCharacterNameChange)
 
-        self.num_cols = 4
+        self.num_cols = 6
         self.num_rows = 1
     
     def onCharacterNameChange(self):
@@ -137,7 +138,7 @@ class MyApp(QMainWindow):
         w = self.width()
         # print("Current width", w)
         if w < 1228:
-            self.num_cols = 4
+            self.num_cols = 6
         elif 1228 <= w <= 1652:
             self.num_cols = 8
         else:
@@ -166,6 +167,12 @@ class MyApp(QMainWindow):
             self.frames_layout.setRowMinimumHeight(i, 0)
             self.frames_layout.setRowStretch(i, 0)
         
+        vspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
+
+        hspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
+        
         self.labels.append(SpriteFrame(imgpath, self))
         self.frames_layout.removeWidget(self.add_img_button)
         self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
@@ -180,6 +187,12 @@ class MyApp(QMainWindow):
         for i in range(self.num_rows):
             self.frames_layout.setRowMinimumHeight(i, 0)
             self.frames_layout.setRowStretch(i, 0)
+
+        vspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
+
+        hspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
         
         for i, sp in enumerate(self.labels):
             self.frames_layout.addWidget(sp, i//self.num_cols, i%self.num_cols, Qt.AlignmentFlag(0x1|0x20))
