@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QPushButton, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
 
@@ -51,6 +51,7 @@ class SpriteFrame(QWidget):
     
     def remove_self(self, parent):
         parent.labels.remove(self)
+        parent.selected_labels.remove(self)
         parent.num_labels -= 1
 
         parent.layout.removeWidget(self)
@@ -59,7 +60,7 @@ class SpriteFrame(QWidget):
         parent.re_render_grid()
         print("Deleting image, count: ", parent.num_labels, "Len of labels", len(parent.labels))
         if len(parent.labels) == 0:
-            parent.set_animation_button.setDisabled(True)
+            parent.posename_btn.setDisabled(True)
     
     def add_to_selected_arr(self, parent):
         if self.select_checkbox.checkState() == 0:
@@ -68,24 +69,24 @@ class SpriteFrame(QWidget):
             parent.selected_labels.append(self)
     
     def get_tooltip_string(self, parent):
-        charname:str = parent.character_name_textbox.text()
+        charname:str = parent.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
         return f"Image: {ntpath.basename(self.imgpath)}\nCurrent Pose: {self.pose_name}\nWill appear in XML as:\n\t<SubTexture name=\"{charname} {self.pose_name}####\" (...) >\n\t# = digit from 0-9"
 
 
-class MyApp(QWidget):
+class MyApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        uic.loadUi('XmlPngUIFile.ui', self)
+        uic.loadUi('NewXMLPngUI.ui', self)
         # self.setFixedSize(834, 520)
         # self.setFixedSize(834, 545)
-        self.xml_generate_button.clicked.connect(self.generate_xml)
+        self.generatexml_btn.clicked.connect(self.generate_xml)
         self.setWindowTitle("XML Generator")
-        self.sprite_frames.setWidgetResizable(True)
+        self.frames_area.setWidgetResizable(True)
         self.sprite_frame_content = QWidget()
         self.layout = QGridLayout(self.sprite_frame_content)
-        self.sprite_frames.setWidget(self.sprite_frame_content)
+        self.frames_area.setWidget(self.sprite_frame_content)
 
         self.num_labels = 0
         self.labels = []
@@ -103,9 +104,9 @@ class MyApp(QWidget):
 
         self.setWindowIcon(QIcon("./image-assets/appicon.png"))
         self.icongrid_zoom = 1
-        self.pngUploadButton.clicked.connect(self.uploadIconGrid)
-        self.icongridgenbutton.clicked.connect(self.getNewIconGrid)
-        self.icon_upload_button.clicked.connect(self.appendIcon)
+        self.uploadicongrid_btn.clicked.connect(self.uploadIconGrid)
+        self.generateicongrid_btn.clicked.connect(self.getNewIconGrid)
+        self.uploadicons_btn.clicked.connect(self.appendIcon)
 
         self.action_zoom_in = QAction(self.icongrid_holder_label)
         self.icongrid_holder_label.addAction(self.action_zoom_in)
@@ -117,13 +118,13 @@ class MyApp(QWidget):
         self.action_zoom_out.triggered.connect(self.zoomOutPixmap)
         self.action_zoom_out.setShortcut("Ctrl+o")
 
-        self.zoomLabel.setText("Zoom: 100%")
+        self.zoom_label.setText("Zoom: 100%")
 
         self.iconpaths:list = []
         self.icongrid_path:str = ""
 
-        self.set_animation_button.clicked.connect(self.setAnimationNames)
-        self.character_name_textbox.textChanged.connect(self.onCharacterNameChange)
+        self.posename_btn.clicked.connect(self.setAnimationNames)
+        self.charname_textbox.textChanged.connect(self.onCharacterNameChange)
 
         self.num_cols = 4
     
@@ -151,7 +152,7 @@ class MyApp(QWidget):
         for pth in imgpaths:
             self.add_img(pth)
         if len(self.labels) > 0:
-            self.set_animation_button.setDisabled(False)
+            self.posename_btn.setDisabled(False)
     
     def add_img(self, imgpath):
         print("Adding image, prevcount: ", self.num_labels)
@@ -168,9 +169,9 @@ class MyApp(QWidget):
         self.layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
     
     def generate_xml(self):
-        charname:str = self.character_name_textbox.text()
+        charname:str = self.charname_textbox.text()
         charname = charname.strip()
-        clip = self.border_clip_checkbox.checkState()
+        clip = self.cliptobbox_check.checkState()
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
@@ -206,7 +207,7 @@ class MyApp(QWidget):
             self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.icongrid_holder_label.setPixmap(icongrid_pixmap)
-            self.zoomLabel.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
+            self.zoom_label.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
 
 
     def zoomOutPixmap(self):
@@ -219,7 +220,7 @@ class MyApp(QWidget):
             self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
             self.icongrid_holder_label.setPixmap(icongrid_pixmap)
-            self.zoomLabel.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
+            self.zoom_label.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
     
     def uploadIconGrid(self):
         print("Uploading icongrid...")
@@ -291,7 +292,7 @@ class MyApp(QWidget):
         print("Got icon: ", self.iconpaths)
         if len(self.iconpaths) > 0:
             print("Valid selected")
-            self.curr_icon_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
+            self.iconselected_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
     
     def setAnimationNames(self):
         if len(self.selected_labels) == 0:
