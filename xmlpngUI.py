@@ -7,6 +7,8 @@ import ntpath
 
 import xmlpngengine
 
+SPRITEFRAME_SIZE = 130
+
 class SpriteFrame(QWidget):
     def __init__(self, imgpath, parent):
         super().__init__()
@@ -19,7 +21,7 @@ class SpriteFrame(QWidget):
         self.img_label.setToolTip(self.get_tooltip_string(parent))
         self.img_label.setPixmap(self.image_pixmap.scaled(128, 128))
 
-        self.setFixedSize(QSize(130, 130))
+        self.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
 
         self.remove_btn = QPushButton(self.myframe)
         self.remove_btn.move(90, 90)
@@ -54,7 +56,7 @@ class SpriteFrame(QWidget):
         parent.selected_labels.remove(self)
         parent.num_labels -= 1
 
-        parent.layout.removeWidget(self)
+        parent.frames_layout.removeWidget(self)
         self.deleteLater()
 
         parent.re_render_grid()
@@ -79,13 +81,11 @@ class MyApp(QMainWindow):
         super().__init__()
 
         uic.loadUi('NewXMLPngUI.ui', self)
-        # self.setFixedSize(834, 520)
-        # self.setFixedSize(834, 545)
-        self.generatexml_btn.clicked.connect(self.generate_xml)
         self.setWindowTitle("XML Generator")
+
+        self.generatexml_btn.clicked.connect(self.generate_xml)
         self.frames_area.setWidgetResizable(True)
-        self.sprite_frame_content = QWidget()
-        self.layout = QGridLayout(self.sprite_frame_content)
+        self.frames_layout = QGridLayout(self.sprite_frame_content)
         self.frames_area.setWidget(self.sprite_frame_content)
 
         self.num_labels = 0
@@ -94,12 +94,12 @@ class MyApp(QMainWindow):
 
         self.add_img_button = QPushButton()
         self.add_img_button.setIcon(QIcon("./image-assets/AddImg.png"))
-        self.add_img_button.setGeometry(0, 0, 130, 130)
-        self.add_img_button.setFixedSize(QSize(130, 130))
-        self.add_img_button.setIconSize(QSize(130, 130))
+        self.add_img_button.setGeometry(0, 0, SPRITEFRAME_SIZE, SPRITEFRAME_SIZE)
+        self.add_img_button.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
+        self.add_img_button.setIconSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
         self.add_img_button.clicked.connect(self.open_file_dialog)
 
-        self.layout.addWidget(self.add_img_button, 0, 0, Qt.AlignmentFlag(0x1|0x20))
+        self.frames_layout.addWidget(self.add_img_button, 0, 0, Qt.AlignmentFlag(0x1|0x20))
         self.myTabs.setCurrentIndex(0)
 
         self.setWindowIcon(QIcon("./image-assets/appicon.png"))
@@ -127,6 +127,7 @@ class MyApp(QMainWindow):
         self.charname_textbox.textChanged.connect(self.onCharacterNameChange)
 
         self.num_cols = 4
+        self.num_rows = 1
     
     def onCharacterNameChange(self):
         for label in self.labels:
@@ -156,17 +157,34 @@ class MyApp(QMainWindow):
     
     def add_img(self, imgpath):
         print("Adding image, prevcount: ", self.num_labels)
+        self.num_rows = 1 + self.num_labels//self.num_cols
+        
+        for i in range(self.num_cols):
+            self.frames_layout.setColumnMinimumWidth(i, 0)
+            self.frames_layout.setColumnStretch(i, 0)
+        for i in range(self.num_rows):
+            self.frames_layout.setRowMinimumHeight(i, 0)
+            self.frames_layout.setRowStretch(i, 0)
+        
         self.labels.append(SpriteFrame(imgpath, self))
-        self.layout.removeWidget(self.add_img_button)
-        self.layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+        self.frames_layout.removeWidget(self.add_img_button)
+        self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.num_labels += 1
-        self.layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+        self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
     
     def re_render_grid(self):
+        self.num_rows = 1 + self.num_labels//self.num_cols
+        for i in range(self.num_cols):
+            self.frames_layout.setColumnMinimumWidth(i, 0)
+            self.frames_layout.setColumnStretch(i, 0)
+        for i in range(self.num_rows):
+            self.frames_layout.setRowMinimumHeight(i, 0)
+            self.frames_layout.setRowStretch(i, 0)
+        
         for i, sp in enumerate(self.labels):
-            self.layout.addWidget(sp, i//self.num_cols, i%self.num_cols, Qt.AlignmentFlag(0x1|0x20))
-        self.layout.removeWidget(self.add_img_button)
-        self.layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+            self.frames_layout.addWidget(sp, i//self.num_cols, i%self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+        self.frames_layout.removeWidget(self.add_img_button)
+        self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
     
     def generate_xml(self):
         charname:str = self.charname_textbox.text()

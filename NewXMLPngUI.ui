@@ -54,7 +54,13 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="charname_textbox"/>
+        <widget class="QLineEdit" name="charname_textbox">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -83,7 +89,7 @@
              <property name="widgetResizable">
               <bool>true</bool>
              </property>
-             <widget class="QWidget" name="scrollAreaWidgetContents">
+             <widget class="QWidget" name="sprite_frame_content">
               <property name="geometry">
                <rect>
                 <x>0</x>
