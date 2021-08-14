@@ -1,6 +1,7 @@
 # import os
 import xml.etree.ElementTree as ET
 from PIL import Image
+from PIL.ImageQt import ImageQt
 
 def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     if clip:
@@ -232,6 +233,25 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
         iconimg.close()
         icongrid.close()
     return retval, indices, problem_img, exception_msg
+
+def split_spsh(pngpath:str, xmlpath:str):
+    spritesheet = Image.open(pngpath)
+    xmltree = ET.parse(xmlpath)
+    sprites = []
+
+    root = xmltree.getroot()
+    for subtex in root.findall("SubTexture"):
+        tex_x = int(subtex.attrib['x'])
+        tex_y = int(subtex.attrib['y'])
+        tex_width = int(subtex.attrib['width'])
+        tex_height = int(subtex.attrib['height'])
+        pose_name = subtex.attrib['name']
+        sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height))
+        qim = ImageQt(sprite_img)
+        sprites.append((qim, pose_name))
+    
+    return sprites
+        
 
 if __name__ == '__main__':
     print("This program is just the engine! To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")

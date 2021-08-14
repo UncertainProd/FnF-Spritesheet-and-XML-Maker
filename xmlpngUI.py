@@ -1,4 +1,5 @@
 import sys
+from PIL.ImageQt import QImage
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
 from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
@@ -18,7 +19,22 @@ class SpriteFrame(QWidget):
         self.myframe = QFrame(self)
 
         self.img_label = QLabel(self.myframe)
+
+        # setting tooltip initially
+        # charname:str = parent.charname_textbox.text()
+        # charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
+        # if self.ispathimg:
+        #     inside_subtex_name = f"{charname} {self.pose_name}####"
+        # else:
+        #     trupose = " ".join(self.pose_name.split(' ')[1:])[:-4]
+        #     inside_subtex_name = f"{charname} {trupose}####"
+
+        # ttstring = f"Image: {'(part of) ' if not self.ispathimg else ''}{ntpath.basename(self.imgpath)}\n" + \
+        # f"Current Pose: {self.pose_name}\n" + \
+        # f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
         self.img_label.setToolTip(self.get_tooltip_string(parent))
+
+
         self.img_label.setPixmap(self.image_pixmap.scaled(128, 128))
 
         self.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
@@ -36,6 +52,20 @@ class SpriteFrame(QWidget):
         self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(parent))
 
         self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
+    
+    @classmethod
+    def from_qimage(cls, impath: str, parent, imdat: QImage, posename):
+        sp = SpriteFrame(impath, parent)
+        sp.image_pixmap = QPixmap.fromImage(imdat)
+        sp.img_label.setPixmap(sp.image_pixmap.scaled(128, 128))
+        sp.pose_name = posename[:-4] # eg (Dad Sing Note RIGHT)0018
+        # TODO: tooltip thing
+        ttstring = f"Image:(part of) {ntpath.basename(impath)}\n" + \
+        f"Current Pose: {posename}\n" + \
+        f"Will appear in XML as:\n\t<SubTexture name=\"{0}\" (...) >\n\t# = digit from 0-9"
+        sp.img_label.setToolTip(ttstring)
+        return sp
+
     
     # overriding the default mousePressEvent
     def mousePressEvent(self, event):
@@ -74,7 +104,12 @@ class SpriteFrame(QWidget):
     def get_tooltip_string(self, parent):
         charname:str = parent.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
-        return f"Image: {ntpath.basename(self.imgpath)}\nCurrent Pose: {self.pose_name}\nWill appear in XML as:\n\t<SubTexture name=\"{charname} {self.pose_name}####\" (...) >\n\t# = digit from 0-9"
+        inside_subtex_name = f"{charname} {self.pose_name}####"
+
+        ttstring = f"Image:{ntpath.basename(self.imgpath)}\n" + \
+        f"Current Pose: {self.pose_name}\n" + \
+        f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
+        return ttstring
 
 
 class MyApp(QMainWindow):
@@ -129,6 +164,10 @@ class MyApp(QMainWindow):
 
         self.num_cols = 6
         self.num_rows = 1
+
+        self.actionImport_Images.triggered.connect(self.open_file_dialog)
+        self.action_import_existing.triggered.connect(self.open_existing_spsh_xml)
+    
     
     def onCharacterNameChange(self):
         for label in self.labels:
@@ -146,6 +185,38 @@ class MyApp(QMainWindow):
         self.re_render_grid()
         return super().resizeEvent(a0)
     
+    def open_existing_spsh_xml(self):
+        imgpath = QFileDialog.getOpenFileName(
+            caption="Select Spritesheet File",
+            filter="PNG Images (*.png)"
+        )[0]
+
+        xmlpath = QFileDialog.getOpenFileName(
+            caption="Select XML File",
+            filter="XML Files (*.xml)"
+        )[0]
+
+        trubasenamefn = lambda path: ntpath.basename(path).split('.')[0]
+        charname = trubasenamefn(xmlpath)
+        if trubasenamefn(imgpath) != trubasenamefn(xmlpath):
+            self.msgbox = QMessageBox(self)
+            self.msgbox.setWindowTitle("Conflicting file names")
+            self.msgbox.setText("The Spritesheet and the XML file have different file names.\nWhich one would you like to use for the character?")
+            self.msgbox.setIcon(QMessageBox.Warning)
+            usexml = self.msgbox.addButton("Use XML filename", QMessageBox.YesRole)
+            usespsh = self.msgbox.addButton("Use Spritesheet filename", QMessageBox.NoRole)
+            x = self.msgbox.exec_()
+            clickedbtn = self.msgbox.clickedButton()
+            charname = trubasenamefn(imgpath) if clickedbtn == usespsh else trubasenamefn(xmlpath)
+            print("[DEBUG] Exit status of msgbox: "+str(x))
+
+
+        sprites = xmlpngengine.split_spsh(imgpath, xmlpath)
+        for spimg, posename in sprites:
+            self.add_img(imgpath, spimg, posename)
+        
+        self.charname_textbox.setText(charname)
+    
     def open_file_dialog(self):
         imgpaths = QFileDialog.getOpenFileNames(
             caption="Select sprite frames", 
@@ -156,7 +227,7 @@ class MyApp(QMainWindow):
         if len(self.labels) > 0:
             self.posename_btn.setDisabled(False)
     
-    def add_img(self, imgpath):
+    def add_img(self, imgpath, imdat=None, posename=""):
         print("Adding image, prevcount: ", self.num_labels)
         self.num_rows = 1 + self.num_labels//self.num_cols
         
@@ -173,7 +244,10 @@ class MyApp(QMainWindow):
         hspcr = QSpacerItem(1, 1)
         self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
         
-        self.labels.append(SpriteFrame(imgpath, self))
+        if not imdat:
+            self.labels.append(SpriteFrame(imgpath, self))
+        else:
+            self.labels.append(SpriteFrame.from_qimage(imgpath, self, imdat, posename))
         self.frames_layout.removeWidget(self.add_img_button)
         self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.num_labels += 1

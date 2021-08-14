@@ -321,20 +321,20 @@ Icon-grid</string>
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionImport_existing_Spritesheet_and_XML"/>
+    <addaction name="action_import_existing"/>
     <addaction name="actionImport_Images"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionImport_existing_Spritesheet_and_XML">
+  <action name="action_import_existing">
    <property name="text">
     <string>Import existing Spritesheet and XML</string>
    </property>
   </action>
   <action name="actionImport_Images">
    <property name="text">
-    <string>Import Images</string>
+    <string>Import Images....</string>
    </property>
   </action>
  </widget>
