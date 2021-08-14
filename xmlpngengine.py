@@ -1,7 +1,10 @@
 # import os
+from io import BytesIO
 import xml.etree.ElementTree as ET
 from PIL import Image
 from PIL.ImageQt import ImageQt
+from PyQt5.QtCore import QBuffer
+from math import sqrt
 
 def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     if clip:
@@ -23,15 +26,29 @@ def add_pose_numbers(pose_arr:list[str]):
         new_pose_arr[i] = new_pose_arr[i] + str(pose_counts[new_pose_arr[i]] - 1).zfill(4)
     return new_pose_arr
 
-def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, character_name:str="Result", clip=False):
+def path_tuple_to_correct_img(impath):
+    path, is_single_img, qimg = impath
+    if is_single_img:
+        im = Image.open(path)
+    else:
+        buf = QBuffer()
+        buf.open(QBuffer.ReadWrite)
+        qimg.save(buf, "PNG")
+        # data = qimg.constBits().asstring(qimg.byteCount())
+        im = Image.open(BytesIO(buf.data()))
+    
+    return im
+
+def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_name:str="Result", clip=False):
     try:
+        num_cols = int(sqrt(len(imgpaths)))
         # PNG stuff
         widths = []
         heights = []
         exceptionmsg = None
         for impath in imgpaths:
             try:
-                im = Image.open(impath)
+                im = path_tuple_to_correct_img(impath)
             except Exception as e:
                 exceptionmsg = str(e)
                 print("Error: ", exceptionmsg)
@@ -46,13 +63,13 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
                     heights.append(box[3] - box[1] + 4)
                 im.close()
         row_width_sums = []
-        for i in range(0, len(widths), 4):
-            row_width_sums.append(sum(widths[i:i+4]))
+        for i in range(0, len(widths), num_cols):
+            row_width_sums.append(sum(widths[i:i+num_cols]))
         final_img_width = max(row_width_sums)
 
         max_heights = []
-        for i in range(0, len(heights), 4):
-            max_heights.append(max(heights[i:i+4]))
+        for i in range(0, len(heights), num_cols):
+            max_heights.append(max(heights[i:i+num_cols]))
         final_img_height = sum(max_heights)
 
         # XML Stuff
@@ -62,13 +79,12 @@ def make_png_xml(imgpaths:list[str], pose_names:list[str], save_dir:str, charact
 
         final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
         print("Final image size: ({}, {})".format(final_img_width, final_img_height))
-        num_cols = 4
         csx = csy = 0
         newPoseNames = add_pose_numbers(pose_names)
         for i, imgpath in enumerate(imgpaths):
             print("Adding {} to final_image...".format(imgpath))
             try:
-                old_img = Image.open(imgpath)
+                old_img = path_tuple_to_correct_img(imgpath)
             except Exception as e:
                 exceptionmsg = str(e)
                 return 1, exceptionmsg

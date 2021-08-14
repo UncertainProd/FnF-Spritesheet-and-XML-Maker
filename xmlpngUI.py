@@ -8,14 +8,18 @@ import ntpath
 
 import xmlpngengine
 
+from time import time
+
 SPRITEFRAME_SIZE = 130
 
 class SpriteFrame(QWidget):
-    def __init__(self, imgpath, parent):
+    def __init__(self, imgpath, parent, imdat: QImage = None, posename: str = None):
         super().__init__()
         self.imgpath = imgpath
-        self.image_pixmap = QPixmap(imgpath)
-        self.pose_name = "idle"
+        self.imdat = imdat
+        self.from_single_png = not imdat
+        self.image_pixmap = QPixmap(imgpath) if self.from_single_png else QPixmap.fromImage(imdat)
+        self.pose_name = "idle" if self.from_single_png else " ".join((posename[:-4]).split(' ')[1:]) # I'm assuming the character name is just the first word
         self.myframe = QFrame(self)
 
         self.img_label = QLabel(self.myframe)
@@ -32,7 +36,13 @@ class SpriteFrame(QWidget):
         # ttstring = f"Image: {'(part of) ' if not self.ispathimg else ''}{ntpath.basename(self.imgpath)}\n" + \
         # f"Current Pose: {self.pose_name}\n" + \
         # f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
-        self.img_label.setToolTip(self.get_tooltip_string(parent))
+        if self.from_single_png:
+            self.img_label.setToolTip(self.get_tooltip_string(parent))
+        else:
+            ttstring = f"Image:(part of) {ntpath.basename(imgpath)}\n" + \
+                f"Current Pose: {self.pose_name}\n" + \
+                f"Will appear in XML as:\n\t<SubTexture name=\"{posename}\" (...) >\n\t# = digit from 0-9"
+            self.img_label.setToolTip(ttstring)
 
 
         self.img_label.setPixmap(self.image_pixmap.scaled(128, 128))
@@ -52,20 +62,6 @@ class SpriteFrame(QWidget):
         self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(parent))
 
         self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:black; border-width:2px}")
-    
-    @classmethod
-    def from_qimage(cls, impath: str, parent, imdat: QImage, posename):
-        sp = SpriteFrame(impath, parent)
-        sp.image_pixmap = QPixmap.fromImage(imdat)
-        sp.img_label.setPixmap(sp.image_pixmap.scaled(128, 128))
-        sp.pose_name = posename[:-4] # eg (Dad Sing Note RIGHT)0018
-        # TODO: tooltip thing
-        ttstring = f"Image:(part of) {ntpath.basename(impath)}\n" + \
-        f"Current Pose: {posename}\n" + \
-        f"Will appear in XML as:\n\t<SubTexture name=\"{0}\" (...) >\n\t# = digit from 0-9"
-        sp.img_label.setToolTip(ttstring)
-        return sp
-
     
     # overriding the default mousePressEvent
     def mousePressEvent(self, event):
@@ -167,6 +163,21 @@ class MyApp(QMainWindow):
 
         self.actionImport_Images.triggered.connect(self.open_file_dialog)
         self.action_import_existing.triggered.connect(self.open_existing_spsh_xml)
+
+        self.num_rows = 1 + self.num_labels//self.num_cols
+        
+        for i in range(self.num_cols):
+            self.frames_layout.setColumnMinimumWidth(i, 0)
+            self.frames_layout.setColumnStretch(i, 0)
+        for i in range(self.num_rows):
+            self.frames_layout.setRowMinimumHeight(i, 0)
+            self.frames_layout.setRowStretch(i, 0)
+        
+        vspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
+
+        hspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
     
     
     def onCharacterNameChange(self):
@@ -203,7 +214,7 @@ class MyApp(QMainWindow):
             self.msgbox.setWindowTitle("Conflicting file names")
             self.msgbox.setText("The Spritesheet and the XML file have different file names.\nWhich one would you like to use for the character?")
             self.msgbox.setIcon(QMessageBox.Warning)
-            usexml = self.msgbox.addButton("Use XML filename", QMessageBox.YesRole)
+            self.msgbox.addButton("Use XML filename", QMessageBox.YesRole)
             usespsh = self.msgbox.addButton("Use Spritesheet filename", QMessageBox.NoRole)
             x = self.msgbox.exec_()
             clickedbtn = self.msgbox.clickedButton()
@@ -231,12 +242,8 @@ class MyApp(QMainWindow):
         print("Adding image, prevcount: ", self.num_labels)
         self.num_rows = 1 + self.num_labels//self.num_cols
         
-        for i in range(self.num_cols):
-            self.frames_layout.setColumnMinimumWidth(i, 0)
-            self.frames_layout.setColumnStretch(i, 0)
-        for i in range(self.num_rows):
-            self.frames_layout.setRowMinimumHeight(i, 0)
-            self.frames_layout.setRowStretch(i, 0)
+        self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
+        self.frames_layout.setRowStretch(self.num_rows - 1, 0)
         
         vspcr = QSpacerItem(1, 1)
         self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
@@ -244,10 +251,7 @@ class MyApp(QMainWindow):
         hspcr = QSpacerItem(1, 1)
         self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
         
-        if not imdat:
-            self.labels.append(SpriteFrame(imgpath, self))
-        else:
-            self.labels.append(SpriteFrame.from_qimage(imgpath, self, imdat, posename))
+        self.labels.append(SpriteFrame(imgpath, self, imdat, posename))
         self.frames_layout.removeWidget(self.add_img_button)
         self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.num_labels += 1
@@ -281,7 +285,7 @@ class MyApp(QMainWindow):
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
             if savedir != '':
-                statuscode, errmsg = xmlpngengine.make_png_xml([lab.imgpath for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
+                statuscode, errmsg = xmlpngengine.make_png_xml([(lab.imgpath, lab.from_single_png, lab.imdat) for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
                 if errmsg is None:
                     self.display_msg_box(
                         window_title="Done!", 
