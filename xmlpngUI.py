@@ -23,7 +23,7 @@ class SpriteFrame(QWidget):
         self.myframe = QFrame(self)
 
         self.img_label = QLabel(self.myframe)
-        
+
         if self.from_single_png:
             self.img_label.setToolTip(self.get_tooltip_string(parent))
         else:
@@ -190,31 +190,34 @@ class MyApp(QMainWindow):
             filter="PNG Images (*.png)"
         )[0]
 
-        xmlpath = QFileDialog.getOpenFileName(
-            caption="Select XML File",
-            filter="XML Files (*.xml)"
-        )[0]
+        if imgpath != '':
+            xmlpath = QFileDialog.getOpenFileName(
+                caption="Select XML File",
+                filter="XML Files (*.xml)"
+            )[0]
+            if xmlpath != '':
+                trubasenamefn = lambda path: ntpath.basename(path).split('.')[0]
+                charname = trubasenamefn(xmlpath)
+                if trubasenamefn(imgpath) != trubasenamefn(xmlpath):
+                    self.msgbox = QMessageBox(self)
+                    self.msgbox.setWindowTitle("Conflicting file names")
+                    self.msgbox.setText("The Spritesheet and the XML file have different file names.\nWhich one would you like to use for the character?")
+                    self.msgbox.setIcon(QMessageBox.Warning)
+                    self.msgbox.addButton("Use XML filename", QMessageBox.YesRole)
+                    usespsh = self.msgbox.addButton("Use Spritesheet filename", QMessageBox.NoRole)
+                    x = self.msgbox.exec_()
+                    clickedbtn = self.msgbox.clickedButton()
+                    charname = trubasenamefn(imgpath) if clickedbtn == usespsh else trubasenamefn(xmlpath)
+                    print("[DEBUG] Exit status of msgbox: "+str(x))
 
-        trubasenamefn = lambda path: ntpath.basename(path).split('.')[0]
-        charname = trubasenamefn(xmlpath)
-        if trubasenamefn(imgpath) != trubasenamefn(xmlpath):
-            self.msgbox = QMessageBox(self)
-            self.msgbox.setWindowTitle("Conflicting file names")
-            self.msgbox.setText("The Spritesheet and the XML file have different file names.\nWhich one would you like to use for the character?")
-            self.msgbox.setIcon(QMessageBox.Warning)
-            self.msgbox.addButton("Use XML filename", QMessageBox.YesRole)
-            usespsh = self.msgbox.addButton("Use Spritesheet filename", QMessageBox.NoRole)
-            x = self.msgbox.exec_()
-            clickedbtn = self.msgbox.clickedButton()
-            charname = trubasenamefn(imgpath) if clickedbtn == usespsh else trubasenamefn(xmlpath)
-            print("[DEBUG] Exit status of msgbox: "+str(x))
 
+                sprites = xmlpngengine.split_spsh(imgpath, xmlpath)
+                for spimg, posename in sprites:
+                    self.add_img(imgpath, spimg, posename)
+                
+                self.charname_textbox.setText(charname)
 
-        sprites = xmlpngengine.split_spsh(imgpath, xmlpath)
-        for spimg, posename in sprites:
-            self.add_img(imgpath, spimg, posename)
         
-        self.charname_textbox.setText(charname)
     
     def open_file_dialog(self):
         imgpaths = QFileDialog.getOpenFileNames(
