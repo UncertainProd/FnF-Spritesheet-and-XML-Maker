@@ -121,7 +121,7 @@ def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_na
                 
                 old_img.close()
                 new_img.close()
-                progressupdatefn(i+1)
+                progressupdatefn(i+1, imgpath[0])
 
         # Saving png
         print(f"Saving final image....")

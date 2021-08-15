@@ -1,11 +1,10 @@
 import sys
 from PIL.ImageQt import QImage
-from PyQt5.QtCore import QSize, Qt, pyqtSignal
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
 from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
-import asyncio
 
 import xmlpngengine
 
@@ -24,19 +23,7 @@ class SpriteFrame(QWidget):
         self.myframe = QFrame(self)
 
         self.img_label = QLabel(self.myframe)
-
-        # setting tooltip initially
-        # charname:str = parent.charname_textbox.text()
-        # charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
-        # if self.ispathimg:
-        #     inside_subtex_name = f"{charname} {self.pose_name}####"
-        # else:
-        #     trupose = " ".join(self.pose_name.split(' ')[1:])[:-4]
-        #     inside_subtex_name = f"{charname} {trupose}####"
-
-        # ttstring = f"Image: {'(part of) ' if not self.ispathimg else ''}{ntpath.basename(self.imgpath)}\n" + \
-        # f"Current Pose: {self.pose_name}\n" + \
-        # f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
+        
         if self.from_single_png:
             self.img_label.setToolTip(self.get_tooltip_string(parent))
         else:
@@ -286,8 +273,12 @@ class MyApp(QMainWindow):
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
             if savedir != '':
+                def update_prog_bar(progress, filename):
+                    progbar.setValue(progress)
+                    progbar.setLabel(QLabel(f"Adding: {filename}"))
                 progbar = QProgressDialog("Generating....", "Cancel", 0, len(self.labels), self)
                 progbar.setWindowModality(Qt.WindowModal)
+                sleep(0.5)
 
                 statuscode, errmsg = xmlpngengine.make_png_xml(
                     [(lab.imgpath, lab.from_single_png, lab.imdat) for lab in self.labels], 
@@ -295,7 +286,7 @@ class MyApp(QMainWindow):
                     savedir, 
                     charname, 
                     False if clip == 0 else True,
-                    progbar.setValue
+                    update_prog_bar
                 )
                 if errmsg is None:
                     self.display_msg_box(
