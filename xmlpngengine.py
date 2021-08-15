@@ -39,9 +39,10 @@ def path_tuple_to_correct_img(impath):
     
     return im
 
-def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_name:str="Result", clip=False):
+def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_name:str="Result", clip=False, progressupdatefn=None):
     try:
-        num_cols = int(sqrt(len(imgpaths)))
+        num_imgs = len(imgpaths)
+        num_cols = int(sqrt(num_imgs))
         # PNG stuff
         widths = []
         heights = []
@@ -120,6 +121,7 @@ def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_na
                 
                 old_img.close()
                 new_img.close()
+                progressupdatefn(i+1)
 
         # Saving png
         print(f"Saving final image....")

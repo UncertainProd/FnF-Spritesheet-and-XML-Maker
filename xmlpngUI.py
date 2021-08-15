@@ -1,14 +1,15 @@
 import sys
 from PIL.ImageQt import QImage
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
+import asyncio
 
 import xmlpngengine
 
-from time import time
+from time import sleep, time
 
 SPRITEFRAME_SIZE = 130
 
@@ -107,37 +108,6 @@ class SpriteFrame(QWidget):
         f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
         return ttstring
 
-class ProgressWindow(QWidget):
-    def __init__(self, myparent):
-        super().__init__()
-
-        px = myparent.x()
-        py = myparent.y()
-        pw = myparent.width()
-        ph = myparent.height()
-        self.setGeometry(px + pw//2 - 100, py + ph//2, 645, 120)
-        self.setFixedSize(645, 120)
-
-        self.setWindowTitle("Creating Spritesheet and XML...")
-
-        self.mylayout = QVBoxLayout(self)
-        self.mylayout.setSpacing(5)
-
-        self.progmsg = QLabel(self)
-        self.progmsg.setText("Adding: ")
-        self.mylayout.addWidget(self.progmsg)
-
-        self.progbar = QProgressBar(self)
-        self.progbar.setValue(0)
-        self.progbar.setMinimumSize(0, 30)
-        self.mylayout.addWidget(self.progbar)
-
-        self.show()
-    
-    def setProgress(self, progress, filename):
-        print(f"setProgress({progress}, {filename}) called")
-        self.progbar.setValue(progress)
-        self.progmsg.setText(f"Adding: {filename}")
 
 class MyApp(QMainWindow):
     def __init__(self):
@@ -316,7 +286,17 @@ class MyApp(QMainWindow):
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
             if savedir != '':
-                statuscode, errmsg = xmlpngengine.make_png_xml([(lab.imgpath, lab.from_single_png, lab.imdat) for lab in self.labels], [lab.pose_name for lab in self.labels], savedir, charname, False if clip == 0 else True)
+                progbar = QProgressDialog("Generating....", "Cancel", 0, len(self.labels), self)
+                progbar.setWindowModality(Qt.WindowModal)
+
+                statuscode, errmsg = xmlpngengine.make_png_xml(
+                    [(lab.imgpath, lab.from_single_png, lab.imdat) for lab in self.labels], 
+                    [lab.pose_name for lab in self.labels], 
+                    savedir, 
+                    charname, 
+                    False if clip == 0 else True,
+                    progbar.setValue
+                )
                 if errmsg is None:
                     self.display_msg_box(
                         window_title="Done!", 
