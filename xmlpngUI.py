@@ -2,7 +2,7 @@ import sys
 from PIL.ImageQt import QImage
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
 
@@ -107,6 +107,37 @@ class SpriteFrame(QWidget):
         f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
         return ttstring
 
+class ProgressWindow(QWidget):
+    def __init__(self, myparent):
+        super().__init__()
+
+        px = myparent.x()
+        py = myparent.y()
+        pw = myparent.width()
+        ph = myparent.height()
+        self.setGeometry(px + pw//2 - 100, py + ph//2, 645, 120)
+        self.setFixedSize(645, 120)
+
+        self.setWindowTitle("Creating Spritesheet and XML...")
+
+        self.mylayout = QVBoxLayout(self)
+        self.mylayout.setSpacing(5)
+
+        self.progmsg = QLabel(self)
+        self.progmsg.setText("Adding: ")
+        self.mylayout.addWidget(self.progmsg)
+
+        self.progbar = QProgressBar(self)
+        self.progbar.setValue(0)
+        self.progbar.setMinimumSize(0, 30)
+        self.mylayout.addWidget(self.progbar)
+
+        self.show()
+    
+    def setProgress(self, progress, filename):
+        print(f"setProgress({progress}, {filename}) called")
+        self.progbar.setValue(progress)
+        self.progmsg.setText(f"Adding: {filename}")
 
 class MyApp(QMainWindow):
     def __init__(self):
@@ -435,7 +466,7 @@ class MyApp(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    
+
     myapp = MyApp()
     myapp.show()
 
