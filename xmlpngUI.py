@@ -224,8 +224,17 @@ class MyApp(QMainWindow):
             caption="Select sprite frames", 
             filter="PNG Images (*.png)",
         )[0]
-        for pth in imgpaths:
+
+        def update_prog_bar(progress, filename):
+            progbar.setValue(progress)
+            progbar.setLabel(QLabel(f"Adding: {filename}"))
+        progbar = QProgressDialog("Importing sprite frames....", None, 0, len(imgpaths), self)
+        progbar.setWindowModality(Qt.WindowModal)
+        sleep(0.5)
+
+        for i, pth in enumerate(imgpaths):
             self.add_img(pth)
+            update_prog_bar(i+1, pth)
         if len(self.labels) > 0:
             self.posename_btn.setDisabled(False)
     
@@ -271,7 +280,7 @@ class MyApp(QMainWindow):
     def generate_xml(self):
         charname:str = self.charname_textbox.text()
         charname = charname.strip()
-        clip = self.cliptobbox_check.checkState()
+        clip = False # self.cliptobbox_check.checkState()
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
