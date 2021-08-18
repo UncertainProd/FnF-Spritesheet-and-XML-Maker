@@ -252,13 +252,14 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
         icongrid.close()
     return retval, indices, problem_img, exception_msg
 
-def split_spsh(pngpath:str, xmlpath:str):
+def split_spsh(pngpath:str, xmlpath:str, udpdatefn):
     spritesheet = Image.open(pngpath)
     xmltree = ET.parse(xmlpath)
     sprites = []
 
     root = xmltree.getroot()
-    for subtex in root.findall("SubTexture"):
+    subtextures = root.findall("SubTexture")
+    for i, subtex in enumerate(subtextures):
         tex_x = int(subtex.attrib['x'])
         tex_y = int(subtex.attrib['y'])
         tex_width = int(subtex.attrib['width'])
@@ -267,6 +268,7 @@ def split_spsh(pngpath:str, xmlpath:str):
         sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height))
         qim = ImageQt(sprite_img)
         sprites.append((qim, pose_name))
+        udpdatefn((i+1)*50//len(subtextures), pose_name)
     
     return sprites
         

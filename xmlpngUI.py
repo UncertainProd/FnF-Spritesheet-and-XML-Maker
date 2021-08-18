@@ -1,6 +1,6 @@
 import sys
 from PIL.ImageQt import QImage
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, lowercasedigits
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
 from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
@@ -11,6 +11,7 @@ import xmlpngengine
 from time import sleep, time
 
 SPRITEFRAME_SIZE = 130
+MAGIC_SLEEP_TIME = 0.5
 
 class SpriteFrame(QWidget):
     def __init__(self, imgpath, parent, imdat: QImage = None, posename: str = None):
@@ -166,11 +167,18 @@ class MyApp(QMainWindow):
 
         hspcr = QSpacerItem(1, 1)
         self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
+
+        self.actionClear_Spritesheet_Grid.triggered.connect(self.clear_spriteframe_grid)
     
     
     def onCharacterNameChange(self):
         for label in self.labels:
             label.img_label.setToolTip(label.get_tooltip_string(self))
+    
+    def clear_spriteframe_grid(self):
+        labs = list(self.labels)
+        for lab in labs:
+            lab.remove_self(self)
     
     def resizeEvent(self, a0: QResizeEvent) -> None:
         w = self.width()
@@ -211,9 +219,21 @@ class MyApp(QMainWindow):
                     print("[DEBUG] Exit status of msgbox: "+str(x))
 
 
-                sprites = xmlpngengine.split_spsh(imgpath, xmlpath)
-                for spimg, posename in sprites:
+                def update_prog_bar(progress, filename):
+                    progbar.setValue(progress)
+                    progbar.setLabel(QLabel(f"Adding: {filename}"))
+                progbar = QProgressDialog("Importing sprite frames....", None, 0, 100, self)
+                progbar.setWindowModality(Qt.WindowModal)
+                progbar.show()
+                sleep(MAGIC_SLEEP_TIME/2)
+
+                sprites = xmlpngengine.split_spsh(imgpath, xmlpath, update_prog_bar)
+                for i, (spimg, posename) in enumerate(sprites):
                     self.add_img(imgpath, spimg, posename)
+                    update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
+                progbar.close()
+                
+                self.posename_btn.setDisabled(self.num_labels <= 0)
                 
                 self.charname_textbox.setText(charname)
 
@@ -230,11 +250,12 @@ class MyApp(QMainWindow):
             progbar.setLabel(QLabel(f"Adding: {filename}"))
         progbar = QProgressDialog("Importing sprite frames....", None, 0, len(imgpaths), self)
         progbar.setWindowModality(Qt.WindowModal)
-        sleep(0.5)
+        sleep(MAGIC_SLEEP_TIME)
 
         for i, pth in enumerate(imgpaths):
             self.add_img(pth)
             update_prog_bar(i+1, pth)
+        progbar.close()
         if len(self.labels) > 0:
             self.posename_btn.setDisabled(False)
     
@@ -290,7 +311,7 @@ class MyApp(QMainWindow):
                     progbar.setLabel(QLabel(f"Adding: {filename}"))
                 progbar = QProgressDialog("Generating....", "Cancel", 0, len(self.labels), self)
                 progbar.setWindowModality(Qt.WindowModal)
-                sleep(0.5)
+                sleep(MAGIC_SLEEP_TIME)
 
                 statuscode, errmsg = xmlpngengine.make_png_xml(
                     [(lab.imgpath, lab.from_single_png, lab.imdat) for lab in self.labels], 
@@ -300,6 +321,7 @@ class MyApp(QMainWindow):
                     False if clip == 0 else True,
                     update_prog_bar
                 )
+                progbar.close()
                 if errmsg is None:
                     self.display_msg_box(
                         window_title="Done!", 
