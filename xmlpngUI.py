@@ -8,7 +8,7 @@ import ntpath
 
 import xmlpngengine
 
-from time import sleep, time
+from time import sleep
 
 SPRITEFRAME_SIZE = 130
 MAGIC_SLEEP_TIME = 0.5
@@ -222,7 +222,7 @@ class MyApp(QMainWindow):
                 def update_prog_bar(progress, filename):
                     progbar.setValue(progress)
                     progbar.setLabel(QLabel(f"Adding: {filename}"))
-                progbar = QProgressDialog("Importing sprite frames....", None, 0, 100, self)
+                progbar = QProgressDialog("Extracting sprite frames....", None, 0, 100, self)
                 progbar.setWindowModality(Qt.WindowModal)
                 progbar.show()
                 sleep(MAGIC_SLEEP_TIME/2)
