@@ -1,6 +1,6 @@
 import sys
 from PIL.ImageQt import QImage
-from PyQt5.QtCore import QSize, Qt, lowercasedigits
+from PyQt5.QtCore import QSize, Qt, endl, lowercasedigits
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
 from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
@@ -96,6 +96,16 @@ class SpriteFrame(QWidget):
         f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
         return ttstring
 
+
+def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
+    def update_prog_bar(progress, filename):
+        progbar.setValue(progress)
+        progbar.setLabel(QLabel(f"Adding: {filename}"))
+    progbar = QProgressDialog(title, None, startlim, endlim, parent)
+    progbar.setWindowModality(Qt.WindowModal)
+    progbar.show()
+
+    return update_prog_bar, progbar
 
 class MyApp(QMainWindow):
     def __init__(self):
@@ -219,12 +229,7 @@ class MyApp(QMainWindow):
                     print("[DEBUG] Exit status of msgbox: "+str(x))
 
 
-                def update_prog_bar(progress, filename):
-                    progbar.setValue(progress)
-                    progbar.setLabel(QLabel(f"Adding: {filename}"))
-                progbar = QProgressDialog("Extracting sprite frames....", None, 0, 100, self)
-                progbar.setWindowModality(Qt.WindowModal)
-                progbar.show()
+                update_prog_bar, progbar = display_progress_bar(self, "Extracting sprite frames....")
                 sleep(MAGIC_SLEEP_TIME/2)
 
                 sprites = xmlpngengine.split_spsh(imgpath, xmlpath, update_prog_bar)
@@ -245,11 +250,7 @@ class MyApp(QMainWindow):
             filter="PNG Images (*.png)",
         )[0]
 
-        def update_prog_bar(progress, filename):
-            progbar.setValue(progress)
-            progbar.setLabel(QLabel(f"Adding: {filename}"))
-        progbar = QProgressDialog("Importing sprite frames....", None, 0, len(imgpaths), self)
-        progbar.setWindowModality(Qt.WindowModal)
+        update_prog_bar, progbar = display_progress_bar(self, "Importing sprite frames....", 0, len(imgpaths))
         sleep(MAGIC_SLEEP_TIME)
 
         for i, pth in enumerate(imgpaths):
@@ -306,11 +307,7 @@ class MyApp(QMainWindow):
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
             if savedir != '':
-                def update_prog_bar(progress, filename):
-                    progbar.setValue(progress)
-                    progbar.setLabel(QLabel(f"Adding: {filename}"))
-                progbar = QProgressDialog("Generating....", "Cancel", 0, len(self.labels), self)
-                progbar.setWindowModality(Qt.WindowModal)
+                update_prog_bar, progbar = display_progress_bar(self, "Generating....", 0, len(self.labels))
                 sleep(MAGIC_SLEEP_TIME)
 
                 statuscode, errmsg = xmlpngengine.make_png_xml(
