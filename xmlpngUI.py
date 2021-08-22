@@ -155,6 +155,7 @@ class MyApp(QMainWindow):
         self.icongrid_path:str = ""
 
         self.posename_btn.clicked.connect(self.setAnimationNames)
+        self.posename_btn.setDisabled(True)
         self.charname_textbox.textChanged.connect(self.onCharacterNameChange)
 
         self.num_cols = 6
@@ -250,13 +251,15 @@ class MyApp(QMainWindow):
             filter="PNG Images (*.png)",
         )[0]
 
-        update_prog_bar, progbar = display_progress_bar(self, "Importing sprite frames....", 0, len(imgpaths))
-        sleep(MAGIC_SLEEP_TIME)
+        if imgpaths:
+            update_prog_bar, progbar = display_progress_bar(self, "Importing sprite frames....", 0, len(imgpaths))
+            sleep(MAGIC_SLEEP_TIME)
 
-        for i, pth in enumerate(imgpaths):
-            self.add_img(pth)
-            update_prog_bar(i+1, pth)
-        progbar.close()
+            for i, pth in enumerate(imgpaths):
+                self.add_img(pth)
+                update_prog_bar(i+1, pth)
+            progbar.close()
+        
         if len(self.labels) > 0:
             self.posename_btn.setDisabled(False)
     
