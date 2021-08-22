@@ -241,7 +241,7 @@ class MyApp(QMainWindow):
 
 
                 update_prog_bar, progbar = display_progress_bar(self, "Extracting sprite frames....")
-                sleep(MAGIC_SLEEP_TIME/2)
+                QApplication.processEvents()
 
                 sprites = xmlpngengine.split_spsh(imgpath, xmlpath, update_prog_bar)
                 for i, (spimg, posename) in enumerate(sprites):
@@ -263,7 +263,7 @@ class MyApp(QMainWindow):
 
         if imgpaths:
             update_prog_bar, progbar = display_progress_bar(self, "Importing sprite frames....", 0, len(imgpaths))
-            sleep(MAGIC_SLEEP_TIME)
+            QApplication.processEvents()
 
             for i, pth in enumerate(imgpaths):
                 self.add_img(pth)
@@ -321,7 +321,7 @@ class MyApp(QMainWindow):
             print("Stuff saved to: ", savedir)
             if savedir != '':
                 update_prog_bar, progbar = display_progress_bar(self, "Generating....", 0, len(self.labels))
-                sleep(MAGIC_SLEEP_TIME)
+                QApplication.processEvents()
 
                 statuscode, errmsg = xmlpngengine.make_png_xml(
                     [(lab.imgpath, lab.from_single_png, lab.imdat) for lab in self.labels], 
