@@ -1,8 +1,8 @@
 import sys
 from PIL.ImageQt import QImage
-from PyQt5.QtCore import QSize, Qt, endl, lowercasedigits
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
 
@@ -180,7 +180,17 @@ class MyApp(QMainWindow):
         self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
 
         self.actionClear_Spritesheet_Grid.triggered.connect(self.clear_spriteframe_grid)
-    
+        self.myTabs.currentChanged.connect(self.handle_tab_change)
+
+    def handle_tab_change(self, newtabind):
+        if newtabind != 0:
+            self.actionClear_Spritesheet_Grid.setDisabled(True)
+            self.action_import_existing.setDisabled(True)
+            self.actionImport_Images.setDisabled(True)
+        else:
+            self.actionClear_Spritesheet_Grid.setDisabled(False)
+            self.action_import_existing.setDisabled(False)
+            self.actionImport_Images.setDisabled(False)
     
     def onCharacterNameChange(self):
         for label in self.labels:
