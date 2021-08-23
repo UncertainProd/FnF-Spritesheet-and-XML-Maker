@@ -2,7 +2,7 @@ import sys
 from PIL.ImageQt import QImage
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFormLayout, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFormLayout, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
 
@@ -232,6 +232,18 @@ class MyApp(QMainWindow):
         self.myTabs.currentChanged.connect(self.handle_tab_change)
         self.actionEdit_Frame_Properties.triggered.connect(self.edit_frame_handler)
         self.actionEdit_Frame_Properties.setDisabled(True)
+        self.spsh_settings_btn.clicked.connect(self.show_settings)
+
+        self.settings_widget = QWidget()
+        self.settings_widget.setWindowTitle("Spritesheet generation settings")
+        vboxlay = QVBoxLayout()
+        self.settings_widget.clip_box = QCheckBox(self.settings_widget)
+        self.settings_widget.clip_box.setText("Clip to bounding box.\n(Warning: Will override any frame-related settings!)")
+        vboxlay.addWidget(self.settings_widget.clip_box)
+        self.settings_widget.setLayout(vboxlay)
+    
+    def show_settings(self):
+        self.settings_widget.show()
     
     def edit_frame_handler(self):
         self.framexy_window = FrameAdjustWindow()
@@ -393,7 +405,7 @@ class MyApp(QMainWindow):
     def generate_xml(self):
         charname:str = self.charname_textbox.text()
         charname = charname.strip()
-        clip = False # self.cliptobbox_check.checkState()
+        clip = self.settings_widget.clip_box.checkState()
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
