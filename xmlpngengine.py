@@ -39,7 +39,7 @@ def path_tuple_to_correct_img(impath):
     
     return im
 
-def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_name:str="Result", clip=False, progressupdatefn=None):
+def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_name:str="Result", clip=False, progressupdatefn=None, **kwargs):
     try:
         num_imgs = len(imgpaths)
         num_cols = int(sqrt(num_imgs))
@@ -101,17 +101,30 @@ def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_na
                 
                 subtexture_element = ET.Element("SubTexture")
                 subtexture_element.tail = '\n' # os.linesep
-                subtexture_element.attrib = {
-                    "name" : character_name + " " + newPoseNames[i],
-                    "x": f'{csx}',
-                    "y": f'{csy}',
-                    "width": f'{new_img.width}',
-                    "height": f'{new_img.height}',
-                    "frameX": '0',
-                    "frameY": '0',
-                    "frameWidth": f'{new_img.width}',
-                    "frameHeight": f'{new_img.height}',
-                }
+                if kwargs['framedat']:
+                    subtexture_element.attrib = {
+                        "name" : character_name + " " + newPoseNames[i],
+                        "x": f'{csx}',
+                        "y": f'{csy}',
+                        "width": f'{new_img.width}',
+                        "height": f'{new_img.height}',
+                        "frameX": str(kwargs['framedat'][i]['frameX']) if kwargs['framedat'][i]['frameX'] else '0',
+                        "frameY": str(kwargs['framedat'][i]['frameY']) if kwargs['framedat'][i]['frameY'] else '0',
+                        "frameWidth": str(kwargs['framedat'][i]['frameWidth']) if kwargs['framedat'][i]['frameWidth'] and kwargs['framedat'][i]['frameWidth'] != 'default' else f'{new_img.width}',
+                        "frameHeight": str(kwargs['framedat'][i]['frameHeight']) if kwargs['framedat'][i]['frameHeight'] and kwargs['framedat'][i]['frameHeight'] != 'default' else f'{new_img.height}',
+                    }
+                else:
+                    subtexture_element.attrib = {
+                        "name" : character_name + " " + newPoseNames[i],
+                        "x": f'{csx}',
+                        "y": f'{csy}',
+                        "width": f'{new_img.width}',
+                        "height": f'{new_img.height}',
+                        "frameX": '0',
+                        "frameY": '0',
+                        "frameWidth": f'{new_img.width}',
+                        "frameHeight": f'{new_img.height}',
+                    }
                 root.append(subtexture_element)
 
                 new_img = new_img.convert('RGBA')

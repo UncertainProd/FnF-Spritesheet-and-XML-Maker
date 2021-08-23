@@ -194,8 +194,8 @@ Generation Settings</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>990</width>
-                <height>451</height>
+                <width>98</width>
+                <height>28</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -342,6 +342,7 @@ Icon-grid</string>
      <string>Edit</string>
     </property>
     <addaction name="actionClear_Spritesheet_Grid"/>
+    <addaction name="actionEdit_Frame_Properties"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -360,6 +361,11 @@ Icon-grid</string>
   <action name="actionClear_Spritesheet_Grid">
    <property name="text">
     <string>Clear Spritesheet Grid</string>
+   </property>
+  </action>
+  <action name="actionEdit_Frame_Properties">
+   <property name="text">
+    <string>Edit Frame Properties</string>
    </property>
   </action>
  </widget>

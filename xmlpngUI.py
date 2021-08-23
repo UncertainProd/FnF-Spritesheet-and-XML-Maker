@@ -2,9 +2,11 @@ import sys
 from PIL.ImageQt import QImage
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFormLayout, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
 from PyQt5 import uic
 import ntpath
+
+from PyQt5.sip import setdeleted
 
 import xmlpngengine
 
@@ -12,6 +14,46 @@ from time import sleep
 
 SPRITEFRAME_SIZE = 130
 MAGIC_SLEEP_TIME = 0.5
+
+class FrameAdjustWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Adjust FrameX and FrameY")
+        self.setFixedSize(500, 300)
+        formlayout = QFormLayout()
+
+        self.lab1 = QLabel("FrameX: ", self)
+        self.frame_x_input = QLineEdit(self)
+        self.frame_x_input.setText("0")
+
+        self.lab2 = QLabel("FrameY: ", self)
+        self.frame_y_input = QLineEdit(self)
+        self.frame_y_input.setText("0")
+
+        self.lab3 = QLabel("Frame Width: ", self)
+        self.frame_w_input = QLineEdit(self)
+        self.frame_w_input.setText("default")
+
+        self.lab4 = QLabel("Frame Height: ", self)
+        self.frame_h_input = QLineEdit(self)
+        self.frame_h_input.setText("default")
+
+        self.submitbtn = QPushButton("Set FrameX and FrameY", self)
+
+        # self.warnlabel = QLabel("Warning: If 'clip all to checkbox' option is selected then these options will be overwritten!")
+
+        formlayout.addWidget(self.lab1)
+        formlayout.addWidget(self.frame_x_input)
+        formlayout.addWidget(self.lab2)
+        formlayout.addWidget(self.frame_y_input)
+        formlayout.addWidget(self.lab3)
+        formlayout.addWidget(self.frame_w_input)
+        formlayout.addWidget(self.lab4)
+        formlayout.addWidget(self.frame_h_input)
+        formlayout.addWidget(self.submitbtn)
+        # formlayout.addWidget(self.warnlabel)
+
+        self.setLayout(formlayout)
 
 class SpriteFrame(QWidget):
     def __init__(self, imgpath, parent, imdat: QImage = None, posename: str = None):
@@ -22,6 +64,7 @@ class SpriteFrame(QWidget):
         self.image_pixmap = QPixmap(imgpath) if self.from_single_png else QPixmap.fromImage(imdat)
         self.pose_name = "idle" if self.from_single_png else " ".join((posename[:-4]).split(' ')[1:]) # I'm assuming the character name is just the first word
         self.myframe = QFrame(self)
+        self.framex = self.framey = self.framew = self.frameh = None
 
         self.img_label = QLabel(self.myframe)
 
@@ -54,9 +97,13 @@ class SpriteFrame(QWidget):
     
     # overriding the default mousePressEvent
     def mousePressEvent(self, event):
-        prevstate = self.select_checkbox.checkState()
-        newstate = 0 if prevstate != 0 else 1
-        self.select_checkbox.setChecked(newstate)
+        btnpressed = event.button()
+        if btnpressed == 1: # left mouse button
+            prevstate = self.select_checkbox.checkState()
+            newstate = 0 if prevstate != 0 else 1
+            self.select_checkbox.setChecked(newstate)
+        else:
+            print("Click with the left mouse button")
     
     # overriding the default enterEvent
     def enterEvent(self, event):
@@ -85,6 +132,8 @@ class SpriteFrame(QWidget):
             parent.selected_labels.remove(self)
         else:
             parent.selected_labels.append(self)
+        
+        parent.actionEdit_Frame_Properties.setDisabled(len(parent.selected_labels) <= 0)
     
     def get_tooltip_string(self, parent):
         charname:str = parent.charname_textbox.text()
@@ -181,6 +230,35 @@ class MyApp(QMainWindow):
 
         self.actionClear_Spritesheet_Grid.triggered.connect(self.clear_spriteframe_grid)
         self.myTabs.currentChanged.connect(self.handle_tab_change)
+        self.actionEdit_Frame_Properties.triggered.connect(self.edit_frame_handler)
+        self.actionEdit_Frame_Properties.setDisabled(True)
+    
+    def edit_frame_handler(self):
+        self.framexy_window = FrameAdjustWindow()
+        self.framexy_window.submitbtn.clicked.connect(self.get_frame_stuff)
+        self.framexy_window.show()
+    
+    def get_frame_stuff(self):
+        self.framexy_window.close()
+        try:
+            fx = int(self.framexy_window.frame_x_input.text())
+            fy = int(self.framexy_window.frame_y_input.text())
+            fw = self.framexy_window.frame_w_input.text()
+            fh = self.framexy_window.frame_h_input.text()
+            for sel_lab in self.selected_labels:
+                sel_lab.framex = fx
+                sel_lab.framey = fy
+                sel_lab.framew = fw if fw == 'default' else int(fw)
+                sel_lab.frameh = fh if fh == 'default' else int(fh)
+            
+            for label in list(self.selected_labels):
+                label.select_checkbox.setChecked(False)
+        except ValueError:
+            self.display_msg_box(
+                window_title="Error!",
+                text="One of the values you entered was an invalid integer!",
+                icon=QMessageBox.Critical
+            )
 
     def handle_tab_change(self, newtabind):
         if newtabind != 0:
@@ -329,7 +407,14 @@ class MyApp(QMainWindow):
                     savedir, 
                     charname, 
                     False if clip == 0 else True,
-                    update_prog_bar
+                    update_prog_bar,
+                    framedat=[
+                        {
+                            "frameX": lab.framex, 
+                            "frameY": lab.framey, 
+                            "frameWidth": lab.framew, 
+                            "frameHeight": lab.frameh
+                        } for lab in self.labels]
                 )
                 progbar.close()
                 if errmsg is None:
