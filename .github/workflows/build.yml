@@ -35,6 +35,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        python-arch: ['x64', 'x86']
+      matrix:
         include:
           - os: macos-latest
             TARGET: macos
@@ -57,7 +59,6 @@ jobs:
                 zip -r9 "FnFXMLGen-Linux-${{matrix.python-arch}}.zip" "Spritesheet and XML Generator for Friday Night Funkin/"
             OUT_FILE_NAME: FnFXMLGen-Linux-${{matrix.python-arch}}.zip
             ASSET_MIME: application/zip
-        python-arch: ['x64', 'x86']
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.9
