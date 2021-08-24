@@ -33,9 +33,9 @@ jobs:
     name: Build packages
     needs: createrelease
     runs-on: ${{ matrix.os }}
+    env:
+      python-arch: ['x64', 'x86']
     strategy:
-      env:
-        python-arch: ['x64', 'x86']
       matrix:
         include:
           - os: macos-latest
