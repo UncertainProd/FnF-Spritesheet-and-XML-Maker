@@ -1,9 +1,7 @@
 import sys
-from PIL.ImageQt import QImage
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QResizeEvent
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QFormLayout, QFrame, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
-from PyQt5 import uic
+from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
 import ntpath
 
 
