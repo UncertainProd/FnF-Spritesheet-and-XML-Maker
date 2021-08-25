@@ -34,7 +34,7 @@ class SpriteFrame(QWidget):
 
         self.remove_btn = QPushButton(self.myframe)
         self.remove_btn.move(90, 90)
-        self.remove_btn.setIcon(QIcon('../image-assets/remove-frame-icon.svg'))
+        self.remove_btn.setIcon(QIcon('./image-assets/remove-frame-icon.svg'))
         self.remove_btn.setIconSize(QSize(40, 40))
         self.remove_btn.setFixedSize(40, 40)
         self.remove_btn.setToolTip("Delete Frame")

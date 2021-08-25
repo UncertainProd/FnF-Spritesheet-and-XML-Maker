@@ -11,6 +11,7 @@ from frameadjustwindow import FrameAdjustWindow
 from spriteframe import SpriteFrame
 from utils import SPRITEFRAME_SIZE
 
+# TODO: Update build.yml 's pyinstaller command to reflect new folder structure
 
 def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
     def update_prog_bar(progress, filename):
@@ -39,7 +40,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.selected_labels = []
 
         self.add_img_button = QPushButton()
-        self.add_img_button.setIcon(QIcon("../image-assets/AddImg.png"))
+        self.add_img_button.setIcon(QIcon("./image-assets/AddImg.png"))
         self.add_img_button.setGeometry(0, 0, SPRITEFRAME_SIZE, SPRITEFRAME_SIZE)
         self.add_img_button.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
         self.add_img_button.setIconSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
@@ -48,7 +49,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.frames_layout.addWidget(self.add_img_button, 0, 0, Qt.AlignmentFlag(0x1|0x20))
         self.myTabs.setCurrentIndex(0)
 
-        self.setWindowIcon(QIcon("../image-assets/appicon.png"))
+        self.setWindowIcon(QIcon("./image-assets/appicon.png"))
         self.icongrid_zoom = 1
         self.uploadicongrid_btn.clicked.connect(self.uploadIconGrid)
         self.generateicongrid_btn.clicked.connect(self.getNewIconGrid)
