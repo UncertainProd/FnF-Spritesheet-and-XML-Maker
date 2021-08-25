@@ -8,7 +8,6 @@ import ntpath
 import xmlpngengine
 from mainUI import Ui_MainWindow
 from frameadjustwindow import FrameAdjustWindow
-import utils
 from spriteframe import SpriteFrame
 from utils import SPRITEFRAME_SIZE
 
