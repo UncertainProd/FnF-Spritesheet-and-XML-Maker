@@ -10,9 +10,7 @@ from mainUI import Ui_MainWindow
 from frameadjustwindow import FrameAdjustWindow
 import utils
 from spriteframe import SpriteFrame
-
-
-SPRITEFRAME_SIZE = int(utils.get_global('SPRITEFRAME_SIZE'))
+from utils import SPRITEFRAME_SIZE
 
 
 def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):

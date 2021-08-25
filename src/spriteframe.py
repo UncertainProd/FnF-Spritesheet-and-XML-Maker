@@ -3,9 +3,8 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QCheckBox, QFrame, QPushButton, QWidget, QLabel
 import ntpath
-import utils
+from utils import SPRITEFRAME_SIZE
 
-SPRITEFRAME_SIZE = int(utils.get_global('SPRITEFRAME_SIZE'))
 
 class SpriteFrame(QWidget):
     def __init__(self, imgpath, parent, imdat: QImage = None, posename: str = None):
