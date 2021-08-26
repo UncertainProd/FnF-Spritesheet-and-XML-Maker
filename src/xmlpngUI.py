@@ -23,17 +23,18 @@ def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
 
     return update_prog_bar, progbar
 
-class MyApp(QMainWindow, Ui_MainWindow):
+class MyApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setupUi(self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         self.setWindowTitle("XML Generator")
 
-        self.generatexml_btn.clicked.connect(self.generate_xml)
-        self.frames_area.setWidgetResizable(True)
-        self.frames_layout = QGridLayout(self.sprite_frame_content)
-        self.frames_area.setWidget(self.sprite_frame_content)
+        self.ui.generatexml_btn.clicked.connect(self.generate_xml)
+        self.ui.frames_area.setWidgetResizable(True)
+        self.frames_layout = QGridLayout(self.ui.sprite_frame_content)
+        self.ui.frames_area.setWidget(self.ui.sprite_frame_content)
 
         self.num_labels = 0
         self.labels = []
@@ -47,38 +48,38 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.add_img_button.clicked.connect(self.open_file_dialog)
 
         self.frames_layout.addWidget(self.add_img_button, 0, 0, Qt.AlignmentFlag(0x1|0x20))
-        self.myTabs.setCurrentIndex(0)
+        self.ui.myTabs.setCurrentIndex(0)
 
         self.setWindowIcon(QIcon("./image-assets/appicon.png"))
         self.icongrid_zoom = 1
-        self.uploadicongrid_btn.clicked.connect(self.uploadIconGrid)
-        self.generateicongrid_btn.clicked.connect(self.getNewIconGrid)
-        self.uploadicons_btn.clicked.connect(self.appendIcon)
+        self.ui.uploadicongrid_btn.clicked.connect(self.uploadIconGrid)
+        self.ui.generateicongrid_btn.clicked.connect(self.getNewIconGrid)
+        self.ui.uploadicons_btn.clicked.connect(self.appendIcon)
 
-        self.action_zoom_in = QAction(self.icongrid_holder_label)
-        self.icongrid_holder_label.addAction(self.action_zoom_in)
+        self.action_zoom_in = QAction(self.ui.icongrid_holder_label)
+        self.ui.icongrid_holder_label.addAction(self.action_zoom_in)
         self.action_zoom_in.triggered.connect(self.zoomInPixmap)
         self.action_zoom_in.setShortcut("Ctrl+i")
 
-        self.action_zoom_out = QAction(self.icongrid_holder_label)
-        self.icongrid_holder_label.addAction(self.action_zoom_out)
+        self.action_zoom_out = QAction(self.ui.icongrid_holder_label)
+        self.ui.icongrid_holder_label.addAction(self.action_zoom_out)
         self.action_zoom_out.triggered.connect(self.zoomOutPixmap)
         self.action_zoom_out.setShortcut("Ctrl+o")
 
-        self.zoom_label.setText("Zoom: 100%")
+        self.ui.zoom_label.setText("Zoom: 100%")
 
         self.iconpaths:list = []
         self.icongrid_path:str = ""
 
-        self.posename_btn.clicked.connect(self.setAnimationNames)
-        self.posename_btn.setDisabled(True)
-        self.charname_textbox.textChanged.connect(self.onCharacterNameChange)
+        self.ui.posename_btn.clicked.connect(self.setAnimationNames)
+        self.ui.posename_btn.setDisabled(True)
+        self.ui.charname_textbox.textChanged.connect(self.onCharacterNameChange)
 
         self.num_cols = 6
         self.num_rows = 1
 
-        self.actionImport_Images.triggered.connect(self.open_file_dialog)
-        self.action_import_existing.triggered.connect(self.open_existing_spsh_xml)
+        self.ui.actionImport_Images.triggered.connect(self.open_file_dialog)
+        self.ui.action_import_existing.triggered.connect(self.open_existing_spsh_xml)
 
         self.num_rows = 1 + self.num_labels//self.num_cols
         
@@ -95,11 +96,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
         hspcr = QSpacerItem(1, 1)
         self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
 
-        self.actionClear_Spritesheet_Grid.triggered.connect(self.clear_spriteframe_grid)
-        self.myTabs.currentChanged.connect(self.handle_tab_change)
-        self.actionEdit_Frame_Properties.triggered.connect(self.edit_frame_handler)
-        self.actionEdit_Frame_Properties.setDisabled(True)
-        self.spsh_settings_btn.clicked.connect(self.show_settings)
+        self.ui.actionClear_Spritesheet_Grid.triggered.connect(self.clear_spriteframe_grid)
+        self.ui.myTabs.currentChanged.connect(self.handle_tab_change)
+        self.ui.actionEdit_Frame_Properties.triggered.connect(self.edit_frame_handler)
+        self.ui.actionEdit_Frame_Properties.setDisabled(True)
+        self.ui.spsh_settings_btn.clicked.connect(self.show_settings)
 
         self.settings_widget = QWidget()
         self.settings_widget.setWindowTitle("Spritesheet generation settings")
@@ -141,13 +142,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
     def handle_tab_change(self, newtabind):
         if newtabind != 0:
-            self.actionClear_Spritesheet_Grid.setDisabled(True)
-            self.action_import_existing.setDisabled(True)
-            self.actionImport_Images.setDisabled(True)
+            self.ui.actionClear_Spritesheet_Grid.setDisabled(True)
+            self.ui.action_import_existing.setDisabled(True)
+            self.ui.actionImport_Images.setDisabled(True)
         else:
-            self.actionClear_Spritesheet_Grid.setDisabled(False)
-            self.action_import_existing.setDisabled(False)
-            self.actionImport_Images.setDisabled(False)
+            self.ui.actionClear_Spritesheet_Grid.setDisabled(False)
+            self.ui.action_import_existing.setDisabled(False)
+            self.ui.actionImport_Images.setDisabled(False)
     
     def onCharacterNameChange(self):
         for label in self.labels:
@@ -206,9 +207,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
                     update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
                 progbar.close()
                 
-                self.posename_btn.setDisabled(self.num_labels <= 0)
+                self.ui.posename_btn.setDisabled(self.num_labels <= 0)
                 
-                self.charname_textbox.setText(charname)
+                self.ui.charname_textbox.setText(charname)
 
         
     
@@ -228,7 +229,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
             progbar.close()
         
         if len(self.labels) > 0:
-            self.posename_btn.setDisabled(False)
+            self.ui.posename_btn.setDisabled(False)
     
     def add_img(self, imgpath, imdat=None, posename=""):
         print("Adding image, prevcount: ", self.num_labels)
@@ -270,7 +271,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
     
     def generate_xml(self):
-        charname:str = self.charname_textbox.text()
+        charname:str = self.ui.charname_textbox.text()
         charname = charname.strip()
         clip = self.settings_widget.clip_box.checkState()
         if self.num_labels > 0 and charname != '':
@@ -323,10 +324,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
             w = icongrid_pixmap.width()
             h = icongrid_pixmap.height()
             icongrid_pixmap = icongrid_pixmap.scaled(int(w*self.icongrid_zoom), int(h*self.icongrid_zoom), 1)
-            self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-            self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-            self.icongrid_holder_label.setPixmap(icongrid_pixmap)
-            self.zoom_label.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
+            self.ui.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.ui.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.ui.icongrid_holder_label.setPixmap(icongrid_pixmap)
+            self.ui.zoom_label.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
 
 
     def zoomOutPixmap(self):
@@ -336,10 +337,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
             w = icongrid_pixmap.width()
             h = icongrid_pixmap.height()
             icongrid_pixmap = icongrid_pixmap.scaled(int(w*self.icongrid_zoom), int(h*self.icongrid_zoom), 1)
-            self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-            self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-            self.icongrid_holder_label.setPixmap(icongrid_pixmap)
-            self.zoom_label.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
+            self.ui.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.ui.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.ui.icongrid_holder_label.setPixmap(icongrid_pixmap)
+            self.ui.zoom_label.setText("Zoom: %.2f %%" % (self.icongrid_zoom*100))
     
     def uploadIconGrid(self):
         print("Uploading icongrid...")
@@ -348,9 +349,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
             filter="PNG Images (*.png)",
         )[0]
         icongrid_pixmap = QPixmap(self.icongrid_path)
-        self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-        self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-        self.icongrid_holder_label.setPixmap(icongrid_pixmap)
+        self.ui.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+        self.ui.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+        self.ui.icongrid_holder_label.setPixmap(icongrid_pixmap)
     
     def getNewIconGrid(self):
         if self.icongrid_path != '' and len(self.iconpaths) > 0:
@@ -391,9 +392,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
                     icon=QMessageBox.Critical
                 )
             icongrid_pixmap = QPixmap(self.icongrid_path)
-            self.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-            self.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
-            self.icongrid_holder_label.setPixmap(icongrid_pixmap)
+            self.ui.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.ui.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+            self.ui.icongrid_holder_label.setPixmap(icongrid_pixmap)
         else:
             errtxt = "Please add an icon-grid image" if self.icongrid_path == '' else "Please add an icon"
             self.display_msg_box(
@@ -411,7 +412,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         print("Got icon: ", self.iconpaths)
         if len(self.iconpaths) > 0:
             print("Valid selected")
-            self.iconselected_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
+            self.ui.iconselected_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
     
     def setAnimationNames(self):
         if len(self.selected_labels) == 0:

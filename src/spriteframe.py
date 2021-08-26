@@ -76,7 +76,7 @@ class SpriteFrame(QWidget):
         parent.re_render_grid()
         print("Deleting image, count: ", parent.num_labels, "Len of labels", len(parent.labels))
         if len(parent.labels) == 0:
-            parent.posename_btn.setDisabled(True)
+            parent.ui.posename_btn.setDisabled(True)
     
     def add_to_selected_arr(self, parent):
         if self.select_checkbox.checkState() == 0:
@@ -84,10 +84,10 @@ class SpriteFrame(QWidget):
         else:
             parent.selected_labels.append(self)
         
-        parent.actionEdit_Frame_Properties.setDisabled(len(parent.selected_labels) <= 0)
+        parent.ui.actionEdit_Frame_Properties.setDisabled(len(parent.selected_labels) <= 0)
     
     def get_tooltip_string(self, parent):
-        charname:str = parent.charname_textbox.text()
+        charname:str = parent.ui.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
         inside_subtex_name = f"{charname} {self.pose_name}####"
 
