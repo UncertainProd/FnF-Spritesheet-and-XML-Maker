@@ -1,7 +1,7 @@
 __pycache__
-xmlpngengine.pyo
+*.pyo
 .vscode
 env
 .python-version
 .venv
-NewXMLPngUI.ui
+*.ui

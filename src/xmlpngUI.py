@@ -68,8 +68,8 @@ class MyApp(QMainWindow):
 
         self.ui.zoom_label.setText("Zoom: 100%")
 
-        self.iconpaths:list = []
-        self.icongrid_path:str = ""
+        self.iconpaths = []
+        self.icongrid_path = ""
 
         self.ui.posename_btn.clicked.connect(self.setAnimationNames)
         self.ui.posename_btn.setDisabled(True)
@@ -159,7 +159,7 @@ class MyApp(QMainWindow):
         for lab in labs:
             lab.remove_self(self)
     
-    def resizeEvent(self, a0: QResizeEvent) -> None:
+    def resizeEvent(self, a0):
         w = self.width()
         # print("Current width", w)
         if w < 1228:
@@ -271,7 +271,7 @@ class MyApp(QMainWindow):
         self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
     
     def generate_xml(self):
-        charname:str = self.ui.charname_textbox.text()
+        charname = self.ui.charname_textbox.text()
         charname = charname.strip()
         clip = self.settings_widget.clip_box.checkState()
         if self.num_labels > 0 and charname != '':

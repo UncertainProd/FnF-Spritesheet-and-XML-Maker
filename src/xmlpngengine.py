@@ -17,7 +17,7 @@ def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     result.paste(img, (left, top))
     return result
 
-def add_pose_numbers(pose_arr:list[str]):
+def add_pose_numbers(pose_arr):
     unique_poses = list(set(pose_arr))
     pose_counts = dict([ (ele, 0) for ele in unique_poses ])
     new_pose_arr = list(pose_arr)
@@ -39,7 +39,7 @@ def path_tuple_to_correct_img(impath):
     
     return im
 
-def make_png_xml(imgpaths:list, pose_names:list[str], save_dir:str, character_name:str="Result", clip=False, progressupdatefn=None, **kwargs):
+def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=False, progressupdatefn=None, **kwargs):
     try:
         num_imgs = len(imgpaths)
         num_cols = int(sqrt(num_imgs))
@@ -169,7 +169,7 @@ def clean_up(*args):
     for img in args:
         img.close()
 
-def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tuple: # savedir:str,
+def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150): # savedir,
     ''' 
         Adds the selected Icon into the icon grid. Returns a value based on if it was successful or not, as follows:
         0 : Successful addition!
@@ -265,7 +265,7 @@ def appendIconToIconGrid(icongrid_path:str, iconpaths:list, iconsize=150) -> tup
         icongrid.close()
     return retval, indices, problem_img, exception_msg
 
-def split_spsh(pngpath:str, xmlpath:str, udpdatefn):
+def split_spsh(pngpath, xmlpath, udpdatefn):
     spritesheet = Image.open(pngpath)
     xmltree = ET.parse(xmlpath)
     sprites = []

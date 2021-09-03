@@ -7,7 +7,7 @@ from utils import SPRITEFRAME_SIZE
 
 
 class SpriteFrame(QWidget):
-    def __init__(self, imgpath, parent, imdat: QImage = None, posename: str = None):
+    def __init__(self, imgpath, parent, imdat = None, posename = None):
         super().__init__()
         self.imgpath = imgpath
         self.imdat = imdat
@@ -87,7 +87,7 @@ class SpriteFrame(QWidget):
         parent.ui.actionEdit_Frame_Properties.setDisabled(len(parent.selected_labels) <= 0)
     
     def get_tooltip_string(self, parent):
-        charname:str = parent.ui.charname_textbox.text()
+        charname = parent.ui.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
         inside_subtex_name = f"{charname} {self.pose_name}####"
 
