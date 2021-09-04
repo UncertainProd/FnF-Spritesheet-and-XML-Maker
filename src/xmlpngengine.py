@@ -18,7 +18,8 @@ def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     result.paste(img, (left, top))
     return result
 
-def add_pose_numbers(pose_arr):
+def add_pose_numbers(frame_arr):
+    pose_arr = [ frame.pose_name for frame in frame_arr ]
     unique_poses = list(set(pose_arr))
     pose_counts = dict([ (ele, 0) for ele in unique_poses ])
     new_pose_arr = list(pose_arr)
@@ -27,30 +28,28 @@ def add_pose_numbers(pose_arr):
         new_pose_arr[i] = new_pose_arr[i] + str(pose_counts[new_pose_arr[i]] - 1).zfill(4)
     return new_pose_arr
 
-def path_tuple_to_correct_img(impath):
-    path, is_single_img, qimg = impath
-    if is_single_img:
-        im = Image.open(path)
+def path_tuple_to_correct_img(label):
+    if label.from_single_png:
+        im = Image.open(label.imgpath)
     else:
         buf = QBuffer()
         buf.open(QBuffer.ReadWrite)
-        qimg.save(buf, "PNG")
-        # data = qimg.constBits().asstring(qimg.byteCount())
+        label.imdat.save(buf, "PNG")
         im = Image.open(BytesIO(buf.data()))
-    
     return im
 
-def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=False, progressupdatefn=None, **kwargs):
+
+def make_png_xml(frames, save_dir, character_name="Result", clip=False, progressupdatefn=None, **kwargs):
     try:
-        num_imgs = len(imgpaths)
+        num_imgs = len(frames)
         num_cols = int(sqrt(num_imgs))
         # PNG stuff
         widths = []
         heights = []
         exceptionmsg = None
-        for impath in imgpaths:
+        for frame in frames:
             try:
-                im = path_tuple_to_correct_img(impath)
+                im = path_tuple_to_correct_img(frame)
             except Exception as e:
                 exceptionmsg = str(e)
                 print("Error: ", exceptionmsg)
@@ -82,11 +81,11 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
         final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
         print("Final image size: ({}, {})".format(final_img_width, final_img_height))
         csx = csy = 0
-        newPoseNames = add_pose_numbers(pose_names)
-        for i, imgpath in enumerate(imgpaths):
-            print("Adding {} to final_image...".format(imgpath))
+        newPoseNames = add_pose_numbers(frames)
+        for i, frame in enumerate(frames):
+            print("Adding {} to final_image...".format(frame.imgpath))
             try:
-                old_img = path_tuple_to_correct_img(imgpath)
+                old_img = path_tuple_to_correct_img(frame)
             except Exception as e:
                 exceptionmsg = str(e)
                 return 1, exceptionmsg
@@ -102,30 +101,17 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
                 
                 subtexture_element = ET.Element("SubTexture")
                 subtexture_element.tail = linesep
-                if kwargs['framedat']:
-                    subtexture_element.attrib = {
-                        "name" : character_name + " " + newPoseNames[i],
-                        "x": f'{csx}',
-                        "y": f'{csy}',
-                        "width": f'{new_img.width}',
-                        "height": f'{new_img.height}',
-                        "frameX": str(kwargs['framedat'][i]['frameX']) if kwargs['framedat'][i]['frameX'] else '0',
-                        "frameY": str(kwargs['framedat'][i]['frameY']) if kwargs['framedat'][i]['frameY'] else '0',
-                        "frameWidth": str(kwargs['framedat'][i]['frameWidth']) if kwargs['framedat'][i]['frameWidth'] and kwargs['framedat'][i]['frameWidth'] != 'default' else f'{new_img.width}',
-                        "frameHeight": str(kwargs['framedat'][i]['frameHeight']) if kwargs['framedat'][i]['frameHeight'] and kwargs['framedat'][i]['frameHeight'] != 'default' else f'{new_img.height}',
-                    }
-                else:
-                    subtexture_element.attrib = {
-                        "name" : character_name + " " + newPoseNames[i],
-                        "x": f'{csx}',
-                        "y": f'{csy}',
-                        "width": f'{new_img.width}',
-                        "height": f'{new_img.height}',
-                        "frameX": '0',
-                        "frameY": '0',
-                        "frameWidth": f'{new_img.width}',
-                        "frameHeight": f'{new_img.height}',
-                    }
+                subtexture_element.attrib = {
+                    "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + newPoseNames[i],
+                    "x": f'{csx}',
+                    "y": f'{csy}',
+                    "width": f'{new_img.width}',
+                    "height": f'{new_img.height}',
+                    "frameX": str(frame.framex) if frame.framex else '0',
+                    "frameY": str(frame.framey) if frame.framey else '0',
+                    "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() else f'{new_img.width}',
+                    "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() else f'{new_img.height}',
+                }
                 root.append(subtexture_element)
 
                 new_img = new_img.convert('RGBA')
@@ -135,7 +121,7 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
                 
                 old_img.close()
                 new_img.close()
-                progressupdatefn(i+1, imgpath[0])
+                progressupdatefn(i+1, frame.imgpath)
 
         # Saving png
         print(f"Saving final image....")

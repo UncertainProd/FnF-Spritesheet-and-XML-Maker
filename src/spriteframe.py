@@ -12,6 +12,7 @@ class SpriteFrame(QWidget):
         self.imgpath = imgpath
         self.imdat = imdat
         self.from_single_png = not imdat
+        self.modified = False
         self.image_pixmap = QPixmap(imgpath) if self.from_single_png else QPixmap.fromImage(imdat)
 
         first_num_index = len(posename)-1
@@ -97,7 +98,7 @@ class SpriteFrame(QWidget):
     def get_tooltip_string(self, parent):
         charname = parent.ui.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
-        inside_subtex_name = f"{charname} {self.pose_name}####" if self.from_single_png else f"{self.pose_name}####"
+        inside_subtex_name = f"{charname} {self.pose_name}####" if self.from_single_png or self.modified else f"{self.pose_name}####"
 
         ttstring = f"Image:{ntpath.basename(self.imgpath)}\n" + \
         f"Current Pose: {self.pose_name}\n" + \

@@ -286,21 +286,13 @@ class MyApp(QMainWindow):
             if savedir != '':
                 update_prog_bar, progbar = display_progress_bar(self, "Generating....", 0, len(self.labels))
                 QApplication.processEvents()
-
+                
                 statuscode, errmsg = xmlpngengine.make_png_xml(
-                    [(lab.imgpath, lab.from_single_png, lab.imdat) for lab in self.labels], 
-                    [lab.pose_name for lab in self.labels], 
+                    self.labels, 
                     savedir, 
                     charname, 
                     False if clip == 0 else True,
-                    update_prog_bar,
-                    framedat=[
-                        {
-                            "frameX": lab.framex, 
-                            "frameY": lab.framey, 
-                            "frameWidth": lab.framew, 
-                            "frameHeight": lab.frameh
-                        } for lab in self.labels]
+                    update_prog_bar
                 )
                 progbar.close()
                 if errmsg is None:
@@ -437,6 +429,7 @@ class MyApp(QMainWindow):
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:
                     label.pose_name = text
+                    label.modified = True
                     label.img_label.setToolTip(label.get_tooltip_string(self))
                 
                 for label in list(self.selected_labels):
