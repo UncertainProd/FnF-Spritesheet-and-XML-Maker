@@ -266,6 +266,7 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
         tex_height = int(subtex.attrib['height'])
         pose_name = subtex.attrib['name']
         sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height))
+        sprite_img = sprite_img.convert('RGBA')
         qim = ImageQt(sprite_img)
         sprites.append((qim, pose_name))
         udpdatefn((i+1)*50//len(subtextures), pose_name)
