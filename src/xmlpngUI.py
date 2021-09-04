@@ -53,8 +53,12 @@ class MyApp(QMainWindow):
         self.setWindowIcon(QIcon("./image-assets/appicon.png"))
         self.icongrid_zoom = 1
         self.ui.uploadicongrid_btn.clicked.connect(self.uploadIconGrid)
+        self.ui.actionImport_IconGrid.triggered.connect(self.uploadIconGrid)
         self.ui.generateicongrid_btn.clicked.connect(self.getNewIconGrid)
         self.ui.uploadicons_btn.clicked.connect(self.appendIcon)
+        self.ui.actionImport_Icons.triggered.connect(self.appendIcon)
+        self.ui.actionClear_IconGrid.triggered.connect(self.clearIconGrid)
+        self.ui.actionClear_Icon_selection.triggered.connect(self.clearSelectedIcons)
 
         self.action_zoom_in = QAction(self.ui.icongrid_holder_label)
         self.ui.icongrid_holder_label.addAction(self.action_zoom_in)
@@ -355,6 +359,10 @@ class MyApp(QMainWindow):
         self.ui.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
         self.ui.icongrid_holder_label.setPixmap(icongrid_pixmap)
     
+    def clearIconGrid(self):
+        self.icongrid_path = ""
+        self.ui.icongrid_holder_label.clear()
+    
     def getNewIconGrid(self):
         if self.icongrid_path != '' and len(self.iconpaths) > 0:
             print("Valid!")
@@ -416,6 +424,10 @@ class MyApp(QMainWindow):
             print("Valid selected")
             self.ui.iconselected_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
     
+    def clearSelectedIcons(self):
+        self.iconpaths = []
+        self.ui.iconselected_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
+
     def setAnimationNames(self):
         if len(self.selected_labels) == 0:
             self.display_msg_box(window_title="Error", text="Please select some frames to rename by checking the checkboxes on them", icon=QMessageBox.Critical)
