@@ -5,6 +5,7 @@ from PIL import Image
 from PIL.ImageQt import ImageQt
 from PyQt5.QtCore import QBuffer
 from math import sqrt
+from os import path, linesep
 
 def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     if clip:
@@ -75,7 +76,7 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
 
         # XML Stuff
         root = ET.Element("TextureAtlas")
-        root.tail = '\n' # os.linesep
+        root.tail = linesep
         root.attrib['imagePath'] = character_name + ".png"
 
         final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
@@ -100,7 +101,7 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
                 csy = sum(max_heights[:row])
                 
                 subtexture_element = ET.Element("SubTexture")
-                subtexture_element.tail = '\n' # os.linesep
+                subtexture_element.tail = linesep
                 if kwargs['framedat']:
                     subtexture_element.attrib = {
                         "name" : character_name + " " + newPoseNames[i],
@@ -138,9 +139,9 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
 
         # Saving png
         print(f"Saving final image....")
-        # final_img.save(os.path.join(save_dir, character_name) + ".png")
         try:
-            final_img.save(save_dir + '\\' + character_name + ".png")
+            final_img.save(path.join(save_dir, character_name) + ".png")
+            # final_img.save(save_dir + '\\' + character_name + ".png")
         except Exception as e:
             exceptionmsg = str(e)
             return 1, exceptionmsg
@@ -150,9 +151,9 @@ def make_png_xml(imgpaths, pose_names, save_dir, character_name="Result", clip=F
         # Saving XML
         print("Saving XML")
         xmltree = ET.ElementTree(root)
-        # with open(os.path.join(save_dir, character_name) + ".xml", 'wb') as f:
         try:
-            with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
+            with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
+            # with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
                 xmltree.write(f, xml_declaration=True, encoding='utf-8')
             print("Done!")
         except Exception as e:

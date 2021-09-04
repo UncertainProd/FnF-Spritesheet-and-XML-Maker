@@ -13,7 +13,15 @@ class SpriteFrame(QWidget):
         self.imdat = imdat
         self.from_single_png = not imdat
         self.image_pixmap = QPixmap(imgpath) if self.from_single_png else QPixmap.fromImage(imdat)
-        self.pose_name = "idle" if self.from_single_png else " ".join((posename[:-4]).split(' ')[1:]) # I'm assuming the character name is just the first word
+
+        first_num_index = len(posename)-1
+        for i in range(len(posename)-1, 0, -1):
+            if posename[i].isnumeric():
+                first_num_index = i
+            else:
+                break
+        self.pose_name = "idle" if self.from_single_png else posename[:first_num_index]
+        
         self.myframe = QFrame(self)
         self.framex = self.framey = self.framew = self.frameh = None
 
@@ -89,7 +97,7 @@ class SpriteFrame(QWidget):
     def get_tooltip_string(self, parent):
         charname = parent.ui.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
-        inside_subtex_name = f"{charname} {self.pose_name}####"
+        inside_subtex_name = f"{charname} {self.pose_name}####" if self.from_single_png else f"{self.pose_name}####"
 
         ttstring = f"Image:{ntpath.basename(self.imgpath)}\n" + \
         f"Current Pose: {self.pose_name}\n" + \
