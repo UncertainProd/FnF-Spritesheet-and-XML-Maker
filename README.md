@@ -3,17 +3,18 @@ A Friday Night Funkin' mod making helper tool that allows you to generate XML fi
 <br />
 To download the application for windows instead of running it from source click on <a href="https://gamebanana.com/tools/7136">this link</a>.
 
-##### Disclaimer: The execuatable on gamebanana only works on windows. Other operating system users should run this from source. Instructions at the bottom of this page.
+##### Disclaimer: The execuatable on gamebanana only works on windows. Other operating system users should run this from source (or try out the experimental build from the releases here). Instructions to run from source at the bottom of this page.
 
 ## How to generate spritesheet and XML files for your character:
-<img src="./docs/InitScreen-new.png" />
+<img src="./docs/InitScreen.png" />
 The name of your character goes into the textbox at the top. This is necessary as the final xml and png files will be named accordingly.
 Eg: If you name you character <b>Pixel-GF</b> the files generated will be named <b>Pixel-GF.png</b> and <b>Pixel-GF.xml</b>
 Leaving this box blank will cause an error to show up.
 
 ### Adding sprite frames
 Click the button named "Add Frame Image" to add each pose as frame in the spritesheet, as shown below:
-<img src="./docs/added-sprites-new.png" />
+<img src="./docs/AddedSprites.png" />
+Alternatively, go to File > Import Images... to do the same. You can also import frames from existing spritesheets using File > Import Existing Spritesheet and XML
 
 Each "frame" of your spritesheet has a button (to delete that frame) and a checkbox (to change it's animation name):<br />
 <img src="./docs/frame-buttons-new.png" /><br/>
@@ -23,7 +24,7 @@ Use the "Set Animation (Pose) Name" button to name each pose that has been selec
 <img src="./docs/on-mouse-hover.png"> <br />
 
 ### Clip to bounding box
-If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files.<br/>
+If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files. This checkbox will show up on clicking the "Spritesheet Generation Settings" button<br/>
 <img src="./docs/bbox-comparison.png" width="400px" /><br />
 On left is how the image will be considered if this checkbox is left unchecked. On the right is how it'll be considered if it is checked. <small>(Side note: Most of the time you won't really have to use this feature, but it is provided just in case)</small>
 
@@ -43,7 +44,7 @@ Add another case like so:<br />
 <br/>
 
 #### Keep in mind:
-<img src="./docs/character-name-pose-example-new.png" />
+<img src="./docs/CharacterNamePoseExample.png" />
 <br />
 
 ## How to add your character's icon into the icon-grid PNG using this tool:
