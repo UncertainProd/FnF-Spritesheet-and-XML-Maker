@@ -52,7 +52,7 @@ jobs:
           - os: ubuntu-latest
             TARGET: ubuntu
             CMD_BUILD: >
-                pyinstaller --noconfirm --onedir --windowed --icon "./src/image-assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/image-assets;image-assets/"  "./src/xmlpngUI.py" &&
+                pyinstaller --noconfirm --onedir --windowed --icon "./src/image-assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/image-assets:image-assets/"  "./src/xmlpngUI.py" &&
                 cd dist/ &&
                 zip -r9 "FnFXMLGen-Linux.zip" "Spritesheet and XML Generator for Friday Night Funkin/"
             OUT_FILE_NAME: FnFXMLGen-Linux.zip
