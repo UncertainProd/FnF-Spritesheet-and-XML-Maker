@@ -11,7 +11,7 @@ from frameadjustwindow import FrameAdjustWindow
 from spriteframe import SpriteFrame
 from utils import SPRITEFRAME_SIZE
 
-# TODO: Update build.yml 's pyinstaller command to reflect new folder structure
+# kinda done: Update build.yml 's pyinstaller command to reflect new folder structure
 
 def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
     def update_prog_bar(progress, filename):
@@ -141,14 +141,15 @@ class MyApp(QMainWindow):
             )
 
     def handle_tab_change(self, newtabind):
-        if newtabind != 0:
-            self.ui.actionClear_Spritesheet_Grid.setDisabled(True)
-            self.ui.action_import_existing.setDisabled(True)
-            self.ui.actionImport_Images.setDisabled(True)
-        else:
-            self.ui.actionClear_Spritesheet_Grid.setDisabled(False)
-            self.ui.action_import_existing.setDisabled(False)
-            self.ui.actionImport_Images.setDisabled(False)
+        self.ui.actionClear_Spritesheet_Grid.setDisabled(newtabind != 0)
+        self.ui.action_import_existing.setDisabled(newtabind != 0)
+        self.ui.actionImport_Images.setDisabled(newtabind != 0)
+        self.ui.actionEdit_Frame_Properties.setDisabled(newtabind != 0 or len(self.selected_labels) <= 0)
+
+        self.ui.actionImport_IconGrid.setDisabled(newtabind != 1)
+        self.ui.actionImport_Icons.setDisabled(newtabind != 1)
+        self.ui.actionClear_IconGrid.setDisabled(newtabind != 1)
+        self.ui.actionClear_Icon_selection.setDisabled(newtabind != 1)
     
     def onCharacterNameChange(self):
         for label in self.labels:
@@ -158,6 +159,7 @@ class MyApp(QMainWindow):
         labs = list(self.labels)
         for lab in labs:
             lab.remove_self(self)
+        self.ui.actionEdit_Frame_Properties.setDisabled(len(self.selected_labels) <= 0)
     
     def resizeEvent(self, a0):
         w = self.width()
