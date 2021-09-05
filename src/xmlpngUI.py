@@ -9,9 +9,47 @@ import xmlpngengine
 from mainUI import Ui_MainWindow
 from frameadjustwindow import FrameAdjustWindow
 from spriteframe import SpriteFrame
+import spritesheetgensettings
 from utils import SPRITEFRAME_SIZE
 
 # kinda done: Update build.yml 's pyinstaller command to reflect new folder structure
+
+class SettingsWindow(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ui = spritesheetgensettings.Ui_Form()
+        self.ui.setupUi(self)
+
+        self.isclip = self.ui.clip_checkbox.checkState()
+        self.reuse_sprites = self.ui.reuse_checkbox.checkState()
+        self.prefix_type = 'custom' if self.ui.custom_prefix_radiobtn.isChecked() else 'charname'
+        self.custom_prefix = self.ui.custom_prefix_text.text()
+        self.must_use_prefix = self.ui.insist_prefix_checkbox.checkState()
+
+        self.ui.custom_prefix_radiobtn.toggled.connect(lambda is_toggled: self.ui.custom_prefix_text.setEnabled(is_toggled))
+        self.ui.save_settings_btn.clicked.connect(self.saveSettings)
+        self.ui.settings_cancel_btn.clicked.connect(self.restoreToNormal)
+    
+    def restoreToNormal(self):
+        self.ui.clip_checkbox.setCheckState(self.isclip)
+        self.ui.reuse_checkbox.setCheckState(self.reuse_sprites)
+        self.ui.custom_prefix_radiobtn.setChecked(self.prefix_type == 'custom')
+        self.ui.charname_first_radiobtn.setChecked(self.prefix_type != 'custom')
+        self.ui.custom_prefix_text.setText(self.custom_prefix)
+        self.ui.insist_prefix_checkbox.setCheckState(self.must_use_prefix)
+        self.close()
+    
+    def saveSettings(self):
+        self.isclip = self.ui.clip_checkbox.checkState()
+        self.reuse_sprites = self.ui.reuse_checkbox.checkState()
+        self.prefix_type = 'custom' if self.ui.custom_prefix_radiobtn.isChecked() else 'charname'
+        self.custom_prefix = self.ui.custom_prefix_text.text()
+        self.must_use_prefix = self.ui.insist_prefix_checkbox.checkState()
+        self.close()
+    
+    def closeEvent(self, a0):
+        self.restoreToNormal()
+        # return super().closeEvent(a0)
 
 def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
     def update_prog_bar(progress, filename):
@@ -106,13 +144,7 @@ class MyApp(QMainWindow):
         self.ui.actionEdit_Frame_Properties.setDisabled(True)
         self.ui.spsh_settings_btn.clicked.connect(self.show_settings)
 
-        self.settings_widget = QWidget()
-        self.settings_widget.setWindowTitle("Spritesheet generation settings")
-        vboxlay = QVBoxLayout()
-        self.settings_widget.clip_box = QCheckBox(self.settings_widget)
-        self.settings_widget.clip_box.setText("Clip to bounding box.\n(Warning: Will override any frame-related settings!)")
-        vboxlay.addWidget(self.settings_widget.clip_box)
-        self.settings_widget.setLayout(vboxlay)
+        self.settings_widget = SettingsWindow()
     
     def show_settings(self):
         self.settings_widget.show()
@@ -279,7 +311,13 @@ class MyApp(QMainWindow):
     def generate_xml(self):
         charname = self.ui.charname_textbox.text()
         charname = charname.strip()
-        clip = self.settings_widget.clip_box.checkState()
+        settings_config = {
+            'clip': self.settings_widget.isclip != 0,
+            'reuse_sprites': self.settings_widget.reuse_sprites != 0,
+            'prefix_type': self.settings_widget.prefix_type,
+            'custom_prefix': self.settings_widget.custom_prefix
+        }
+        clip = self.settings_widget.ui.clip_checkbox.checkState()
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
@@ -291,8 +329,8 @@ class MyApp(QMainWindow):
                     self.labels, 
                     savedir, 
                     charname, 
-                    False if clip == 0 else True,
-                    update_prog_bar
+                    update_prog_bar,
+                    settings_config
                 )
                 progbar.close()
                 if errmsg is None:

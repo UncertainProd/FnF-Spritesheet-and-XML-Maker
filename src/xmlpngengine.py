@@ -39,7 +39,11 @@ def path_tuple_to_correct_img(label):
     return im
 
 
-def make_png_xml(frames, save_dir, character_name="Result", clip=False, progressupdatefn=None, **kwargs):
+def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
+    clip = settings.get('clip', False)
+    reuse_sprites = settings.get('reuse_sprites', False)
+    prefix_type = settings.get('prefix_type', 'charname')
+    custom_prefix = settings.get('custom_prefix', '')
     try:
         num_imgs = len(frames)
         num_cols = int(sqrt(num_imgs))
@@ -107,10 +111,10 @@ def make_png_xml(frames, save_dir, character_name="Result", clip=False, progress
                     "y": f'{csy}',
                     "width": f'{new_img.width}',
                     "height": f'{new_img.height}',
-                    "frameX": str(frame.framex) if frame.framex else '0',
-                    "frameY": str(frame.framey) if frame.framey else '0',
-                    "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() else f'{new_img.width}',
-                    "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() else f'{new_img.height}',
+                    "frameX": str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
+                    "frameY": str(frame.framey) if frame.framey and not clip else '0',
+                    "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
+                    "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
                 }
                 root.append(subtexture_element)
 
