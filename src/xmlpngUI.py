@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QAction, QApplication, QCheckBox, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QVBoxLayout, QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QWidget, QLabel, QFileDialog
 import ntpath
 
 
@@ -317,7 +317,6 @@ class MyApp(QMainWindow):
             'prefix_type': self.settings_widget.prefix_type,
             'custom_prefix': self.settings_widget.custom_prefix
         }
-        clip = self.settings_widget.ui.clip_checkbox.checkState()
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
