@@ -10,7 +10,7 @@ from os import path, linesep
 def image_cmp(im1, im2): # im1 == im2 ?
     if im1.size != im2.size:
         return False
-    if im1.tobytes() == im2.tobytes():
+    if im1.tobytes() != im2.tobytes():
         return False
     
     return ImageChops.difference(im1, im2).getbbox() is None
