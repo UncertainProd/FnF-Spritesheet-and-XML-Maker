@@ -1,11 +1,19 @@
 # import os
 from io import BytesIO
 import xml.etree.ElementTree as ET
-from PIL import Image
+from PIL import Image, ImageChops
 from PIL.ImageQt import ImageQt
 from PyQt5.QtCore import QBuffer
 from math import sqrt
 from os import path, linesep
+
+def image_cmp(im1, im2): # im1 == im2 ?
+    if im1.size != im2.size:
+        return False
+    if im1.tobytes() == im2.tobytes():
+        return False
+    
+    return ImageChops.difference(im1, im2).getbbox() is None
 
 def pad_img(img, clip=False, top=2, right=2, bottom=2, left=2):
     if clip:
@@ -258,6 +266,7 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150): # savedir,
 
 def split_spsh(pngpath, xmlpath, udpdatefn):
     spritesheet = Image.open(pngpath)
+    # TODO: Cleanse XML before splitting
     xmltree = ET.parse(xmlpath)
     sprites = []
 
