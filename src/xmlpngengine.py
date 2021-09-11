@@ -7,7 +7,7 @@ from PyQt5.QtCore import QBuffer
 from math import sqrt
 from os import path, linesep
 
-def image_cmp(im1, im2): # im1 == im2 ?
+def fast_image_cmp(im1, im2): # im1 == im2 ?
     if im1.size != im2.size:
         return False
     if im1.tobytes() != im2.tobytes():
@@ -52,16 +52,41 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     reuse_sprites = settings.get('reuse_sprites', False)
     prefix_type = settings.get('prefix_type', 'charname')
     custom_prefix = settings.get('custom_prefix', '')
-    try:
-        num_imgs = len(frames)
+    # filter for (not from_single_png)
+    # group by imgpath => into a dict { grp: (x, y, w, h)... }
+    # for each imgpath: group by (x, y, w, h) in such a way that
+    # each (x, y, w, h): [pose1, pose2, ...]
+    newPoseNames = add_pose_numbers(frames)
+    if reuse_sprites:
+        num_imgs = 0
+        existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newPoseNames) if not sframe.from_single_png ]
+        imdict = {} # { "existingspsh.png": { (x, y, w, h):[pose, ...], ... }, ... }
+        for f, npose in existing_spsh_frames:
+            if imdict.get(f.imgpath):
+                coord_dict = imdict[f.imgpath]
+                crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
+                if coord_dict.get(crds):
+                    imdict[f.imgpath][crds].append(npose)
+                else:
+                    imdict[f.imgpath][crds] = [npose]
+                    num_imgs += 1
+            else:
+                crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
+                imdict[f.imgpath] = { crds:[ npose ] }
+                num_imgs += 1
+        # print(imdict)
+        single_img_frames = [ (fr, np) for fr, np in zip(frames, newPoseNames) if fr.from_single_png ]
+        
+        # Calculating final pic size....
+        num_imgs += len(single_img_frames)
         num_cols = int(sqrt(num_imgs))
         # PNG stuff
         widths = []
         heights = []
         exceptionmsg = None
-        for frame in frames:
+        for frame, _ in single_img_frames:
             try:
-                im = path_tuple_to_correct_img(frame)
+                im = Image.open(frame.imgpath)
             except Exception as e:
                 exceptionmsg = str(e)
                 print("Error: ", exceptionmsg)
@@ -75,6 +100,20 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                     widths.append(box[2] - box[0] + 4)
                     heights.append(box[3] - box[1] + 4)
                 im.close()
+        
+        for impath, coords_dict in imdict.items():
+            indiv_coords = coords_dict.keys()
+            spsh = Image.open(impath)
+            for x, y, w, h in indiv_coords:
+                if not clip:
+                    widths.append(w + 4)
+                    heights.append(h + 4)
+                else:
+                    box = spsh.crop((x, y, x+w, y+h)).getbbox()
+                    widths.append(box[2] - box[0] + 4)
+                    heights.append(box[3] - box[1] + 4)
+            spsh.close()
+        print(f"Len of widths and heights: {len(widths)}")
         row_width_sums = []
         for i in range(0, len(widths), num_cols):
             row_width_sums.append(sum(widths[i:i+num_cols]))
@@ -85,6 +124,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             max_heights.append(max(heights[i:i+num_cols]))
         final_img_height = sum(max_heights)
 
+        # TODO: Fix code repetition!!!
         # XML Stuff
         root = ET.Element("TextureAtlas")
         root.tail = linesep
@@ -92,12 +132,13 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
 
         final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
         print("Final image size: ({}, {})".format(final_img_width, final_img_height))
+        
+        # Constructing the img
         csx = csy = 0
-        newPoseNames = add_pose_numbers(frames)
-        for i, frame in enumerate(frames):
+        for i, (frame, posename) in enumerate(single_img_frames):
             print("Adding {} to final_image...".format(frame.imgpath))
             try:
-                old_img = path_tuple_to_correct_img(frame)
+                old_img = Image.open(frame.imgpath)
             except Exception as e:
                 exceptionmsg = str(e)
                 return 1, exceptionmsg
@@ -114,7 +155,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                 subtexture_element = ET.Element("SubTexture")
                 subtexture_element.tail = linesep
                 subtexture_element.attrib = {
-                    "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + newPoseNames[i],
+                    "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + posename,
                     "x": f'{csx}',
                     "y": f'{csy}',
                     "width": f'{new_img.width}',
@@ -134,7 +175,55 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                 old_img.close()
                 new_img.close()
                 progressupdatefn(i+1, frame.imgpath)
+        
+        # FOR EXISTING SPRITESHEET FRAMES
+        i += 1
+        for impth, coorddict in imdict.items():
+            print("Adding {} to final_image...".format(impth))
+            spsh = Image.open(impth)
+            for coord, poselist in coorddict.items():
+                try:
+                    x, y, w, h = coord
+                    old_img = spsh.crop((x, y, x+w, y+h))
+                except Exception as e:
+                    exceptionmsg = str(e)
+                    return 1, exceptionmsg
+                else:
+                    new_img = pad_img(old_img, clip)
 
+                    row = i // num_cols
+                    col = i % num_cols
+
+                    if col == 0:
+                        csx = 0
+                    csy = sum(max_heights[:row])
+                
+                # Adding each pose to poselist
+                for pose in poselist:    
+                    subtexture_element = ET.Element("SubTexture")
+                    subtexture_element.tail = linesep
+                    subtexture_element.attrib = {
+                        "name" : (character_name + " " if frame.modified else "") + pose,
+                        "x": f'{csx}',
+                        "y": f'{csy}',
+                        "width": f'{new_img.width}',
+                        "height": f'{new_img.height}',
+                        "frameX": '0', # str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
+                        "frameY": '0', # str(frame.framey) if frame.framey and not clip else '0',
+                        "frameWidth": f'{new_img.width}', # str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
+                        "frameHeight": f'{new_img.height}', # str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
+                    }
+                    root.append(subtexture_element)
+
+                new_img = new_img.convert('RGBA')
+                final_img.paste(new_img, (csx, csy))
+                
+                csx += new_img.width
+                
+                old_img.close()
+                new_img.close()
+                progressupdatefn(i+1, frame.imgpath)
+                i += 1
         # Saving png
         print(f"Saving final image....")
         try:
@@ -145,7 +234,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             return 1, exceptionmsg
         else:
             final_img.close()
-
+        
         # Saving XML
         print("Saving XML")
         xmltree = ET.ElementTree(root)
@@ -157,12 +246,120 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         except Exception as e:
             exceptionmsg = str(e)
             return 1, exceptionmsg
-    
-    except Exception as e:
-        exceptionmsg = str(e)
-        return 1, exceptionmsg
-    else:
+        
         return 0, None
+    else:
+        try:
+            num_imgs = len(frames)
+            num_cols = int(sqrt(num_imgs))
+            # PNG stuff
+            widths = []
+            heights = []
+            exceptionmsg = None
+            for frame in frames:
+                try:
+                    im = path_tuple_to_correct_img(frame)
+                except Exception as e:
+                    exceptionmsg = str(e)
+                    print("Error: ", exceptionmsg)
+                    return 1, exceptionmsg
+                else:
+                    if not clip:
+                        widths.append(im.width + 4) # 2 pixels padding on each side
+                        heights.append(im.height + 4)
+                    else:
+                        box = im.getbbox()
+                        widths.append(box[2] - box[0] + 4)
+                        heights.append(box[3] - box[1] + 4)
+                    im.close()
+            row_width_sums = []
+            for i in range(0, len(widths), num_cols):
+                row_width_sums.append(sum(widths[i:i+num_cols]))
+            final_img_width = max(row_width_sums)
+
+            max_heights = []
+            for i in range(0, len(heights), num_cols):
+                max_heights.append(max(heights[i:i+num_cols]))
+            final_img_height = sum(max_heights)
+
+            # XML Stuff
+            root = ET.Element("TextureAtlas")
+            root.tail = linesep
+            root.attrib['imagePath'] = character_name + ".png"
+
+            final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
+            print("Final image size: ({}, {})".format(final_img_width, final_img_height))
+            csx = csy = 0
+            # newPoseNames = add_pose_numbers(frames)
+            for i, frame in enumerate(frames):
+                print("Adding {} to final_image...".format(frame.imgpath))
+                try:
+                    old_img = path_tuple_to_correct_img(frame)
+                except Exception as e:
+                    exceptionmsg = str(e)
+                    return 1, exceptionmsg
+                else:
+                    new_img = pad_img(old_img, clip)
+
+                    row = i // num_cols
+                    col = i % num_cols
+
+                    if col == 0:
+                        csx = 0
+                    csy = sum(max_heights[:row])
+                    
+                    subtexture_element = ET.Element("SubTexture")
+                    subtexture_element.tail = linesep
+                    subtexture_element.attrib = {
+                        "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + newPoseNames[i],
+                        "x": f'{csx}',
+                        "y": f'{csy}',
+                        "width": f'{new_img.width}',
+                        "height": f'{new_img.height}',
+                        "frameX": str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
+                        "frameY": str(frame.framey) if frame.framey and not clip else '0',
+                        "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
+                        "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
+                    }
+                    root.append(subtexture_element)
+
+                    new_img = new_img.convert('RGBA')
+                    final_img.paste(new_img, (csx, csy))
+                    
+                    csx += new_img.width
+                    
+                    old_img.close()
+                    new_img.close()
+                    progressupdatefn(i+1, frame.imgpath)
+
+            # Saving png
+            print(f"Saving final image....")
+            try:
+                final_img.save(path.join(save_dir, character_name) + ".png")
+                # final_img.save(save_dir + '\\' + character_name + ".png")
+            except Exception as e:
+                exceptionmsg = str(e)
+                return 1, exceptionmsg
+            else:
+                final_img.close()
+
+            # Saving XML
+            print("Saving XML")
+            xmltree = ET.ElementTree(root)
+            try:
+                with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
+                # with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
+                    xmltree.write(f, xml_declaration=True, encoding='utf-8')
+                print("Done!")
+            except Exception as e:
+                exceptionmsg = str(e)
+                return 1, exceptionmsg
+        
+        except Exception as e:
+            exceptionmsg = str(e)
+            return 1, exceptionmsg
+        else:
+            return 0, None
 
 def clean_up(*args):
     for img in args:
@@ -281,7 +478,7 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
         sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height))
         sprite_img = sprite_img.convert('RGBA')
         qim = ImageQt(sprite_img)
-        sprites.append((qim, pose_name))
+        sprites.append((qim, pose_name, tex_x, tex_y, tex_width, tex_height))
         udpdatefn((i+1)*50//len(subtextures), pose_name)
     
     return sprites

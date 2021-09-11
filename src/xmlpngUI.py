@@ -240,8 +240,8 @@ class MyApp(QMainWindow):
                 QApplication.processEvents()
 
                 sprites = xmlpngengine.split_spsh(imgpath, xmlpath, update_prog_bar)
-                for i, (spimg, posename) in enumerate(sprites):
-                    self.add_img(imgpath, spimg, posename)
+                for i, (spimg, posename, tx, ty, tw, th) in enumerate(sprites):
+                    self.add_img(imgpath, spimg, posename, tx=tx, ty=ty, tw=tw, th=th)
                     update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
                 progbar.close()
                 
@@ -269,7 +269,7 @@ class MyApp(QMainWindow):
         if len(self.labels) > 0:
             self.ui.posename_btn.setDisabled(False)
     
-    def add_img(self, imgpath, imdat=None, posename=""):
+    def add_img(self, imgpath, imdat=None, posename="", **texinfo):
         print("Adding image, prevcount: ", self.num_labels)
         self.num_rows = 1 + self.num_labels//self.num_cols
         
@@ -282,7 +282,7 @@ class MyApp(QMainWindow):
         hspcr = QSpacerItem(1, 1)
         self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
         
-        self.labels.append(SpriteFrame(imgpath, self, imdat, posename))
+        self.labels.append(SpriteFrame(imgpath, self, imdat, posename, **texinfo))
         self.frames_layout.removeWidget(self.add_img_button)
         self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.num_labels += 1

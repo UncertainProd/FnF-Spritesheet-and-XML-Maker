@@ -7,7 +7,7 @@ from utils import SPRITEFRAME_SIZE
 
 
 class SpriteFrame(QWidget):
-    def __init__(self, imgpath, parent, imdat = None, posename = None):
+    def __init__(self, imgpath, parent, imdat = None, posename = None, **texinfo):
         super().__init__()
         self.imgpath = imgpath
         self.imdat = imdat
@@ -25,6 +25,10 @@ class SpriteFrame(QWidget):
         
         self.myframe = QFrame(self)
         self.framex = self.framey = self.framew = self.frameh = None
+        self.tex_x = texinfo.get("tx", None)
+        self.tex_y = texinfo.get("ty", None)
+        self.tex_w = texinfo.get("tw", None)
+        self.tex_h = texinfo.get("th", None)
 
         self.img_label = QLabel(self.myframe)
 
