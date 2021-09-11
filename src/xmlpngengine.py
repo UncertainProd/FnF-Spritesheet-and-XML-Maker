@@ -46,6 +46,38 @@ def path_tuple_to_correct_img(label):
         im = Image.open(BytesIO(buf.data()))
     return im
 
+def group_imgs(frames, newposes):
+    num_imgs = 0
+    existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newposes) if not sframe.from_single_png ]
+    imdict = {} # { "existingspsh.png": { (x, y, w, h):[pose, ...], ... }, ... }
+    for f, npose in existing_spsh_frames:
+        if imdict.get(f.imgpath):
+            coord_dict = imdict[f.imgpath]
+            crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
+            if coord_dict.get(crds):
+                imdict[f.imgpath][crds].append(npose)
+            else:
+                imdict[f.imgpath][crds] = [npose]
+                num_imgs += 1
+        else:
+            crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
+            imdict[f.imgpath] = { crds:[ npose ] }
+            num_imgs += 1
+    # print(imdict)
+    single_img_frames = [ (fr, np) for fr, np in zip(frames, newposes) if fr.from_single_png ]
+    return imdict, single_img_frames
+
+def get_tot_imgs_from_imdict(imdict, reuse):
+    tot = 0
+    if reuse:
+        for coord_dict in imdict.values():
+            tot += len(coord_dict.keys())
+    else:
+        for coord_dict in imdict.values():
+            for poselist in coord_dict.values():
+                tot += len(poselist)
+    return tot
+
 
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
     clip = settings.get('clip', False)
@@ -57,6 +89,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     # for each imgpath: group by (x, y, w, h) in such a way that
     # each (x, y, w, h): [pose1, pose2, ...]
     newPoseNames = add_pose_numbers(frames)
+    # existing_img_dict, imlist = group_imgs(frames, newPoseNames)
     if reuse_sprites:
         num_imgs = 0
         existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newPoseNames) if not sframe.from_single_png ]
