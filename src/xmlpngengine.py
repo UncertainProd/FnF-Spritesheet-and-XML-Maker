@@ -78,6 +78,61 @@ def get_tot_imgs_from_imdict(imdict, reuse):
                 tot += len(poselist)
     return tot
 
+def calculate_final_size(imdict, imlist, num_cols, clip, reuse):
+    # PNG stuff
+    widths = []
+    heights = []
+    exceptionmsg = None
+    for frame, _ in imlist:
+        try:
+            im = Image.open(frame.imgpath)
+        except Exception as e:
+            exceptionmsg = str(e)
+            print("Error: ", exceptionmsg)
+            return 1, exceptionmsg
+        else:
+            if not clip:
+                widths.append(im.width + 4) # 2 pixels padding on each side
+                heights.append(im.height + 4)
+            else:
+                box = im.getbbox()
+                widths.append(box[2] - box[0] + 4)
+                heights.append(box[3] - box[1] + 4)
+            im.close()
+    
+    for impath, coords_dict in imdict.items():
+        spsh = Image.open(impath)
+        for (x, y, w, h), poselist in coords_dict.items():
+            if reuse:
+                if not clip:
+                    widths.append(w + 4)
+                    heights.append(h + 4)
+                else:
+                    box = spsh.crop((x, y, x+w, y+h)).getbbox()
+                    widths.append(box[2] - box[0] + 4)
+                    heights.append(box[3] - box[1] + 4)
+            else:
+                for _ in poselist:
+                    if not clip:
+                        widths.append(w + 4)
+                        heights.append(h + 4)
+                    else:
+                        box = spsh.crop((x, y, x+w, y+h)).getbbox()
+                        widths.append(box[2] - box[0] + 4)
+                        heights.append(box[3] - box[1] + 4)
+        spsh.close()
+    print(f"Len of widths and heights: {len(widths)}")
+    row_width_sums = []
+    for i in range(0, len(widths), num_cols):
+        row_width_sums.append(sum(widths[i:i+num_cols]))
+    final_img_width = max(row_width_sums)
+
+    max_heights = []
+    for i in range(0, len(heights), num_cols):
+        max_heights.append(max(heights[i:i+num_cols]))
+    final_img_height = sum(max_heights)
+
+    return final_img_width, final_img_height, max_heights
 
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
     clip = settings.get('clip', False)
@@ -89,310 +144,147 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     # for each imgpath: group by (x, y, w, h) in such a way that
     # each (x, y, w, h): [pose1, pose2, ...]
     newPoseNames = add_pose_numbers(frames)
-    # existing_img_dict, imlist = group_imgs(frames, newPoseNames)
-    if reuse_sprites:
-        num_imgs = 0
-        existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newPoseNames) if not sframe.from_single_png ]
-        imdict = {} # { "existingspsh.png": { (x, y, w, h):[pose, ...], ... }, ... }
-        for f, npose in existing_spsh_frames:
-            if imdict.get(f.imgpath):
-                coord_dict = imdict[f.imgpath]
-                crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
-                if coord_dict.get(crds):
-                    imdict[f.imgpath][crds].append(npose)
-                else:
-                    imdict[f.imgpath][crds] = [npose]
-                    num_imgs += 1
-            else:
-                crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
-                imdict[f.imgpath] = { crds:[ npose ] }
-                num_imgs += 1
-        # print(imdict)
-        single_img_frames = [ (fr, np) for fr, np in zip(frames, newPoseNames) if fr.from_single_png ]
-        
-        # Calculating final pic size....
-        num_imgs += len(single_img_frames)
-        num_cols = int(sqrt(num_imgs))
-        # PNG stuff
-        widths = []
-        heights = []
-        exceptionmsg = None
-        for frame, _ in single_img_frames:
+    existing_img_dict, imlist = group_imgs(frames, newPoseNames)
+
+    num_imgs = len(imlist) + get_tot_imgs_from_imdict(existing_img_dict, reuse_sprites)
+    num_cols = int(sqrt(num_imgs))
+    final_img_width, final_img_height, max_heights = calculate_final_size(existing_img_dict, imlist, num_cols, clip, reuse_sprites)
+
+    # XML Stuff
+    root = ET.Element("TextureAtlas")
+    root.tail = linesep
+    root.attrib['imagePath'] = character_name + ".png"
+
+    final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
+    print("Final image size: ({}, {})".format(final_img_width, final_img_height))
+    
+    # Constructing the img
+    csx = csy = 0
+    for i, (frame, posename) in enumerate(imlist):
+        print("Adding {} to final_image...".format(frame.imgpath))
+        try:
+            old_img = Image.open(frame.imgpath)
+        except Exception as e:
+            exceptionmsg = str(e)
+            return 1, exceptionmsg
+        else:
+            new_img = pad_img(old_img, clip)
+            row = i // num_cols
+            col = i % num_cols
+            if col == 0:
+                csx = 0
+            csy = sum(max_heights[:row])
+            
+            subtexture_element = ET.Element("SubTexture")
+            subtexture_element.tail = linesep
+            subtexture_element.attrib = {
+                "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + posename,
+                "x": f'{csx}',
+                "y": f'{csy}',
+                "width": f'{new_img.width}',
+                "height": f'{new_img.height}',
+                "frameX": str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
+                "frameY": str(frame.framey) if frame.framey and not clip else '0',
+                "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
+                "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
+            }
+            root.append(subtexture_element)
+            new_img = new_img.convert('RGBA')
+            final_img.paste(new_img, (csx, csy))
+            
+            csx += new_img.width
+            
+            old_img.close()
+            new_img.close()
+            progressupdatefn(i+1, frame.imgpath)
+    
+    # FOR EXISTING SPRITESHEET FRAMES
+    i += 1
+    print(f"Existing spsh pasting starting at: {i=}")
+    for impth, coorddict in existing_img_dict.items(): # {"xyz.png": { (x, y, w, h):[pose...] ... }, ... }
+        print("Adding {} to final_image...".format(impth))
+        spsh = Image.open(impth)
+        for coord, poselist in coorddict.items(): # { (x, y, w, h):[pose...], ... }
             try:
-                im = Image.open(frame.imgpath)
-            except Exception as e:
-                exceptionmsg = str(e)
-                print("Error: ", exceptionmsg)
-                return 1, exceptionmsg
-            else:
-                if not clip:
-                    widths.append(im.width + 4) # 2 pixels padding on each side
-                    heights.append(im.height + 4)
-                else:
-                    box = im.getbbox()
-                    widths.append(box[2] - box[0] + 4)
-                    heights.append(box[3] - box[1] + 4)
-                im.close()
-        
-        for impath, coords_dict in imdict.items():
-            indiv_coords = coords_dict.keys()
-            spsh = Image.open(impath)
-            for x, y, w, h in indiv_coords:
-                if not clip:
-                    widths.append(w + 4)
-                    heights.append(h + 4)
-                else:
-                    box = spsh.crop((x, y, x+w, y+h)).getbbox()
-                    widths.append(box[2] - box[0] + 4)
-                    heights.append(box[3] - box[1] + 4)
-            spsh.close()
-        print(f"Len of widths and heights: {len(widths)}")
-        row_width_sums = []
-        for i in range(0, len(widths), num_cols):
-            row_width_sums.append(sum(widths[i:i+num_cols]))
-        final_img_width = max(row_width_sums)
-
-        max_heights = []
-        for i in range(0, len(heights), num_cols):
-            max_heights.append(max(heights[i:i+num_cols]))
-        final_img_height = sum(max_heights)
-
-        # TODO: Fix code repetition!!!
-        # XML Stuff
-        root = ET.Element("TextureAtlas")
-        root.tail = linesep
-        root.attrib['imagePath'] = character_name + ".png"
-
-        final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
-        print("Final image size: ({}, {})".format(final_img_width, final_img_height))
-        
-        # Constructing the img
-        csx = csy = 0
-        for i, (frame, posename) in enumerate(single_img_frames):
-            print("Adding {} to final_image...".format(frame.imgpath))
-            try:
-                old_img = Image.open(frame.imgpath)
+                x, y, w, h = coord
+                old_img = spsh.crop((x, y, x+w, y+h))
             except Exception as e:
                 exceptionmsg = str(e)
                 return 1, exceptionmsg
             else:
                 new_img = pad_img(old_img, clip)
-
+            
+            if reuse_sprites:
                 row = i // num_cols
                 col = i % num_cols
-
                 if col == 0:
                     csx = 0
                 csy = sum(max_heights[:row])
-                
+                new_img = new_img.convert('RGBA')
+                final_img.paste(new_img, (csx, csy))
+                csx += new_img.width
+                i += 1
+            
+            # Adding each pose to poselist
+            for pose in poselist:   
+                if not reuse_sprites:
+                    row = i // num_cols
+                    col = i % num_cols
+
+                    if col == 0:
+                        csx = 0
+                    csy = sum(max_heights[:row])
+
+                    new_img = new_img.convert('RGBA')
+                    print(f"DEBUGINFO: pasting from existing at {csx, csy}")
+                    final_img.paste(new_img, (csx, csy))
+                    csx += new_img.width
+                    i += 1
                 subtexture_element = ET.Element("SubTexture")
                 subtexture_element.tail = linesep
+                # TODO: Get frame.modified, framex/y/w/h into the dict somehow
                 subtexture_element.attrib = {
-                    "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + posename,
+                    "name" : (character_name + " " if frame.modified else "") + pose,
                     "x": f'{csx}',
                     "y": f'{csy}',
                     "width": f'{new_img.width}',
                     "height": f'{new_img.height}',
-                    "frameX": str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
-                    "frameY": str(frame.framey) if frame.framey and not clip else '0',
-                    "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
-                    "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
+                    "frameX": '0', # str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
+                    "frameY": '0', # str(frame.framey) if frame.framey and not clip else '0',
+                    "frameWidth": f'{new_img.width}', # str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
+                    "frameHeight": f'{new_img.height}', # str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
                 }
                 root.append(subtexture_element)
+                # TODO: TEST + remove else condn
+            
+            old_img.close()
+            new_img.close() 
+            progressupdatefn(i+1, frame.imgpath)
 
-                new_img = new_img.convert('RGBA')
-                final_img.paste(new_img, (csx, csy))
-                
-                csx += new_img.width
-                
-                old_img.close()
-                new_img.close()
-                progressupdatefn(i+1, frame.imgpath)
-        
-        # FOR EXISTING SPRITESHEET FRAMES
-        i += 1
-        for impth, coorddict in imdict.items():
-            print("Adding {} to final_image...".format(impth))
-            spsh = Image.open(impth)
-            for coord, poselist in coorddict.items():
-                try:
-                    x, y, w, h = coord
-                    old_img = spsh.crop((x, y, x+w, y+h))
-                except Exception as e:
-                    exceptionmsg = str(e)
-                    return 1, exceptionmsg
-                else:
-                    new_img = pad_img(old_img, clip)
-
-                    row = i // num_cols
-                    col = i % num_cols
-
-                    if col == 0:
-                        csx = 0
-                    csy = sum(max_heights[:row])
-                
-                # Adding each pose to poselist
-                for pose in poselist:    
-                    subtexture_element = ET.Element("SubTexture")
-                    subtexture_element.tail = linesep
-                    subtexture_element.attrib = {
-                        "name" : (character_name + " " if frame.modified else "") + pose,
-                        "x": f'{csx}',
-                        "y": f'{csy}',
-                        "width": f'{new_img.width}',
-                        "height": f'{new_img.height}',
-                        "frameX": '0', # str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
-                        "frameY": '0', # str(frame.framey) if frame.framey and not clip else '0',
-                        "frameWidth": f'{new_img.width}', # str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
-                        "frameHeight": f'{new_img.height}', # str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
-                    }
-                    root.append(subtexture_element)
-
-                new_img = new_img.convert('RGBA')
-                final_img.paste(new_img, (csx, csy))
-                
-                csx += new_img.width
-                
-                old_img.close()
-                new_img.close()
-                progressupdatefn(i+1, frame.imgpath)
-                i += 1
-        # Saving png
-        print(f"Saving final image....")
-        try:
-            final_img.save(path.join(save_dir, character_name) + ".png")
-            # final_img.save(save_dir + '\\' + character_name + ".png")
-        except Exception as e:
-            exceptionmsg = str(e)
-            return 1, exceptionmsg
-        else:
-            final_img.close()
-        
-        # Saving XML
-        print("Saving XML")
-        xmltree = ET.ElementTree(root)
-        try:
-            with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
-            # with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
-                xmltree.write(f, xml_declaration=True, encoding='utf-8')
-            print("Done!")
-        except Exception as e:
-            exceptionmsg = str(e)
-            return 1, exceptionmsg
-        
-        return 0, None
+    # Saving png
+    print(f"Saving final image....")
+    try:
+        final_img.save(path.join(save_dir, character_name) + ".png")
+        # final_img.save(save_dir + '\\' + character_name + ".png")
+    except Exception as e:
+        exceptionmsg = str(e)
+        return 1, exceptionmsg
     else:
-        try:
-            num_imgs = len(frames)
-            num_cols = int(sqrt(num_imgs))
-            # PNG stuff
-            widths = []
-            heights = []
-            exceptionmsg = None
-            for frame in frames:
-                try:
-                    im = path_tuple_to_correct_img(frame)
-                except Exception as e:
-                    exceptionmsg = str(e)
-                    print("Error: ", exceptionmsg)
-                    return 1, exceptionmsg
-                else:
-                    if not clip:
-                        widths.append(im.width + 4) # 2 pixels padding on each side
-                        heights.append(im.height + 4)
-                    else:
-                        box = im.getbbox()
-                        widths.append(box[2] - box[0] + 4)
-                        heights.append(box[3] - box[1] + 4)
-                    im.close()
-            row_width_sums = []
-            for i in range(0, len(widths), num_cols):
-                row_width_sums.append(sum(widths[i:i+num_cols]))
-            final_img_width = max(row_width_sums)
-
-            max_heights = []
-            for i in range(0, len(heights), num_cols):
-                max_heights.append(max(heights[i:i+num_cols]))
-            final_img_height = sum(max_heights)
-
-            # XML Stuff
-            root = ET.Element("TextureAtlas")
-            root.tail = linesep
-            root.attrib['imagePath'] = character_name + ".png"
-
-            final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
-            print("Final image size: ({}, {})".format(final_img_width, final_img_height))
-            csx = csy = 0
-            # newPoseNames = add_pose_numbers(frames)
-            for i, frame in enumerate(frames):
-                print("Adding {} to final_image...".format(frame.imgpath))
-                try:
-                    old_img = path_tuple_to_correct_img(frame)
-                except Exception as e:
-                    exceptionmsg = str(e)
-                    return 1, exceptionmsg
-                else:
-                    new_img = pad_img(old_img, clip)
-
-                    row = i // num_cols
-                    col = i % num_cols
-
-                    if col == 0:
-                        csx = 0
-                    csy = sum(max_heights[:row])
-                    
-                    subtexture_element = ET.Element("SubTexture")
-                    subtexture_element.tail = linesep
-                    subtexture_element.attrib = {
-                        "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + newPoseNames[i],
-                        "x": f'{csx}',
-                        "y": f'{csy}',
-                        "width": f'{new_img.width}',
-                        "height": f'{new_img.height}',
-                        "frameX": str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
-                        "frameY": str(frame.framey) if frame.framey and not clip else '0',
-                        "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
-                        "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
-                    }
-                    root.append(subtexture_element)
-
-                    new_img = new_img.convert('RGBA')
-                    final_img.paste(new_img, (csx, csy))
-                    
-                    csx += new_img.width
-                    
-                    old_img.close()
-                    new_img.close()
-                    progressupdatefn(i+1, frame.imgpath)
-
-            # Saving png
-            print(f"Saving final image....")
-            try:
-                final_img.save(path.join(save_dir, character_name) + ".png")
-                # final_img.save(save_dir + '\\' + character_name + ".png")
-            except Exception as e:
-                exceptionmsg = str(e)
-                return 1, exceptionmsg
-            else:
-                final_img.close()
-
-            # Saving XML
-            print("Saving XML")
-            xmltree = ET.ElementTree(root)
-            try:
-                with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
-                # with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
-                    xmltree.write(f, xml_declaration=True, encoding='utf-8')
-                print("Done!")
-            except Exception as e:
-                exceptionmsg = str(e)
-                return 1, exceptionmsg
-        
-        except Exception as e:
-            exceptionmsg = str(e)
-            return 1, exceptionmsg
-        else:
-            return 0, None
+        final_img.close()
+    
+    # Saving XML
+    print("Saving XML")
+    xmltree = ET.ElementTree(root)
+    try:
+        with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
+        # with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
+            xmltree.write(f, xml_declaration=True, encoding='utf-8')
+        print("Done!")
+    except Exception as e:
+        exceptionmsg = str(e)
+        return 1, exceptionmsg
+    
+    return 0, None
 
 def clean_up(*args):
     for img in args:
