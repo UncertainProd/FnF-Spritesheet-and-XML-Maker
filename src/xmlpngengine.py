@@ -49,19 +49,19 @@ def path_tuple_to_correct_img(label):
 def group_imgs(frames, newposes):
     num_imgs = 0
     existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newposes) if not sframe.from_single_png ]
-    imdict = {} # { "existingspsh.png": { (x, y, w, h):[pose, ...], ... }, ... }
+    imdict = {} # { "existingspsh.png": { (x, y, w, h):[(pose, frameinfo, modified), ...], ... }, ... }
     for f, npose in existing_spsh_frames:
         if imdict.get(f.imgpath):
             coord_dict = imdict[f.imgpath]
             crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
             if coord_dict.get(crds):
-                imdict[f.imgpath][crds].append(npose)
+                imdict[f.imgpath][crds].append((npose, (f.framex, f.framey, f.framew, f.frameh), f.modified))
             else:
-                imdict[f.imgpath][crds] = [npose]
+                imdict[f.imgpath][crds] = [(npose, (f.framex, f.framey, f.framew, f.frameh), f.modified)]
                 num_imgs += 1
         else:
             crds = (f.tex_x, f.tex_y, f.tex_w, f.tex_h)
-            imdict[f.imgpath] = { crds:[ npose ] }
+            imdict[f.imgpath] = { crds:[ (npose, (f.framex, f.framey, f.framew, f.frameh), f.modified) ] }
             num_imgs += 1
     # print(imdict)
     single_img_frames = [ (fr, np) for fr, np in zip(frames, newposes) if fr.from_single_png ]
@@ -201,10 +201,10 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     # FOR EXISTING SPRITESHEET FRAMES
     i += 1
     print(f"Existing spsh pasting starting at: {i=}")
-    for impth, coorddict in existing_img_dict.items(): # {"xyz.png": { (x, y, w, h):[pose...] ... }, ... }
+    for impth, coorddict in existing_img_dict.items(): # {"xyz.png": { (x, y, w, h):[(pose, frameinfo, modified)...] ... }, ... }
         print("Adding {} to final_image...".format(impth))
         spsh = Image.open(impth)
-        for coord, poselist in coorddict.items(): # { (x, y, w, h):[pose...], ... }
+        for coord, poselist in coorddict.items(): # { (x, y, w, h):[(pose, frameinfo, modified)...], ... }
             try:
                 x, y, w, h = coord
                 old_img = spsh.crop((x, y, x+w, y+h))
@@ -226,7 +226,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                 i += 1
             
             # Adding each pose to poselist
-            for pose in poselist:   
+            for pose, frameinfo, modified in poselist:   
                 if not reuse_sprites:
                     row = i // num_cols
                     col = i % num_cols
@@ -242,20 +242,18 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                     i += 1
                 subtexture_element = ET.Element("SubTexture")
                 subtexture_element.tail = linesep
-                # TODO: Get frame.modified, framex/y/w/h into the dict somehow
                 subtexture_element.attrib = {
-                    "name" : (character_name + " " if frame.modified else "") + pose,
+                    "name" : (character_name + " " if modified else "") + pose,
                     "x": f'{csx}',
                     "y": f'{csy}',
                     "width": f'{new_img.width}',
                     "height": f'{new_img.height}',
-                    "frameX": '0', # str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
-                    "frameY": '0', # str(frame.framey) if frame.framey and not clip else '0',
-                    "frameWidth": f'{new_img.width}', # str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
-                    "frameHeight": f'{new_img.height}', # str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
+                    "frameX": f'{frameinfo[0]}' if frameinfo[0] and not clip else '0', # checking clip checkbox will override any spriteframe settings
+                    "frameY": f'{frameinfo[1]}' if frameinfo[1] and not clip else '0',
+                    "frameWidth": f'{frameinfo[2]}' if frameinfo[2] and frameinfo[2] != 'default' and str(frameinfo[2]).isnumeric() and not clip else f'{new_img.width}',
+                    "frameHeight": f'{frameinfo[3]}' if frameinfo[3] and frameinfo[3] != 'default' and str(frameinfo[3]).isnumeric() and not clip else f'{new_img.height}',
                 }
                 root.append(subtexture_element)
-                # TODO: TEST + remove else condn
             
             old_img.close()
             new_img.close() 
