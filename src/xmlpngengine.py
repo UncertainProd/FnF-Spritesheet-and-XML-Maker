@@ -69,7 +69,7 @@ def group_imgs(frames, newposes):
 
 def get_tot_imgs_from_imdict(imdict, reuse):
     tot = 0
-    if reuse:
+    if reuse == 1:
         for coord_dict in imdict.values():
             tot += len(coord_dict.keys())
     else:
@@ -103,7 +103,7 @@ def calculate_final_size(imdict, imlist, num_cols, clip, reuse):
     for impath, coords_dict in imdict.items():
         spsh = Image.open(impath)
         for (x, y, w, h), poselist in coords_dict.items():
-            if reuse:
+            if reuse == 1:
                 if not clip:
                     widths.append(w + 4)
                     heights.append(h + 4)
@@ -136,7 +136,7 @@ def calculate_final_size(imdict, imlist, num_cols, clip, reuse):
 
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
     clip = settings.get('clip', False)
-    reuse_sprites = settings.get('reuse_sprites', False)
+    reuse_sprites_level = settings.get('reuse_sprites_level', 1)
     prefix_type = settings.get('prefix_type', 'charname')
     custom_prefix = settings.get('custom_prefix', '')
     insist_prefix = settings.get('insist_prefix', False)
@@ -147,9 +147,9 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     newPoseNames = add_pose_numbers(frames)
     existing_img_dict, imlist = group_imgs(frames, newPoseNames)
 
-    num_imgs = len(imlist) + get_tot_imgs_from_imdict(existing_img_dict, reuse_sprites)
+    num_imgs = len(imlist) + get_tot_imgs_from_imdict(existing_img_dict, reuse_sprites_level)
     num_cols = int(sqrt(num_imgs))
-    final_img_width, final_img_height, max_heights = calculate_final_size(existing_img_dict, imlist, num_cols, clip, reuse_sprites)
+    final_img_width, final_img_height, max_heights = calculate_final_size(existing_img_dict, imlist, num_cols, clip, reuse_sprites_level)
 
     # XML Stuff
     root = ET.Element("TextureAtlas")
@@ -215,7 +215,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             else:
                 new_img = pad_img(old_img, clip)
             
-            if reuse_sprites:
+            if reuse_sprites_level == 1:
                 row = i // num_cols
                 col = i % num_cols
                 if col == 0:
@@ -228,7 +228,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             
             # Adding each pose to poselist
             for pose, frameinfo, modified in poselist:   
-                if not reuse_sprites:
+                if reuse_sprites_level == 0:
                     row = i // num_cols
                     col = i % num_cols
 
