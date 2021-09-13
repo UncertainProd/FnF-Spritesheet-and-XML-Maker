@@ -315,7 +315,8 @@ class MyApp(QMainWindow):
             'clip': self.settings_widget.isclip != 0,
             'reuse_sprites': self.settings_widget.reuse_sprites != 0,
             'prefix_type': self.settings_widget.prefix_type,
-            'custom_prefix': self.settings_widget.custom_prefix
+            'custom_prefix': self.settings_widget.custom_prefix,
+            'insist_prefix': self.settings_widget.must_use_prefix != 0
         }
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")

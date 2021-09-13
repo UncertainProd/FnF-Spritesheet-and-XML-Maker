@@ -139,6 +139,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     reuse_sprites = settings.get('reuse_sprites', False)
     prefix_type = settings.get('prefix_type', 'charname')
     custom_prefix = settings.get('custom_prefix', '')
+    insist_prefix = settings.get('insist_prefix', False)
     # filter for (not from_single_png)
     # group by imgpath => into a dict { grp: (x, y, w, h)... }
     # for each imgpath: group by (x, y, w, h) in such a way that
@@ -178,7 +179,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             subtexture_element = ET.Element("SubTexture")
             subtexture_element.tail = linesep
             subtexture_element.attrib = {
-                "name" : (character_name + " " if frame.from_single_png or frame.modified else "") + posename,
+                "name" : ((character_name if prefix_type == 'charname' else custom_prefix) + " " if frame.from_single_png or frame.modified else "") + posename,
                 "x": f'{csx}',
                 "y": f'{csy}',
                 "width": f'{new_img.width}',
@@ -242,8 +243,13 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                     i += 1
                 subtexture_element = ET.Element("SubTexture")
                 subtexture_element.tail = linesep
+                # if insist_prefix then (prefix + pose) else same
+                if insist_prefix:
+                    stname = (character_name if prefix_type == 'charname' else custom_prefix) + " " + pose
+                else:
+                    stname = (character_name + " " if modified else "") + pose
                 subtexture_element.attrib = {
-                    "name" : (character_name + " " if modified else "") + pose,
+                    "name" : stname,
                     "x": f'{csx}',
                     "y": f'{csy}',
                     "width": f'{new_img.width}',
