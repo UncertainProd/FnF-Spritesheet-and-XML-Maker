@@ -1,4 +1,3 @@
-# import os
 from io import BytesIO
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageChops
@@ -421,11 +420,33 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150): # savedir,
 
 def split_spsh(pngpath, xmlpath, udpdatefn):
     spritesheet = Image.open(pngpath)
-    # TODO: Cleanse XML before splitting
-    xmltree = ET.parse(xmlpath)
+    try:
+        cleaned_xml = ""
+        quotepairity = 0
+        with open(xmlpath, 'r') as f:
+            ch = f.read(1)
+            while ch and ch != '<':
+                ch = f.read(1)
+            cleaned_xml += ch
+            while True:
+                ch = f.read(1)
+                if ch == '"':
+                    quotepairity = 1 - quotepairity
+                elif (ch == '<' or ch == '>') and quotepairity == 1:
+                    ch = '&lt;' if ch == '<' else '&gt;'
+                else:
+                    if not ch:
+                        break
+                cleaned_xml += ch
+
+        xmltree = ET.fromstring(cleaned_xml) # ET.parse(xmlpath)
+        print(xmltree)
+    except ET.ParseError as e:
+        print("Error!", str(e))
+        return []
     sprites = []
 
-    root = xmltree.getroot()
+    root = xmltree # .getroot()
     subtextures = root.findall("SubTexture")
     for i, subtex in enumerate(subtextures):
         tex_x = int(subtex.attrib['x'])
