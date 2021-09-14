@@ -35,16 +35,6 @@ def add_pose_numbers(frame_arr):
         new_pose_arr[i] = new_pose_arr[i] + str(pose_counts[new_pose_arr[i]] - 1).zfill(4)
     return new_pose_arr
 
-def path_tuple_to_correct_img(label):
-    if label.from_single_png:
-        im = Image.open(label.imgpath)
-    else:
-        buf = QBuffer()
-        buf.open(QBuffer.ReadWrite)
-        label.imdat.save(buf, "PNG")
-        im = Image.open(BytesIO(buf.data()))
-    return im
-
 def group_imgs(frames, newposes):
     num_imgs = 0
     existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newposes) if not sframe.from_single_png ]
@@ -146,7 +136,7 @@ def superoptimize(single_png_list, pre_exist_dict):
             spsh = Image.open(impth)
             for coord in coords_dict:
                 x, y, w, h = coord
-                im2 = spsh.crop((x, y, x+w, y+h))
+                im2 = spsh.crop((x, y, x+w, y+h)).convert('RGBA')
                 if fast_image_cmp(im, im2):
                     new_pre_exist_dict[impth][coord].append((single_png_pose, (single_png_frame.framex, single_png_frame.framey, single_png_frame.framew, single_png_frame.frameh), True))
                     new_single_png_list.remove((single_png_frame, single_png_pose))
@@ -192,7 +182,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         # print("Adding {} to final_image...".format(frame.imgpath))
         print(f"BOUND {i=}")
         try:
-            old_img = Image.open(frame.imgpath)
+            old_img = Image.open(frame.imgpath).convert('RGBA')
         except Exception as e:
             exceptionmsg = str(e)
             return 1, exceptionmsg
@@ -229,14 +219,13 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     
     # FOR EXISTING SPRITESHEET FRAMES
     i += 1
-    # print(f"Existing spsh pasting starting at: {i=}")
     for impth, coorddict in existing_img_dict.items(): # {"xyz.png": { (x, y, w, h):[(pose, frameinfo, modified)...] ... }, ... }
         # print("Adding {} to final_image...".format(impth))
         spsh = Image.open(impth)
         for coord, poselist in coorddict.items(): # { (x, y, w, h):[(pose, frameinfo, modified)...], ... }
             try:
                 x, y, w, h = coord
-                old_img = spsh.crop((x, y, x+w, y+h))
+                old_img = spsh.crop((x, y, x+w, y+h)).convert('RGBA')
             except Exception as e:
                 exceptionmsg = str(e)
                 return 1, exceptionmsg
@@ -271,7 +260,6 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                     i += 1
                 subtexture_element = ET.Element("SubTexture")
                 subtexture_element.tail = linesep
-                # if insist_prefix then (prefix + pose) else same
                 if insist_prefix:
                     stname = (character_name if prefix_type == 'charname' else custom_prefix) + " " + pose
                 else:
@@ -337,7 +325,7 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150): # savedir,
     indices = []
     exception_msg = None
     for iconpath in iconpaths:
-        icongrid = Image.open(icongrid_path)
+        icongrid = Image.open(icongrid_path).convert('RGBA')
         grid_w, grid_h = icongrid.size
         max_col = grid_w // iconsize
         max_row = grid_h // iconsize
@@ -454,7 +442,7 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
         tex_width = int(subtex.attrib['width'])
         tex_height = int(subtex.attrib['height'])
         pose_name = subtex.attrib['name']
-        sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height))
+        sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height)).convert('RGBA')
         sprite_img = sprite_img.convert('RGBA')
         qim = ImageQt(sprite_img)
         sprites.append((qim, pose_name, tex_x, tex_y, tex_width, tex_height))
