@@ -2,8 +2,8 @@ from PIL.ImageQt import QImage
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QCheckBox, QFrame, QPushButton, QWidget, QLabel
-import ntpath
 from utils import SPRITEFRAME_SIZE
+from os import path
 
 
 class SpriteFrame(QWidget):
@@ -35,7 +35,7 @@ class SpriteFrame(QWidget):
         if self.from_single_png:
             self.img_label.setToolTip(self.get_tooltip_string(parent))
         else:
-            ttstring = f"Image:(part of) {ntpath.basename(imgpath)}\n" + \
+            ttstring = f"Image:(part of) {path.basename(imgpath)}\n" + \
                 f"Current Pose: {self.pose_name}\n" + \
                 f"Will appear in XML as:\n\t<SubTexture name=\"{posename}\" (...) >\n\t# = digit from 0-9"
             self.img_label.setToolTip(ttstring)
@@ -104,7 +104,7 @@ class SpriteFrame(QWidget):
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
         inside_subtex_name = f"{charname} {self.pose_name}####" if self.from_single_png or self.modified else f"{self.pose_name}####"
 
-        ttstring = f"Image:{ntpath.basename(self.imgpath)}\n" + \
+        ttstring = f"Image:{path.basename(self.imgpath)}\n" + \
         f"Current Pose: {self.pose_name}\n" + \
         f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
         return ttstring

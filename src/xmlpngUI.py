@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
-import ntpath
+from os import path
 
 
 import xmlpngengine
@@ -11,8 +11,6 @@ from frameadjustwindow import FrameAdjustWindow
 from spriteframe import SpriteFrame
 from utils import SPRITEFRAME_SIZE
 from settingswindow import SettingsWindow
-
-# kinda done: Update build.yml 's pyinstaller command to reflect new folder structure
 
 
 def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
@@ -185,7 +183,7 @@ class MyApp(QMainWindow):
                 filter="XML Files (*.xml)"
             )[0]
             if xmlpath != '':
-                trubasenamefn = lambda path: ntpath.basename(path).split('.')[0]
+                trubasenamefn = lambda fpath: path.basename(fpath).split('.')[0]
                 charname = trubasenamefn(xmlpath)
                 if trubasenamefn(imgpath) != trubasenamefn(xmlpath):
                     self.msgbox = QMessageBox(self)
