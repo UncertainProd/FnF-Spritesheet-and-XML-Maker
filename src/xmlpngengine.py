@@ -69,7 +69,7 @@ def group_imgs(frames, newposes):
 
 def get_tot_imgs_from_imdict(imdict, reuse):
     tot = 0
-    if reuse == 1:
+    if reuse >= 1:
         for coord_dict in imdict.values():
             tot += len(coord_dict.keys())
     else:
@@ -103,7 +103,7 @@ def calculate_final_size(imdict, imlist, num_cols, clip, reuse):
     for impath, coords_dict in imdict.items():
         spsh = Image.open(impath)
         for (x, y, w, h), poselist in coords_dict.items():
-            if reuse == 1:
+            if reuse >= 1:
                 if not clip:
                     widths.append(w + 4)
                     heights.append(h + 4)
@@ -134,6 +134,31 @@ def calculate_final_size(imdict, imlist, num_cols, clip, reuse):
 
     return final_img_width, final_img_height, max_heights
 
+def superoptimize(single_png_list, pre_exist_dict):
+    new_single_png_list = list(single_png_list) # [(frame:Spriteframe, newPose:str), ...]
+    new_pre_exist_dict = dict(pre_exist_dict) # { impth:str: {(coord):[pose, ...], ...}, ... }
+    imgplaced = False
+
+    # merge between single and existing imgs
+    for single_png_frame, single_png_pose in single_png_list:
+        im = Image.open(single_png_frame.imgpath)
+        imgplaced = False
+        for impth, coords_dict in pre_exist_dict.items():
+            spsh = Image.open(impth)
+            for coord in coords_dict:
+                x, y, w, h = coord
+                im2 = spsh.crop((x, y, x+w, y+h))
+                if fast_image_cmp(im, im2):
+                    new_pre_exist_dict[impth][coord].append((single_png_pose, (single_png_frame.framex, single_png_frame.framey, single_png_frame.framew, single_png_frame.frameh), True))
+                    new_single_png_list.remove((single_png_frame, single_png_pose))
+                    imgplaced = True
+                    break
+            if imgplaced:
+                break
+        im.close()
+
+    return new_pre_exist_dict, new_single_png_list
+
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
     clip = settings.get('clip', False)
     reuse_sprites_level = settings.get('reuse_sprites_level', 1)
@@ -146,6 +171,8 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     # each (x, y, w, h): [pose1, pose2, ...]
     newPoseNames = add_pose_numbers(frames)
     existing_img_dict, imlist = group_imgs(frames, newPoseNames)
+    if reuse_sprites_level == 2:
+        existing_img_dict, imlist = superoptimize(imlist, existing_img_dict)
 
     num_imgs = len(imlist) + get_tot_imgs_from_imdict(existing_img_dict, reuse_sprites_level)
     num_cols = int(sqrt(num_imgs))
@@ -161,8 +188,10 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     
     # Constructing the img
     csx = csy = 0
+    i = 0
     for i, (frame, posename) in enumerate(imlist):
-        print("Adding {} to final_image...".format(frame.imgpath))
+        # print("Adding {} to final_image...".format(frame.imgpath))
+        print(f"BOUND {i=}")
         try:
             old_img = Image.open(frame.imgpath)
         except Exception as e:
@@ -201,9 +230,9 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     
     # FOR EXISTING SPRITESHEET FRAMES
     i += 1
-    print(f"Existing spsh pasting starting at: {i=}")
+    # print(f"Existing spsh pasting starting at: {i=}")
     for impth, coorddict in existing_img_dict.items(): # {"xyz.png": { (x, y, w, h):[(pose, frameinfo, modified)...] ... }, ... }
-        print("Adding {} to final_image...".format(impth))
+        # print("Adding {} to final_image...".format(impth))
         spsh = Image.open(impth)
         for coord, poselist in coorddict.items(): # { (x, y, w, h):[(pose, frameinfo, modified)...], ... }
             try:
@@ -215,7 +244,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             else:
                 new_img = pad_img(old_img, clip)
             
-            if reuse_sprites_level == 1:
+            if reuse_sprites_level >= 1:
                 row = i // num_cols
                 col = i % num_cols
                 if col == 0:
@@ -263,7 +292,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             
             old_img.close()
             new_img.close() 
-            progressupdatefn(i+1, frame.imgpath)
+            progressupdatefn(i+1, pose)
 
     # Saving png
     print(f"Saving final image....")

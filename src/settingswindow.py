@@ -9,7 +9,7 @@ class SettingsWindow(QWidget):
         self.ui.reuse_combobox.addItems([
             "Do not merge duplicate frames\n(Generates bigger spritesheets but is more customizable)", 
             "Merge frames that are taken from existing XMLs (Recommended option)\n(avoids duplicate frames when importing from existing XMLs)", 
-            "Merge duplicate frames as much as possible\n(Smaller total spritesheet size but takes longer to generate. WIP)"
+            "Merge duplicate frames as much as possible\n(Smaller total spritesheet size but takes much longer to generate. Mostly works but still experimental)"
         ])
         self.ui.reuse_combobox.setCurrentIndex(1)
 
