@@ -1,8 +1,6 @@
-from io import BytesIO
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageChops
 from PIL.ImageQt import ImageQt
-from PyQt5.QtCore import QBuffer
 from math import sqrt
 from os import path, linesep
 
