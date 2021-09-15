@@ -178,7 +178,6 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     i = 0
     for i, (frame, posename) in enumerate(imlist):
         # print("Adding {} to final_image...".format(frame.imgpath))
-        print(f"BOUND {i=}")
         try:
             old_img = Image.open(frame.imgpath).convert('RGBA')
         except Exception as e:

@@ -32,6 +32,8 @@ class MyApp(QMainWindow):
         self.setWindowTitle("XML Generator")
 
         self.ui.generatexml_btn.clicked.connect(self.generate_xml)
+        self.ui.actionExport_as_Spritesheet_and_XML.triggered.connect(self.generate_xml)
+        # self.ui.actionExport_induvidual_images.triggered.connect()
         self.ui.frames_area.setWidgetResizable(True)
         self.frames_layout = QGridLayout(self.ui.sprite_frame_content)
         self.ui.frames_area.setWidget(self.ui.sprite_frame_content)
@@ -143,6 +145,7 @@ class MyApp(QMainWindow):
         self.ui.action_import_existing.setDisabled(newtabind != 0)
         self.ui.actionImport_Images.setDisabled(newtabind != 0)
         self.ui.actionEdit_Frame_Properties.setDisabled(newtabind != 0 or len(self.selected_labels) <= 0)
+        self.ui.menuExport.setDisabled(newtabind != 0)
 
         self.ui.actionImport_IconGrid.setDisabled(newtabind != 1)
         self.ui.actionImport_Icons.setDisabled(newtabind != 1)
@@ -172,16 +175,10 @@ class MyApp(QMainWindow):
         return super().resizeEvent(a0)
     
     def open_existing_spsh_xml(self):
-        imgpath = QFileDialog.getOpenFileName(
-            caption="Select Spritesheet File",
-            filter="PNG Images (*.png)"
-        )[0]
+        imgpath = self.get_asset_path("Select Spritesheet File", "PNG Images (*.png)")
 
         if imgpath != '':
-            xmlpath = QFileDialog.getOpenFileName(
-                caption="Select XML File",
-                filter="XML Files (*.xml)"
-            )[0]
+            xmlpath = self.get_asset_path("Select XML File", "XML Files (*.xml)")
             if xmlpath != '':
                 trubasenamefn = lambda fpath: path.basename(fpath).split('.')[0]
                 charname = trubasenamefn(xmlpath)
@@ -214,10 +211,7 @@ class MyApp(QMainWindow):
         
     
     def open_file_dialog(self):
-        imgpaths = QFileDialog.getOpenFileNames(
-            caption="Select sprite frames", 
-            filter="PNG Images (*.png)",
-        )[0]
+        imgpaths = self.get_asset_path("Select sprite frames", "PNG Images (*.png)", True)
 
         if imgpaths:
             update_prog_bar, progbar = display_progress_bar(self, "Importing sprite frames....", 0, len(imgpaths))
@@ -342,10 +336,7 @@ class MyApp(QMainWindow):
     
     def uploadIconGrid(self):
         print("Uploading icongrid...")
-        self.icongrid_path = QFileDialog.getOpenFileName(
-            caption="Select the Icon-grid", 
-            filter="PNG Images (*.png)",
-        )[0]
+        self.icongrid_path = self.get_asset_path("Select the Icon-grid", "PNG Images (*.png)")
         icongrid_pixmap = QPixmap(self.icongrid_path)
         self.ui.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
         self.ui.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
@@ -407,10 +398,7 @@ class MyApp(QMainWindow):
     
     def appendIcon(self):
         print("Appending icon")
-        self.iconpaths = QFileDialog.getOpenFileNames(
-            caption="Select your character icon", 
-            filter="PNG Images (*.png)",
-        )[0]
+        self.iconpaths = self.get_asset_path("Select your character icons", "PNG Images (*.png)", True)
         print("Got icon: ", self.iconpaths)
         if len(self.iconpaths) > 0:
             print("Valid selected")
@@ -447,6 +435,18 @@ class MyApp(QMainWindow):
             self.msgbox.setIcon(icon)
         x = self.msgbox.exec_()
         print("[DEBUG] Exit status of msgbox: "+str(x))
+    
+    def get_asset_path(self, wintitle="Sample", fileformat=None, multiple=False):
+        if multiple:
+            return QFileDialog.getOpenFileNames(
+                caption=wintitle, 
+                filter=fileformat,
+            )[0]
+        else:
+            return QFileDialog.getOpenFileName(
+                caption=wintitle, 
+                filter=fileformat,
+            )[0]
 
 
 

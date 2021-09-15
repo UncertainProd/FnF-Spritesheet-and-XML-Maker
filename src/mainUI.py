@@ -177,6 +177,8 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuExport = QtWidgets.QMenu(self.menuFile)
+        self.menuExport.setObjectName("menuExport")
         self.menuEdit = QtWidgets.QMenu(self.menubar)
         self.menuEdit.setObjectName("menuEdit")
         MainWindow.setMenuBar(self.menubar)
@@ -206,11 +208,19 @@ class Ui_MainWindow(object):
         self.actionClear_Icon_selection = QtWidgets.QAction(MainWindow)
         self.actionClear_Icon_selection.setEnabled(False)
         self.actionClear_Icon_selection.setObjectName("actionClear_Icon_selection")
+        self.actionExport_as_Spritesheet_and_XML = QtWidgets.QAction(MainWindow)
+        self.actionExport_as_Spritesheet_and_XML.setObjectName("actionExport_as_Spritesheet_and_XML")
+        self.actionExport_induvidual_images = QtWidgets.QAction(MainWindow)
+        self.actionExport_induvidual_images.setObjectName("actionExport_induvidual_images")
+        self.menuExport.addAction(self.actionExport_as_Spritesheet_and_XML)
+        self.menuExport.addAction(self.actionExport_induvidual_images)
         self.menuFile.addAction(self.action_import_existing)
         self.menuFile.addAction(self.actionImport_Images)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionImport_IconGrid)
         self.menuFile.addAction(self.actionImport_Icons)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.menuExport.menuAction())
         self.menuEdit.addAction(self.actionClear_Spritesheet_Grid)
         self.menuEdit.addAction(self.actionEdit_Frame_Properties)
         self.menuEdit.addSeparator()
@@ -220,7 +230,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.myTabs.setCurrentIndex(1)
+        self.myTabs.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -244,6 +254,7 @@ class Ui_MainWindow(object):
 "Icon-grid"))
         self.myTabs.setTabText(self.myTabs.indexOf(self.icongrid_tab), _translate("MainWindow", "Add Icons to Icon-grid"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.menuExport.setTitle(_translate("MainWindow", "Export..."))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         self.action_import_existing.setText(_translate("MainWindow", "Import existing Spritesheet and XML"))
         self.actionImport_Images.setText(_translate("MainWindow", "Import Images...."))
@@ -254,15 +265,5 @@ class Ui_MainWindow(object):
         self.actionImport_Icons.setText(_translate("MainWindow", "Import Icons"))
         self.actionClear_IconGrid.setText(_translate("MainWindow", "Clear IconGrid"))
         self.actionClear_Icon_selection.setText(_translate("MainWindow", "Clear Icon selection"))
-
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     MainWindow = QtWidgets.QMainWindow()
-#     ui = Ui_MainWindow()
-#     ui.setupUi(MainWindow)
-#     MainWindow.show()
-#     sys.exit(app.exec_())
-if __name__ == '__main__':
-    print("To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")
+        self.actionExport_as_Spritesheet_and_XML.setText(_translate("MainWindow", "Export as Spritesheet and XML"))
+        self.actionExport_induvidual_images.setText(_translate("MainWindow", "Export induvidual images"))
