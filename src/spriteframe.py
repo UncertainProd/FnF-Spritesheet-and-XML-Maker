@@ -1,4 +1,3 @@
-from PIL.ImageQt import QImage
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QCheckBox, QFrame, QPushButton, QWidget, QLabel
