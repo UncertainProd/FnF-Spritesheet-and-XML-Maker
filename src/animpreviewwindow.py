@@ -52,7 +52,7 @@ class Ui_animation_view(object):
 
     def retranslateUi(self, animation_view):
         _translate = QtCore.QCoreApplication.translate
-        animation_view.setWindowTitle(_translate("animation_view", "Form"))
+        animation_view.setWindowTitle(_translate("animation_view", "Animation Preview"))
         self.animation_info_label.setText(_translate("animation_view", "Animation Name to be played:"))
         self.framerate_adjust.setSuffix(_translate("animation_view", "fps"))
         self.play_anim_button.setText(_translate("animation_view", "Play Animation"))
