@@ -90,6 +90,7 @@ class SpriteFrame(QWidget):
         print("Deleting image, count: ", parent.num_labels, "Len of labels", len(parent.labels))
         if len(parent.labels) == 0:
             parent.ui.posename_btn.setDisabled(True)
+            parent.ui.actionPreview_Animation.setEnabled(False)
     
     def add_to_selected_arr(self, parent):
         if self.select_checkbox.checkState() == 0:

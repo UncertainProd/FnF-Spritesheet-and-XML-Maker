@@ -3,6 +3,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
+from animationwindow import AnimationView
 
 
 import xmlpngengine
@@ -109,6 +110,14 @@ class MyApp(QMainWindow):
         self.ui.spsh_settings_btn.clicked.connect(self.show_settings)
 
         self.settings_widget = SettingsWindow()
+
+        self.anim_view_window = AnimationView()
+        self.ui.actionPreview_Animation.triggered.connect(self.show_anim_preview)
+        self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
+    
+    def show_anim_preview(self):
+        self.anim_view_window.parse_and_load_frames(self.labels)
+        self.anim_view_window.show()
     
     def show_settings(self):
         self.settings_widget.show()
@@ -243,6 +252,7 @@ class MyApp(QMainWindow):
         self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.num_labels += 1
         self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+        self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
     
     def re_render_grid(self):
         self.num_rows = 1 + self.num_labels//self.num_cols
