@@ -403,6 +403,24 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150): # savedir,
         icongrid.close()
     return retval, indices, problem_img, exception_msg
 
+def save_img_sequence(frames, savedir, updatefn, clip):
+    newposes = add_pose_numbers(frames)
+    for i, (frame, pose) in enumerate(zip(frames, newposes)):
+        try:
+            if frame.from_single_png:
+                im = Image.open(frame.imgpath).convert('RGBA')
+            else:
+                im = Image.open(frame.imgpath).convert('RGBA').crop((frame.tex_x, frame.tex_y, frame.tex_x + frame.tex_w, frame.tex_y + frame.tex_h))
+            
+            if clip:
+                im = im.crop(im.getbbox())
+            im.save(path.join(savedir, f"{pose}.png"))
+            im.close()
+            updatefn(i+1, f"{pose}.png")
+        except Exception as e:
+            return str(e)
+    return None
+
 def split_spsh(pngpath, xmlpath, udpdatefn):
     spritesheet = Image.open(pngpath)
     try:
@@ -425,7 +443,7 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
                 cleaned_xml += ch
 
         xmltree = ET.fromstring(cleaned_xml) # ET.parse(xmlpath)
-        print(xmltree)
+        print("XML cleaned")
     except ET.ParseError as e:
         print("Error!", str(e))
         return []

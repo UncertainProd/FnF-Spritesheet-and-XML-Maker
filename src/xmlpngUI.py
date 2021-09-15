@@ -33,7 +33,7 @@ class MyApp(QMainWindow):
 
         self.ui.generatexml_btn.clicked.connect(self.generate_xml)
         self.ui.actionExport_as_Spritesheet_and_XML.triggered.connect(self.generate_xml)
-        # self.ui.actionExport_induvidual_images.triggered.connect()
+        self.ui.actionExport_induvidual_images.triggered.connect(self.export_bunch_of_imgs)
         self.ui.frames_area.setWidgetResizable(True)
         self.frames_layout = QGridLayout(self.ui.sprite_frame_content)
         self.ui.frames_area.setWidget(self.ui.sprite_frame_content)
@@ -263,6 +263,18 @@ class MyApp(QMainWindow):
             self.frames_layout.addWidget(sp, i//self.num_cols, i%self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.frames_layout.removeWidget(self.add_img_button)
         self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+    
+    def export_bunch_of_imgs(self):
+        savedir = QFileDialog.getExistingDirectory(caption="Save image sequence to...")
+        updatefn, progbar = display_progress_bar(self, "Exporting Image Sequence", startlim=0, endlim=len(self.labels))
+        QApplication.processEvents()
+        
+        errmsg = xmlpngengine.save_img_sequence(self.labels, savedir, updatefn, self.settings_widget.isclip != 0)
+        progbar.close()
+        if errmsg:
+            self.display_msg_box("Error!", text=f"An error occured: {errmsg}", icon=QMessageBox.Critical)
+        else:
+            self.display_msg_box("Success!", text="Image sequence saved successfully!", icon=QMessageBox.Information)
     
     def generate_xml(self):
         charname = self.ui.charname_textbox.text()
