@@ -10,7 +10,7 @@ import xmlpngengine
 from mainUI import Ui_MainWindow
 from frameadjustwindow import FrameAdjustWindow
 from spriteframe import SpriteFrame
-from utils import SPRITEFRAME_SIZE
+from utils import SPRITEFRAME_SIZE, get_stylesheet_from_file
 from settingswindow import SettingsWindow
 
 
@@ -114,6 +114,7 @@ class MyApp(QMainWindow):
         self.anim_view_window = AnimationView()
         self.ui.actionPreview_Animation.triggered.connect(self.show_anim_preview)
         self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
+        # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
     
     def show_anim_preview(self):
         self.anim_view_window.parse_and_load_frames(self.labels)
@@ -434,7 +435,7 @@ class MyApp(QMainWindow):
         if len(self.selected_labels) == 0:
             self.display_msg_box(window_title="Error", text="Please select some frames to rename by checking the checkboxes on them", icon=QMessageBox.Critical)
         else:
-            text, okPressed = QInputDialog.getText(None, "Change Animation (Pose) Prefix Name", "Current Animation (Pose) prefix:"+(" "*50), QLineEdit.Normal) # very hack-y soln but it works!
+            text, okPressed = QInputDialog.getText(self, "Change Animation (Pose) Prefix Name", "Current Animation (Pose) prefix:"+(" "*50), QLineEdit.Normal) # very hack-y soln but it works!
             if okPressed and text != '':
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:

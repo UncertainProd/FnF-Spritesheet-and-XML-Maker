@@ -1,11 +1,13 @@
 import spritesheetgensettings
 from PyQt5.QtWidgets import QWidget
+from utils import get_stylesheet_from_file
 
 class SettingsWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ui = spritesheetgensettings.Ui_Form()
         self.ui.setupUi(self)
+        # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
         self.ui.reuse_combobox.addItems([
             "Do not merge duplicate frames\n(Generates bigger spritesheets but is more customizable)", 
             "Merge frames that are taken from existing XMLs (Recommended option)\n(avoids duplicate frames when importing from existing XMLs)", 

@@ -1,12 +1,14 @@
 from animpreviewwindow import Ui_animation_view
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QTimer
+from utils import get_stylesheet_from_file
 
 class AnimationView(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ui = Ui_animation_view()
         self.ui.setupUi(self)
+        # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
 
         # self.ui.pose_combobox.addItems([""])
         self.ui.play_anim_button.clicked.connect(self.play_animation)
@@ -51,4 +53,7 @@ class AnimationView(QWidget):
         self.animstarted = False
         self.ui.animation_display_area.clear()
         self.ui.pose_combobox.clear()
+        self.animframes.clear()
+        self.anim_names.clear()
+        self.frameindex = 0
         return super().closeEvent(a0)
