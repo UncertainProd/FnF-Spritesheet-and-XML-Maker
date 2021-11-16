@@ -1,9 +1,10 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
 from animationwindow import AnimationView
+import json
 
 
 import xmlpngengine
@@ -24,8 +25,16 @@ def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
 
     return update_prog_bar, progbar
 
+def set_preferences(prefdict):
+    try:
+        with open('preferences.json', 'w') as f:
+            json.dump(prefdict, f)
+    except Exception as e:
+        with open("error.log", 'a') as errlog:
+            errlog.write(str(e))
+
 class MyApp(QMainWindow):
-    def __init__(self):
+    def __init__(self, prefs:dict):
         super().__init__()
 
         self.ui = Ui_MainWindow()
@@ -44,7 +53,7 @@ class MyApp(QMainWindow):
         self.selected_labels = []
 
         self.add_img_button = QPushButton()
-        self.add_img_button.setIcon(QIcon("./image-assets/AddImg.png"))
+        self.add_img_button.setIcon(QIcon("./assets/AddImg.png"))
         self.add_img_button.setGeometry(0, 0, SPRITEFRAME_SIZE, SPRITEFRAME_SIZE)
         self.add_img_button.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
         self.add_img_button.setIconSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
@@ -53,7 +62,7 @@ class MyApp(QMainWindow):
         self.frames_layout.addWidget(self.add_img_button, 0, 0, Qt.AlignmentFlag(0x1|0x20))
         self.ui.myTabs.setCurrentIndex(0)
 
-        self.setWindowIcon(QIcon("./image-assets/appicon.png"))
+        self.setWindowIcon(QIcon("./assets/appicon.png"))
         self.icongrid_zoom = 1
         self.ui.uploadicongrid_btn.clicked.connect(self.uploadIconGrid)
         self.ui.actionImport_IconGrid.triggered.connect(self.uploadIconGrid)
@@ -114,8 +123,35 @@ class MyApp(QMainWindow):
         self.anim_view_window = AnimationView()
         self.ui.actionPreview_Animation.triggered.connect(self.show_anim_preview)
         self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
-        # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
+        # adding a QActionGroup at runtime :/
+        darkmode_action_group = QActionGroup(self.ui.menuDefault_Dark_mode)
+        theme_opts = ["Default", "Dark Mode"]
+        checked_action = "Default" if prefs.get("theme", 'default') != 'dark' else "Dark Mode"
+        for opt in theme_opts:
+            action = QAction(opt, self.ui.menuDefault_Dark_mode, checkable=True, checked=(opt == checked_action))
+            self.ui.menuDefault_Dark_mode.addAction(action)
+            darkmode_action_group.addAction(action)
+        darkmode_action_group.setExclusive(True)
+        darkmode_action_group.triggered.connect(self.set_dark_mode)
+        if prefs.get("theme", 'default') == 'dark':
+            self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
     
+    def set_dark_mode(self, event):
+        if event.text() == "Dark Mode":
+            styles = get_stylesheet_from_file("./assets/app-styles.qss")
+            self.set_theme(styles)
+        else:
+            self.set_theme("")
+    
+    def set_theme(self, stylestr):
+        self.setStyleSheet(stylestr)
+        self.settings_widget.setStyleSheet(stylestr)
+        self.anim_view_window.setStyleSheet(stylestr)
+        if stylestr == "":
+            set_preferences({ "theme":"default" })
+        else:
+            set_preferences({ "theme":"dark" })
+
     def show_anim_preview(self):
         self.anim_view_window.parse_and_load_frames(self.labels)
         self.anim_view_window.show()
@@ -477,7 +513,19 @@ class MyApp(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    myapp = MyApp()
+    prefs = None
+    try:
+        with open('preferences.json') as f:
+            prefs = json.load(f)
+    except FileNotFoundError as fnfe:
+        with open("error.log", 'a') as errlog:
+            errlog.write(str(fnfe))
+        
+        with open('preferences.json', 'w') as f:
+            prefs = { "theme":"default" }
+            json.dump(prefs, f)
+    
+    myapp = MyApp(prefs)
     myapp.show()
 
     try:
