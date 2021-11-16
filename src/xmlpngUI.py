@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
 from animationwindow import AnimationView
+import json
 
 
 import xmlpngengine
@@ -24,8 +25,12 @@ def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
 
     return update_prog_bar, progbar
 
+def set_preferences(prefdict):
+    with open('preferences.json', 'w') as f:
+        json.dump(prefdict, f)
+
 class MyApp(QMainWindow):
-    def __init__(self):
+    def __init__(self, prefs:dict):
         super().__init__()
 
         self.ui = Ui_MainWindow()
@@ -117,19 +122,31 @@ class MyApp(QMainWindow):
         # adding a QActionGroup at runtime :/
         darkmode_action_group = QActionGroup(self.ui.menuDefault_Dark_mode)
         theme_opts = ["Default", "Dark Mode"]
+        checked_action = "Default" if prefs.get("theme", 'default') != 'dark' else "Dark Mode"
         for opt in theme_opts:
-            action = QAction(opt, self.ui.menuDefault_Dark_mode, checkable=True, checked=opt=="Default")
+            action = QAction(opt, self.ui.menuDefault_Dark_mode, checkable=True, checked=(opt == checked_action))
             self.ui.menuDefault_Dark_mode.addAction(action)
             darkmode_action_group.addAction(action)
         darkmode_action_group.setExclusive(True)
         darkmode_action_group.triggered.connect(self.set_dark_mode)
-        # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
+        if prefs.get("theme", 'default') == 'dark':
+            self.set_theme(get_stylesheet_from_file("app-styles.qss"))
     
     def set_dark_mode(self, event):
         if event.text() == "Dark Mode":
-            self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
+            styles = get_stylesheet_from_file("app-styles.qss")
+            self.set_theme(styles)
         else:
-            self.setStyleSheet("")
+            self.set_theme("")
+    
+    def set_theme(self, stylestr):
+        self.setStyleSheet(stylestr)
+        self.settings_widget.setStyleSheet(stylestr)
+        self.anim_view_window.setStyleSheet(stylestr)
+        if stylestr == "":
+            set_preferences({ "theme":"default" })
+        else:
+            set_preferences({ "theme":"dark" })
 
     def show_anim_preview(self):
         self.anim_view_window.parse_and_load_frames(self.labels)
@@ -492,7 +509,16 @@ class MyApp(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    myapp = MyApp()
+    prefs = None
+    try:
+        with open('preferences.json') as f:
+            prefs = json.load(f)
+    except FileNotFoundError:
+        with open('preferences.json', 'w') as f:
+            prefs = { "theme":"default" }
+            json.dump(prefs, f)
+    
+    myapp = MyApp(prefs)
     myapp.show()
 
     try:

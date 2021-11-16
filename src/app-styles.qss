@@ -6,6 +6,8 @@ See Qt documentation:
   - https://doc.qt.io/qt-5/stylesheet-reference.html
   - https://doc.qt.io/qt-5/stylesheet-examples.html
 
+  This qss file is a (slightly) modified version of: https://github.com/ColinDuquesnoy/QDarkStyleSheet/blob/master/qdarkstyle/dark/style.qss
+  by ColinDuquesnoy[https://github.com/ColinDuquesnoy]
 --------------------------------------------------------------------------- */
 /* Reset elements ------------------------------------------------------------
 
@@ -183,7 +185,7 @@ QGroupBox::indicator {
 https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qradiobutton
 
 --------------------------------------------------------------------------- */
-QRadioButton {
+/* QRadioButton {
   background-color: #19232D;
   color: #E0E1E3;
   spacing: 4px;
@@ -219,7 +221,7 @@ QRadioButton::indicator {
   margin-left: 2px;
   height: 14px;
   width: 14px;
-}
+} */
 
 /* QMenuBar ---------------------------------------------------------------
 
@@ -902,7 +904,7 @@ QComboBox {
   /* padding-right = 36; 4 + 16*2 See scrollbar size */
   /* changed to 4px to fix #239 */
   /* Fixes #103, #111 */
-  min-height: 1.5em;
+  min-height: 2em;
   /* padding-top: 2px;     removed to fix #132 */
   /* padding-bottom: 2px;  removed to fix #132 */
   /* min-width: 75px;      removed to fix #109 */
@@ -1000,7 +1002,7 @@ QLineEdit {
 }
 
 QLineEdit:disabled {
-  background-color: #19232D;
+  background-color: #0B1014;
   color: #9DA9B5;
 }
 

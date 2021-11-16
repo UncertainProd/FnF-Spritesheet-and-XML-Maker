@@ -6,3 +6,4 @@ env
 .venv
 *.ui
 .qt_for_python
+preferences.json
