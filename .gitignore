@@ -5,3 +5,4 @@ env
 .python-version
 .venv
 *.ui
+.qt_for_python

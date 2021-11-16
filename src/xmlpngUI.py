@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QAction, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
 from animationwindow import AnimationView
 
@@ -114,8 +114,23 @@ class MyApp(QMainWindow):
         self.anim_view_window = AnimationView()
         self.ui.actionPreview_Animation.triggered.connect(self.show_anim_preview)
         self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
+        # adding a QActionGroup at runtime :/
+        darkmode_action_group = QActionGroup(self.ui.menuDefault_Dark_mode)
+        theme_opts = ["Default", "Dark Mode"]
+        for opt in theme_opts:
+            action = QAction(opt, self.ui.menuDefault_Dark_mode, checkable=True, checked=opt=="Default")
+            self.ui.menuDefault_Dark_mode.addAction(action)
+            darkmode_action_group.addAction(action)
+        darkmode_action_group.setExclusive(True)
+        darkmode_action_group.triggered.connect(self.set_dark_mode)
         # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
     
+    def set_dark_mode(self, event):
+        if event.text() == "Dark Mode":
+            self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
+        else:
+            self.setStyleSheet("")
+
     def show_anim_preview(self):
         self.anim_view_window.parse_and_load_frames(self.labels)
         self.anim_view_window.show()
