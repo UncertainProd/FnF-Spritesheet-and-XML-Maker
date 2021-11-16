@@ -53,7 +53,7 @@ class MyApp(QMainWindow):
         self.selected_labels = []
 
         self.add_img_button = QPushButton()
-        self.add_img_button.setIcon(QIcon("./image-assets/AddImg.png"))
+        self.add_img_button.setIcon(QIcon("./assets/AddImg.png"))
         self.add_img_button.setGeometry(0, 0, SPRITEFRAME_SIZE, SPRITEFRAME_SIZE)
         self.add_img_button.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
         self.add_img_button.setIconSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
@@ -62,7 +62,7 @@ class MyApp(QMainWindow):
         self.frames_layout.addWidget(self.add_img_button, 0, 0, Qt.AlignmentFlag(0x1|0x20))
         self.ui.myTabs.setCurrentIndex(0)
 
-        self.setWindowIcon(QIcon("./image-assets/appicon.png"))
+        self.setWindowIcon(QIcon("./assets/appicon.png"))
         self.icongrid_zoom = 1
         self.ui.uploadicongrid_btn.clicked.connect(self.uploadIconGrid)
         self.ui.actionImport_IconGrid.triggered.connect(self.uploadIconGrid)
@@ -134,11 +134,11 @@ class MyApp(QMainWindow):
         darkmode_action_group.setExclusive(True)
         darkmode_action_group.triggered.connect(self.set_dark_mode)
         if prefs.get("theme", 'default') == 'dark':
-            self.set_theme(get_stylesheet_from_file("app-styles.qss"))
+            self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
     
     def set_dark_mode(self, event):
         if event.text() == "Dark Mode":
-            styles = get_stylesheet_from_file("app-styles.qss")
+            styles = get_stylesheet_from_file("./assets/app-styles.qss")
             self.set_theme(styles)
         else:
             self.set_theme("")
