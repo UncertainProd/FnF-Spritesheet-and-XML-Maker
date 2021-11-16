@@ -26,8 +26,12 @@ def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
     return update_prog_bar, progbar
 
 def set_preferences(prefdict):
-    with open('preferences.json', 'w') as f:
-        json.dump(prefdict, f)
+    try:
+        with open('preferences.json', 'w') as f:
+            json.dump(prefdict, f)
+    except Exception as e:
+        with open("error.log", 'a') as errlog:
+            errlog.write(str(e))
 
 class MyApp(QMainWindow):
     def __init__(self, prefs:dict):
@@ -513,7 +517,10 @@ if __name__ == '__main__':
     try:
         with open('preferences.json') as f:
             prefs = json.load(f)
-    except FileNotFoundError:
+    except FileNotFoundError as fnfe:
+        with open("error.log", 'a') as errlog:
+            errlog.write(str(fnfe))
+        
         with open('preferences.json', 'w') as f:
             prefs = { "theme":"default" }
             json.dump(prefs, f)
