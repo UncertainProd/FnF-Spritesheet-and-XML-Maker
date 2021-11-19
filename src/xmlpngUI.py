@@ -272,7 +272,7 @@ class MyApp(QMainWindow):
             self.ui.posename_btn.setDisabled(False)
     
     def add_img(self, imgpath, imdat=None, posename="", **texinfo):
-        print("Adding image, prevcount: ", self.num_labels)
+        # print("Adding image, prevcount: ", self.num_labels)
         self.num_rows = 1 + self.num_labels//self.num_cols
         
         self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
@@ -284,7 +284,7 @@ class MyApp(QMainWindow):
         hspcr = QSpacerItem(1, 1)
         self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
         
-        self.labels.append(SpriteFrame(imgpath, self, imdat, posename, **texinfo))
+        self.labels.append(SpriteFrame(self, imgpath, imdat, posename, **texinfo))
         self.frames_layout.removeWidget(self.add_img_button)
         self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.num_labels += 1

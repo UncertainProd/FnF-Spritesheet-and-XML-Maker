@@ -6,8 +6,19 @@ from os import path
 
 
 class SpriteFrame(QWidget):
-    def __init__(self, imgpath, parent, imdat = None, posename = None, **texinfo):
+    def __init__(self, parent, imgpath, imdat = None, posename = None, **texinfo):
         super().__init__()
+        # XML related info calculated for a spriteframe
+        # name:str
+        # x:int, y:int, w:int, h:int
+        # frameX:null<int>, frameY:null<int>, frameWidth:null<int>, frameHeight:null<int>
+
+        # Info from the input that I can get
+        # imgpath:str, (w:int, h:int) --derived from--> img:Image
+        # from_single_png:bool
+        # if from_single_png:-
+        # spritesheet_path:str, xml_path:str
+        # src_info: xml related info (see above)
         self.imgpath = imgpath
         self.imdat = imdat
         self.from_single_png = not imdat
