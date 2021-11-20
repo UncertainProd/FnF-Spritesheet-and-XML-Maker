@@ -1,4 +1,4 @@
-SPRITEFRAME_SIZE = 130
+SPRITEFRAME_SIZE = 128
 
 def get_stylesheet_from_file(filename):
     with open(filename, 'r') as f:
