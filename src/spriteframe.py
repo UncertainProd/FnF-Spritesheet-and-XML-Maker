@@ -24,6 +24,8 @@ class SpriteFrame(QWidget):
         self.from_single_png = not imdat
         self.modified = False
         self.image_pixmap = QPixmap(imgpath) if self.from_single_png else QPixmap.fromImage(imdat)
+        self.img_width = self.image_pixmap.width()
+        self.img_height = self.image_pixmap.height()
 
         first_num_index = len(posename)-1
         for i in range(len(posename)-1, 0, -1):

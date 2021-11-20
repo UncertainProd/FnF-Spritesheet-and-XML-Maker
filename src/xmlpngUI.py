@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
+from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QHBoxLayout, QHeaderView, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog, QTableView, QTableWidget, QTableWidgetItem, QWidget
 from os import path
 from animationwindow import AnimationView
 import json
@@ -32,6 +32,22 @@ def set_preferences(prefdict):
     except Exception as e:
         with open("error.log", 'a') as errlog:
             errlog.write(str(e))
+
+# TODO: Put these in separate files!
+class TableBoi(QWidget):
+    def __init__(self, headings, data):
+        super().__init__()
+        self.resize(1600, 600)
+        self.table = QTableWidget(len(data), len(headings), self)
+        self.table.setHorizontalHeaderLabels(headings)
+        for rownum, row in enumerate(data):
+            for colnum, col in enumerate(row):
+                tablewidgetitem = QTableWidgetItem(str(col))
+                tablewidgetitem.setFlags(tablewidgetitem.flags() ^ Qt.ItemIsEditable)
+                self.table.setItem(rownum, colnum, tablewidgetitem)
+        mylayout = QHBoxLayout()
+        mylayout.addWidget(self.table)
+        self.setLayout(mylayout)
 
 class MyApp(QMainWindow):
     def __init__(self, prefs:dict):
@@ -135,7 +151,17 @@ class MyApp(QMainWindow):
         darkmode_action_group.triggered.connect(self.set_dark_mode)
         if prefs.get("theme", 'default') == 'dark':
             self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
+        
+        self.ui.actionView_XML_structure.triggered.connect(self.show_table_view)
     
+    def show_table_view(self):
+        print("Showing table view...")
+        dat = []
+        for lab in self.labels:
+            dat.append([lab.imgpath, lab.pose_name, lab.img_width, lab.img_height, lab.framex, lab.framey, lab.framew, lab.frameh])
+        self.tab = TableBoi(['Image Path', 'Name', 'Width', 'Height', 'FrameX', 'FrameY', 'FrameWidth', 'FrameHeight'], dat)
+        self.tab.show()
+
     def set_dark_mode(self, event):
         if event.text() == "Dark Mode":
             styles = get_stylesheet_from_file("./assets/app-styles.qss")
