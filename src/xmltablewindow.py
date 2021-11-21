@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QWidget
-from spriteframe import SpriteFrame
+from PyQt5.QtCore import Qt
 from utils import temp_path_shortener
 from xmltablewindowUI import Ui_TableWidgetThing
 
@@ -18,7 +18,7 @@ class XMLTableView(QWidget):
         self.ui.xmltable.selectionModel().selectionChanged.connect(self.handle_cell_selection)
 
         # list[SpriteFrame]
-        self.tabledata:list[SpriteFrame] = []
+        self.tabledata = []
     
     def fill_data(self, data):
         table = self.ui.xmltable
@@ -28,7 +28,8 @@ class XMLTableView(QWidget):
             tabledat = [label.imgpath, label.pose_name, label.img_width, label.img_height, label.framex, label.framey, label.framew, label.frameh]
             for colnum, col in enumerate(tabledat):
                 table_cell = QTableWidgetItem(str(col))
-                # tablewidgetitem.setFlags(tablewidgetitem.flags() ^ Qt.ItemIsEditable)
+                if colnum < 4:
+                    table_cell.setFlags(table_cell.flags() ^ Qt.ItemIsEditable)
                 table.setItem(rownum, colnum, table_cell)
     
     def handle_cell_selection(self, selected, deselected):
