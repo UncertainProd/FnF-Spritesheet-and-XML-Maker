@@ -1335,6 +1335,10 @@ QTableCornerButton::section {
   border-radius: 0px;
 }
 
+QHeaderView::section {
+  background-color: #19232D
+}
+
 /* QFrame -----------------------------------------------------------------
 
 https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qframe

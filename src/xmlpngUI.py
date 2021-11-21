@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QHBoxLayout, QHeaderView, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog, QTableView, QTableWidget, QTableWidgetItem, QWidget
 from os import path
 from animationwindow import AnimationView
+from xmltablewindow import XMLTableView
 import json
 
 
@@ -149,18 +150,18 @@ class MyApp(QMainWindow):
             darkmode_action_group.addAction(action)
         darkmode_action_group.setExclusive(True)
         darkmode_action_group.triggered.connect(self.set_dark_mode)
+        
+        self.xml_table = XMLTableView(['Image Path', 'Name', 'Width', 'Height', 'FrameX', 'FrameY', 'FrameWidth', 'FrameHeight'])
+        self.ui.actionView_XML_structure.triggered.connect(self.show_table_view)
+        
+        # Note: Add any extra windows before this if your want the themes to apply to them
         if prefs.get("theme", 'default') == 'dark':
             self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
-        
-        self.ui.actionView_XML_structure.triggered.connect(self.show_table_view)
     
     def show_table_view(self):
         print("Showing table view...")
-        dat = []
-        for lab in self.labels:
-            dat.append([lab.imgpath, lab.pose_name, lab.img_width, lab.img_height, lab.framex, lab.framey, lab.framew, lab.frameh])
-        self.tab = TableBoi(['Image Path', 'Name', 'Width', 'Height', 'FrameX', 'FrameY', 'FrameWidth', 'FrameHeight'], dat)
-        self.tab.show()
+        self.xml_table.fill_data(self.labels)
+        self.xml_table.show()
 
     def set_dark_mode(self, event):
         if event.text() == "Dark Mode":
@@ -173,6 +174,7 @@ class MyApp(QMainWindow):
         self.setStyleSheet(stylestr)
         self.settings_widget.setStyleSheet(stylestr)
         self.anim_view_window.setStyleSheet(stylestr)
+        self.xml_table.setStyleSheet(stylestr)
         if stylestr == "":
             set_preferences({ "theme":"default" })
         else:
