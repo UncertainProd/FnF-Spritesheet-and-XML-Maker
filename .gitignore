@@ -7,3 +7,4 @@ env
 *.ui
 .qt_for_python
 preferences.json
+BIG_REMINDER_DO_NOT_FORGET.txt
