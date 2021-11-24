@@ -15,6 +15,7 @@ class XMLTableView(QWidget):
         # self.ui.xmltable.cellClicked.connect(self.handle_cell_click)
         # self.ui.xmltable.cellActivated.connect(self.handle_cell_click)
         # self.ui.xmltable.cellPressed.connect(self.handle_cell_click)
+        self.ui.frame_preview_label.setStyleSheet("QFrame{ border: 1px solid black; }")
         self.ui.xmltable.selectionModel().selectionChanged.connect(self.handle_cell_selection)
 
         # list[SpriteFrame]
@@ -48,6 +49,7 @@ class XMLTableView(QWidget):
 
         self.ui.frame_preview_label.clear()
         self.ui.frame_preview_label.setPixmap(selected_row.image_pixmap)
+        self.ui.frame_preview_label.setFixedSize(selected_row.image_pixmap.width(), selected_row.image_pixmap.height())
         
         if selected_row.from_single_png:
             self.ui.frame_info_label.setText(f"Image path: {short_path}\tFrom existing spritesheet: No")
