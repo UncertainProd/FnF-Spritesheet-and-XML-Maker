@@ -266,6 +266,10 @@ def superoptimize(single_png_list, pre_exist_dict):
     return new_pre_exist_dict, new_single_png_list
 
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
+    for f in frames:
+        print(f)
+        print("-------------")
+    return 0, None
     clip = settings.get('clip', False)
     reuse_sprites_level = settings.get('reuse_sprites_level', 1)
     prefix_type = settings.get('prefix_type', 'charname')

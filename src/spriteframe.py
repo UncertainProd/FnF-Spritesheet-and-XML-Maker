@@ -144,6 +144,9 @@ class SpriteFrame(QWidget):
         f"Current Pose: {self.img_xml_data.pose_name}\n" + \
         f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
         return ttstring
+    
+    def __str__(self):
+        return str(self.img_data) + "\n" + str(self.img_xml_data)
 
 if __name__ == '__main__':
     print("To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")

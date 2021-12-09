@@ -21,6 +21,16 @@ class FrameImgData:
         
         self.is_flip_x = False
         self.is_flip_y = False
+    
+    def __str__(self):
+        return f"""Frame Image data:
+            Image path: {repr(self.imgpath)}
+            From single png: {repr(self.from_single_png)}
+            Width: {repr(self.img_width)}
+            Height: {repr(self.img_height)}
+            Flip-X: {repr(self.is_flip_x)}
+            Flip-Y: {repr(self.is_flip_y)}
+        """
 
 class FrameXMLData:
     def __init__(self, pose_name, x, y, w, h, framex, framey, framew, frameh):
@@ -52,3 +62,11 @@ class FrameXMLData:
             })
         
         return attribs
+    
+    def __str__(self):
+        return f"""Frame XML data:
+            FrameX: {repr(self.framex)}
+            FrameY: {repr(self.framey)}
+            FrameWidth: {repr(self.framew)}
+            FrameHeight: {repr(self.frameh)}
+        """
