@@ -1,6 +1,5 @@
 import spritesheetgensettings
 from PyQt5.QtWidgets import QWidget
-from utils import get_stylesheet_from_file
 
 class SettingsWindow(QWidget):
     def __init__(self, *args, **kwargs):

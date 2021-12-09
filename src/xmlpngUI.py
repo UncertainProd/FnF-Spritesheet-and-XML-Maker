@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QHBoxLayout, QHeaderView, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog, QTableView, QTableWidget, QTableWidgetItem, QWidget
+from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
 from animationwindow import AnimationView
 from xmltablewindow import XMLTableView
@@ -34,24 +34,8 @@ def set_preferences(prefdict):
         with open("error.log", 'a') as errlog:
             errlog.write(str(e))
 
-# TODO: Put these in separate files!
-class TableBoi(QWidget):
-    def __init__(self, headings, data):
-        super().__init__()
-        self.resize(1600, 600)
-        self.table = QTableWidget(len(data), len(headings), self)
-        self.table.setHorizontalHeaderLabels(headings)
-        for rownum, row in enumerate(data):
-            for colnum, col in enumerate(row):
-                tablewidgetitem = QTableWidgetItem(str(col))
-                tablewidgetitem.setFlags(tablewidgetitem.flags() ^ Qt.ItemIsEditable)
-                self.table.setItem(rownum, colnum, tablewidgetitem)
-        mylayout = QHBoxLayout()
-        mylayout.addWidget(self.table)
-        self.setLayout(mylayout)
-
 class MyApp(QMainWindow):
-    def __init__(self, prefs:dict):
+    def __init__(self, prefs):
         super().__init__()
 
         self.ui = Ui_MainWindow()
@@ -74,7 +58,7 @@ class MyApp(QMainWindow):
         self.add_img_button.setGeometry(0, 0, SPRITEFRAME_SIZE, SPRITEFRAME_SIZE)
         self.add_img_button.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
         self.add_img_button.setIconSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
-        self.add_img_button.clicked.connect(self.open_file_dialog)
+        self.add_img_button.clicked.connect(self.open_frame_imgs)
 
         self.frames_layout.addWidget(self.add_img_button, 0, 0, Qt.AlignmentFlag(0x1|0x20))
         self.ui.myTabs.setCurrentIndex(0)
@@ -111,7 +95,7 @@ class MyApp(QMainWindow):
         self.num_cols = 6
         self.num_rows = 1
 
-        self.ui.actionImport_Images.triggered.connect(self.open_file_dialog)
+        self.ui.actionImport_Images.triggered.connect(self.open_frame_imgs)
         self.ui.action_import_existing.triggered.connect(self.open_existing_spsh_xml)
 
         self.num_rows = 1 + self.num_labels//self.num_cols
@@ -153,11 +137,25 @@ class MyApp(QMainWindow):
         
         self.xml_table = XMLTableView(['Image Path', 'Name', 'Width', 'Height', 'FrameX', 'FrameY', 'FrameWidth', 'FrameHeight'])
         self.ui.actionView_XML_structure.triggered.connect(self.show_table_view)
+        self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
+        self.ui.actionFlipX.triggered.connect(lambda: self.flip_labels('X'))
+        self.ui.actionFlipY.triggered.connect(lambda: self.flip_labels('Y'))
         
         # Note: Add any extra windows before this if your want the themes to apply to them
         if prefs.get("theme", 'default') == 'dark':
             self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
     
+    def flip_labels(self, dxn='X'):
+        for lab in self.selected_labels:
+            tmpimg = lab.image_pixmap.toImage()
+            lab.image_pixmap = QPixmap().fromImage(tmpimg.mirrored(horizontal=(dxn == 'X'), vertical=(dxn == 'Y'))).scaled(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE)
+            lab.img_label.setPixmap(lab.image_pixmap)
+            
+            if dxn == 'X':
+                lab.img_data.is_flip_x = not lab.img_data.is_flip_x
+            elif dxn == 'Y':
+                lab.img_data.is_flip_y = not lab.img_data.is_flip_y
+
     def show_table_view(self):
         print("Showing table view...")
         self.xml_table.fill_data(self.labels)
@@ -273,8 +271,14 @@ class MyApp(QMainWindow):
                 QApplication.processEvents()
 
                 sprites = xmlpngengine.split_spsh(imgpath, xmlpath, update_prog_bar)
-                for i, (spimg, posename, tx, ty, tw, th) in enumerate(sprites):
-                    self.add_img(imgpath, spimg, posename, tx=tx, ty=ty, tw=tw, th=th)
+                # for i, (spimg, posename, tx, ty, tw, th) in enumerate(sprites):
+                #     self.add_img(imgpath, spimg, posename, tx=tx, ty=ty, tw=tw, th=th)
+                #     update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
+                for i, spfr in enumerate(sprites):
+                    # self.add_img(imgpath, spimg, posename, tx=tx, ty=ty, tw=tw, th=th)
+                    spfr.setParent(self)
+                    spfr.frameparent = self
+                    self.add_spriteframe(spfr)
                     update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
                 progbar.close()
                 
@@ -284,7 +288,7 @@ class MyApp(QMainWindow):
 
         
     
-    def open_file_dialog(self):
+    def open_frame_imgs(self):
         imgpaths = self.get_asset_path("Select sprite frames", "PNG Images (*.png)", True)
 
         if imgpaths:
@@ -292,13 +296,35 @@ class MyApp(QMainWindow):
             QApplication.processEvents()
 
             for i, pth in enumerate(imgpaths):
-                self.add_img(pth)
+                # self.add_img(pth)
+                self.add_spriteframe(SpriteFrame(self, pth, None, ""))
                 update_prog_bar(i+1, pth)
             progbar.close()
         
         if len(self.labels) > 0:
             self.ui.posename_btn.setDisabled(False)
     
+    def add_spriteframe(self, sp):
+        self.num_rows = 1 + self.num_labels//self.num_cols
+        
+        self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
+        self.frames_layout.setRowStretch(self.num_rows - 1, 0)
+        
+        vspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
+
+        hspcr = QSpacerItem(1, 1)
+        self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
+        
+        self.labels.append(sp)
+        self.frames_layout.removeWidget(self.add_img_button)
+        self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+        self.num_labels += 1
+        self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+        self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
+        self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
+    
+    # OBSOLETE!
     def add_img(self, imgpath, imdat=None, posename="", **texinfo):
         # print("Adding image, prevcount: ", self.num_labels)
         self.num_rows = 1 + self.num_labels//self.num_cols
@@ -503,7 +529,7 @@ class MyApp(QMainWindow):
             if okPressed and text != '':
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:
-                    label.pose_name = text
+                    label.img_xml_data.pose_name = text
                     label.modified = True
                     label.img_label.setToolTip(label.get_tooltip_string(self))
                 

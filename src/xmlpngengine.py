@@ -1,8 +1,9 @@
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageChops
-from PIL.ImageQt import ImageQt
 from math import sqrt
 from os import path, linesep
+
+from spriteframe import SpriteFrame
 
 # Packing Algorithm based on https://github.com/jakesgordon/bin-packing/blob/master/js/packer.growing.js
 # converted to python
@@ -97,6 +98,39 @@ def fast_image_cmp(im1, im2): # im1 == im2 ?
     
     return ImageChops.difference(im1, im2).getbbox() is None
 
+def get_true_frame(img , framex, framey, framew, frameh, flipx=False, flipy=False):
+    # if framex < 0, we pad, else we crop
+    final_frame = img
+    if framex < 0:
+        final_frame = pad_img(final_frame, False, 0, 0, 0, -framex)
+    else:
+        final_frame = final_frame.crop((framex, 0, final_frame.width, final_frame.height))
+    
+    # same for framey
+    if framey < 0:
+        final_frame = pad_img(final_frame, False, -framey, 0, 0, 0)
+    else:
+        final_frame = final_frame.crop((0, framey, final_frame.width, final_frame.height))
+    
+    # if framex + framew > img.width, we pad else we crop
+    if framex + framew > img.width:
+        final_frame = pad_img(final_frame, False, 0, framex+framew - img.width, 0, 0)
+    else:
+        final_frame = final_frame.crop((0, 0, framew, final_frame.height))
+    
+    # same for framey + frameh > img.height
+    if framey + frameh > img.height:
+        final_frame = pad_img(final_frame, False, 0, 0, framey + frameh - img.height, 0)
+    else:
+        final_frame = final_frame.crop((0, 0, final_frame.width, frameh))
+
+    if flipx:
+        final_frame = final_frame.transpose(Image.FLIP_LEFT_RIGHT)
+    if flipy:
+        final_frame = final_frame.transpose(Image.FLIP_TOP_BOTTOM)
+
+    return final_frame
+
 def pad_img(img, clip=False, top=DEFAULT_PADDING, right=DEFAULT_PADDING, bottom=DEFAULT_PADDING, left=DEFAULT_PADDING):
     if clip:
         img = img.crop(img.getbbox())
@@ -109,7 +143,7 @@ def pad_img(img, clip=False, top=DEFAULT_PADDING, right=DEFAULT_PADDING, bottom=
     return result
 
 def add_pose_numbers(frame_arr):
-    pose_arr = [ frame.pose_name for frame in frame_arr ]
+    pose_arr = [ frame.img_xml_data.pose_name for frame in frame_arr ]
     unique_poses = list(set(pose_arr))
     pose_counts = dict([ (ele, 0) for ele in unique_poses ])
     new_pose_arr = list(pose_arr)
@@ -120,7 +154,7 @@ def add_pose_numbers(frame_arr):
 
 def group_imgs(frames, newposes):
     num_imgs = 0
-    existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newposes) if not sframe.from_single_png ]
+    existing_spsh_frames = [ (sframe, newpose) for sframe, newpose in zip(frames, newposes) if not sframe.img_data.from_single_png ]
     imdict = {} # { "existingspsh.png": { (x, y, w, h):[(pose, frameinfo, modified), ...], ... }, ... }
     for f, npose in existing_spsh_frames:
         if imdict.get(f.imgpath):
@@ -278,6 +312,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             
             subtexture_element = ET.Element("SubTexture")
             subtexture_element.tail = linesep
+            # Note: <SubTexture name:str x:int y:int width:int height:int frame[X,Y,Width,Height]:int />
             subtexture_element.attrib = {
                 "name" : ((character_name if prefix_type == 'charname' else custom_prefix) + " " if frame.from_single_png or frame.modified else "") + posename,
                 "x": f'{csx}',
@@ -291,6 +326,12 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             }
             root.append(subtexture_element)
             new_img = new_img.convert('RGBA')
+            
+            if frame.is_flip_x:
+                new_img = new_img.transpose(Image.FLIP_LEFT_RIGHT)
+            if frame.is_flip_y:
+                new_img = new_img.transpose(Image.FLIP_TOP_BOTTOM)
+            
             final_img.paste(new_img, (csx, csy))
             
             csx += new_img.width
@@ -337,6 +378,13 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
 
                     new_img = new_img.convert('RGBA')
                     print(f"DEBUGINFO: pasting from existing at {csx, csy}")
+                    
+                    # TODO: Fix sprite flipping for existing XML bois!
+                    # if frame.is_flip_x:
+                        # new_img = new_img.transpose(Image.FLIP_LEFT_RIGHT)
+                    # if frame.is_flip_y:
+                        # new_img = new_img.transpose(Image.FLIP_TOP_BOTTOM)
+                    
                     final_img.paste(new_img, (csx, csy))
                     csx += new_img.width
                     i += 1
@@ -492,10 +540,11 @@ def save_img_sequence(frames, savedir, updatefn, clip):
     newposes = add_pose_numbers(frames)
     for i, (frame, pose) in enumerate(zip(frames, newposes)):
         try:
-            if frame.from_single_png:
-                im = Image.open(frame.imgpath).convert('RGBA')
+            if frame.img_data.from_single_png:
+                im = Image.open(frame.img_data.imgpath).convert('RGBA')
             else:
-                im = Image.open(frame.imgpath).convert('RGBA').crop((frame.tex_x, frame.tex_y, frame.tex_x + frame.tex_w, frame.tex_y + frame.tex_h))
+                # FIXME: get the actual frame img now!
+                im = Image.open(frame.img_data.imgpath).convert('RGBA').crop((frame.tex_x, frame.tex_y, frame.tex_x + frame.tex_w, frame.tex_y + frame.tex_h))
             
             if clip:
                 im = im.crop(im.getbbox())
@@ -536,16 +585,29 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
 
     root = xmltree # .getroot()
     subtextures = root.findall("SubTexture")
+    # get_true_val = lambda val: int(val) if val else None
+
     for i, subtex in enumerate(subtextures):
         tex_x = int(subtex.attrib['x'])
         tex_y = int(subtex.attrib['y'])
         tex_width = int(subtex.attrib['width'])
         tex_height = int(subtex.attrib['height'])
         pose_name = subtex.attrib['name']
+        fx = int(subtex.attrib.get("frameX", 0))
+        fy = int(subtex.attrib.get("frameY", 0))
+        fw = int(subtex.attrib.get("frameWidth", tex_width))
+        fh = int(subtex.attrib.get("frameHeight", tex_height))
         sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height)).convert('RGBA')
         sprite_img = sprite_img.convert('RGBA')
-        qim = ImageQt(sprite_img)
-        sprites.append((qim, pose_name, tex_x, tex_y, tex_width, tex_height))
+        # qim = ImageQt(sprite_img)
+        # sprites.append((sprite_img.toqpixmap(), pose_name, tex_x, tex_y, tex_width, tex_height))
+        sprites.append(
+            SpriteFrame(
+                None, pngpath, sprite_img.toqpixmap(), pose_name, 
+                tx=tex_x, ty=tex_y, tw=tex_width, th=tex_height,
+                framex=fx, framey=fy, framew=fw, frameh=fh
+            )
+        )
         udpdatefn((i+1)*50//len(subtextures), pose_name)
     
     return sprites

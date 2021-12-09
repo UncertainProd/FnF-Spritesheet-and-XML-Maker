@@ -1,7 +1,7 @@
 from animpreviewwindow import Ui_animation_view
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QTimer
-from utils import get_stylesheet_from_file
+from xmlpngengine import get_true_frame
 
 class AnimationView(QWidget):
     def __init__(self, *args, **kwargs):
@@ -24,10 +24,10 @@ class AnimationView(QWidget):
     
     def parse_and_load_frames(self, frames):
         for f in frames:
-            if f.pose_name in self.anim_names:
-                self.anim_names[f.pose_name].append(f)
+            if f.img_xml_data.pose_name in self.anim_names:
+                self.anim_names[f.img_xml_data.pose_name].append(f)
             else:
-                self.anim_names[f.pose_name] = [ f ]
+                self.anim_names[f.img_xml_data.pose_name] = [ f ]
         self.ui.pose_combobox.addItems(list(self.anim_names.keys()))
     
     def play_animation(self):
@@ -46,7 +46,17 @@ class AnimationView(QWidget):
             self.timer.start(1000/framerate)
     
     def set_next_frame(self):
-        self.ui.animation_display_area.setPixmap(self.animframes[self.frameindex].image_pixmap)
+        curframe = self.animframes[self.frameindex]
+        truframe_pixmap = get_true_frame(
+            curframe.img_data.img,
+            curframe.img_xml_data.framex if curframe.img_xml_data.framex is not None else 0,
+            curframe.img_xml_data.framey if curframe.img_xml_data.framey is not None else 0,
+            curframe.img_xml_data.framew if curframe.img_xml_data.framew is not None else curframe.img_data.img.width,
+            curframe.img_xml_data.frameh if curframe.img_xml_data.frameh is not None else curframe.img_data.img.height,
+            curframe.img_data.is_flip_x,
+            curframe.img_data.is_flip_y
+        ).toqpixmap()
+        self.ui.animation_display_area.setPixmap(truframe_pixmap)
         self.frameindex = (self.frameindex + 1) % len(self.animframes)
     
     def closeEvent(self, a0):
