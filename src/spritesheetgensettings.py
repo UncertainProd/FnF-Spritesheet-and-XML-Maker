@@ -22,6 +22,7 @@ class Ui_Form(object):
         font = QtGui.QFont()
         font.setPointSize(9)
         self.clip_checkbox.setFont(font)
+        self.clip_checkbox.setChecked(True)
         self.clip_checkbox.setObjectName("clip_checkbox")
         self.verticalLayout_3.addWidget(self.clip_checkbox)
         self.frame = QtWidgets.QFrame(Form)
@@ -131,8 +132,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Spritesheet Generation Settings"))
-        self.clip_checkbox.setText(_translate("Form", "Clip to bounding box.\n"
-"(Warning: Will override any frame-related settings!)"))
+        self.clip_checkbox.setText(_translate("Form", "Clip to bounding box"))
         self.label_3.setText(_translate("Form", "Sprite Reuse Level"))
         self.label.setText(_translate("Form", "Animation Name prefixing:"))
         self.charname_first_radiobtn.setText(_translate("Form", "Add Character Name \n"

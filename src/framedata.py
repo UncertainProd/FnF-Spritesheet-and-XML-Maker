@@ -31,6 +31,12 @@ class FrameImgData:
             Flip-X: {repr(self.is_flip_x)}
             Flip-Y: {repr(self.is_flip_y)}
         """
+    
+    def modify_image_to(self, im):
+        # modifies PIL image object itself (does not change imgpath though)
+        self.img = im
+        self.img_width = im.width
+        self.img_height = im.height
 
 class FrameXMLData:
     def __init__(self, pose_name, x, y, w, h, framex, framey, framew, frameh):

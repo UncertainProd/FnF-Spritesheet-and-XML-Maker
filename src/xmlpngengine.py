@@ -266,9 +266,76 @@ def superoptimize(single_png_list, pre_exist_dict):
     return new_pre_exist_dict, new_single_png_list
 
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
-    for f in frames:
-        print(f)
-        print("-------------")
+    clip = settings.get('clip', True)
+    reuse_sprites_level = settings.get('reuse_sprites_level', 1)
+    prefix_type = settings.get('prefix_type', 'charname')
+    custom_prefix = settings.get('custom_prefix', '')
+    insist_prefix = settings.get('insist_prefix', False)
+    
+    # clip images when loaded itself (instead of here)
+    # if clip:
+        # for f in frames:
+            # f.img_data.modify_image_to(f.img_data.img.crop(f.img_data.img.getbbox()))
+
+    # init XML
+    root = ET.Element("TextureAtlas")
+    root.tail = linesep
+    root.attrib['imagePath'] = f"{character_name}.png"
+    
+    new_pose_names = add_pose_numbers(frames)
+    # for f, pose in zip(frames, new_pose_names):
+        # f.img_xml_data.pose_name = pose
+    
+    frame_dict_arr = []
+    for f, pose in zip(frames, new_pose_names):
+        f.img_xml_data.pose_name = pose
+        frame_dict_arr.append({
+            "id": f, 
+            "w": f.img_xml_data.w, 
+            "h": f.img_xml_data.h
+        })
+        # print(f)
+        # print("-------------")
+    
+    frame_dict_arr.sort(key= lambda rect: rect.get("h", -100), reverse=True)
+    
+    gp = GrowingPacker()
+    gp.fit(frame_dict_arr)
+    
+    final_img = Image.new("RGBA", (gp.root['w'], gp.root['h']), (0, 0, 0, 0))
+    for r in frame_dict_arr:
+        fit = r.get("fit")
+        # print("x: ", fit.get("x"), "\t\ty: ", fit.get("y"))
+        # im = Image.open(f"{foldername}/" + r.get("id"))
+        final_img.paste( r['id'].img_data.img, (fit["x"], fit["y"]) )
+
+        subtexture_element = ET.Element("SubTexture")
+        subtexture_element.tail = linesep
+        subtexture_element.attrib = {
+            "name" : r.get("id").img_xml_data.pose_name,
+            "x": str(fit.get("x")),
+            "y": str(fit.get("y")),
+            "width": str(r.get("id").img_data.img_width),
+            "height": str(r.get("id").img_data.img_height),
+            "frameX": str(r.get('id').img_xml_data.framex),
+            "frameY": str(r.get('id').img_xml_data.framey),
+            "frameWidth": str(r.get('id').img_xml_data.framew),
+            "frameHeight": str(r.get('id').img_xml_data.frameh),
+        }
+        root.append(subtexture_element)
+        # im.close()
+    print("Saving XML...")
+    xmltree = ET.ElementTree(root)
+    with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
+        xmltree.write(f, xml_declaration=True, encoding='utf-8')
+    
+    print("Saving Image...")
+    final_img = final_img.crop(final_img.getbbox())
+    final_img.save(path.join(save_dir, character_name) + ".png")
+    final_img.close()
+    
+    print("Done!")
+    
     return 0, None
     clip = settings.get('clip', False)
     reuse_sprites_level = settings.get('reuse_sprites_level', 1)
