@@ -142,6 +142,17 @@ def pad_img(img, clip=False, top=DEFAULT_PADDING, right=DEFAULT_PADDING, bottom=
     result.paste(img, (left, top))
     return result
 
+def adjust_spriteframe_img(sp):
+    img = sp.img_data.img
+    img_bbox = img.getbbox()
+    sp.change_img_to(img.crop(img_bbox))
+    # setting frame properties in order to reconstruct the img (if from single png)
+    if sp.img_data.from_single_png:
+        sp.img_xml_data.framew = img.width
+        sp.img_xml_data.frameh = img.height
+        sp.img_xml_data.framex = -img_bbox[0]
+        sp.img_xml_data.framey = -img_bbox[1]
+
 def add_pose_numbers(frame_arr):
     pose_arr = [ frame.img_xml_data.pose_name for frame in frame_arr ]
     unique_poses = list(set(pose_arr))
