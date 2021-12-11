@@ -328,9 +328,9 @@ class MyApp(QMainWindow):
         self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
         self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
         
-        self.add_or_update_frame_dict(sp.img_xml_data.pose_name, sp)
+        self.update_frame_dict(sp.img_xml_data.pose_name, sp)
     
-    def add_or_update_frame_dict(self, key, val, remove=False):
+    def update_frame_dict(self, key, val, remove=False):
         if not remove:
             if self.frame_dict.get(key):
                 self.frame_dict[key].append(val)
@@ -547,10 +547,10 @@ class MyApp(QMainWindow):
             if okPressed and text != '':
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:
-                    self.add_or_update_frame_dict(label.img_xml_data.pose_name, label, remove=True)
+                    self.update_frame_dict(label.img_xml_data.pose_name, label, remove=True)
                     label.img_xml_data.pose_name = text
                     label.modified = True
-                    self.add_or_update_frame_dict(text, label)
+                    self.update_frame_dict(text, label)
                     label.img_label.setToolTip(label.get_tooltip_string(self))
                 
                 for label in list(self.selected_labels):
