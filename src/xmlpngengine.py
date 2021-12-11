@@ -301,9 +301,9 @@ def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", pr
     for f, pose in zip(frames, new_pose_names):
         f.img_xml_data.pose_name = pose
         if f.img_data.is_flip_x:
-            f.img_data.img = f.img_data.img.transform(Image.FLIP_LEFT_RIGHT)
+            f.img_data.img = f.img_data.img.transpose(Image.FLIP_LEFT_RIGHT)
         if f.img_data.is_flip_y:
-            f.img_data.img = f.img_data.img.transform(Image.FLIP_TOP_BOTTOM)
+            f.img_data.img = f.img_data.img.transpose(Image.FLIP_TOP_BOTTOM)
         
         frame_dict_arr.append({
             "id": f, 
