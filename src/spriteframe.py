@@ -9,6 +9,8 @@ from os import path
 class SpriteFrame(QWidget):
     def __init__(self, parent, imgpath, impixmap = None, posename = None, **texinfo):
         super().__init__(parent)
+        # ID: pose_name + order(index?)
+        # self.ID = [None, -1]
         self.frameparent = parent
         # XML related info calculated for a spriteframe
         # name:str
@@ -40,7 +42,11 @@ class SpriteFrame(QWidget):
             else:
                 break
         true_pname = "idle" if self.img_data.from_single_png else posename[:first_num_index]
-        
+        # if not self.img_data.from_single_png and posename[first_num_index:].isnumeric():
+            # self.ID[1] = int(posename[first_num_index:])
+        # else:
+            # self.ID[1] = -1
+
         self.myframe = QFrame(self)
         # self.framex = self.framey = self.framew = self.frameh = None
         # self.tex_x = texinfo.get("tx", None)
@@ -56,6 +62,7 @@ class SpriteFrame(QWidget):
             texinfo.get("framex", 0), texinfo.get("framey", 0), 
             texinfo.get("framew", self.img_data.img_width), texinfo.get("frameh", self.img_data.img_height)
         )
+        # self.ID[0] = self.img_xml_data.pose_name
         
         self.img_label = QLabel(self.myframe)
 
@@ -145,7 +152,14 @@ class SpriteFrame(QWidget):
         f"Will appear in XML as:\n\t<SubTexture name=\"{inside_subtex_name}\" (...) >\n\t# = digit from 0-9"
         return ttstring
     
+    def change_img_to(self, newimg):
+        self.img_data.modify_image_to(newimg)
+        # make changes in xml data too
+        self.img_xml_data.w = newimg.width
+        self.img_xml_data.h = newimg.height
+    
     def __str__(self):
+        # return "ID: " + str(self.ID) + "\n" + str(self.img_data) + "\n" + str(self.img_xml_data)
         return str(self.img_data) + "\n" + str(self.img_xml_data)
 
 if __name__ == '__main__':

@@ -304,7 +304,11 @@ class MyApp(QMainWindow):
         if len(self.labels) > 0:
             self.ui.posename_btn.setDisabled(False)
     
-    def add_spriteframe(self, sp):
+    def add_spriteframe(self, sp: SpriteFrame):
+        # clip img
+        if self.settings_widget.isclip != 0:
+            xmlpngengine.adjust_spriteframe_img(sp)
+        
         self.num_rows = 1 + self.num_labels//self.num_cols
         
         self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
