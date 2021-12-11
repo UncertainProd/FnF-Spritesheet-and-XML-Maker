@@ -121,6 +121,7 @@ class SpriteFrame(QWidget):
         parent.num_labels -= 1
 
         parent.frames_layout.removeWidget(self)
+        parent.add_or_update_frame_dict(self.img_xml_data.pose_name, self, remove=True)
         self.deleteLater()
 
         parent.re_render_grid()

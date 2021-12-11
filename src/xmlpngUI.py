@@ -7,7 +7,6 @@ from animationwindow import AnimationView
 from xmltablewindow import XMLTableView
 import json
 
-
 import xmlpngengine
 from mainUI import Ui_MainWindow
 from frameadjustwindow import FrameAdjustWindow
@@ -52,6 +51,7 @@ class MyApp(QMainWindow):
         self.num_labels = 0
         self.labels = []
         self.selected_labels = []
+        self.frame_dict = {} # dict< pose_name: str -> frames: list[SpriteFrame] >
 
         self.add_img_button = QPushButton()
         self.add_img_button.setIcon(QIcon("./assets/AddImg.png"))
@@ -304,7 +304,7 @@ class MyApp(QMainWindow):
         if len(self.labels) > 0:
             self.ui.posename_btn.setDisabled(False)
     
-    def add_spriteframe(self, sp: SpriteFrame):
+    def add_spriteframe(self, sp):
         # clip img
         if self.settings_widget.isclip != 0:
             xmlpngengine.adjust_spriteframe_img(sp)
@@ -327,7 +327,21 @@ class MyApp(QMainWindow):
         self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
         self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
+        
+        self.add_or_update_frame_dict(sp.img_xml_data.pose_name, sp)
     
+    def add_or_update_frame_dict(self, key, val, remove=False):
+        if not remove:
+            if self.frame_dict.get(key):
+                self.frame_dict[key].append(val)
+            else:
+                self.frame_dict[key] = [ val ]
+        else:
+            if self.frame_dict.get(key):
+                self.frame_dict[key].remove(val)
+            else:
+                print("Error removing spriteframe")
+
     # OBSOLETE!
     def add_img(self, imgpath, imdat=None, posename="", **texinfo):
         # print("Adding image, prevcount: ", self.num_labels)
@@ -533,8 +547,10 @@ class MyApp(QMainWindow):
             if okPressed and text != '':
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:
+                    self.add_or_update_frame_dict(label.img_xml_data.pose_name, label, remove=True)
                     label.img_xml_data.pose_name = text
                     label.modified = True
+                    self.add_or_update_frame_dict(text, label)
                     label.img_label.setToolTip(label.get_tooltip_string(self))
                 
                 for label in list(self.selected_labels):
