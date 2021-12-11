@@ -249,7 +249,6 @@ class Ui_MainWindow(object):
         self.menuFlip.addAction(self.actionFlipY)
         self.menuEdit_Selected_Images.addAction(self.menuFlip.menuAction())
         self.menuEdit.addAction(self.actionClear_Spritesheet_Grid)
-        self.menuEdit.addAction(self.actionEdit_Frame_Properties)
         self.menuEdit.addAction(self.menuEdit_Selected_Images.menuAction())
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.actionClear_IconGrid)
