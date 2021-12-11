@@ -276,7 +276,7 @@ def superoptimize(single_png_list, pre_exist_dict):
 
     return new_pre_exist_dict, new_single_png_list
 
-def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
+def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", progressupdatefn=None, settings=None):
     clip = settings.get('clip', True)
     reuse_sprites_level = settings.get('reuse_sprites_level', 1)
     prefix_type = settings.get('prefix_type', 'charname')
@@ -300,6 +300,11 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     frame_dict_arr = []
     for f, pose in zip(frames, new_pose_names):
         f.img_xml_data.pose_name = pose
+        if f.img_data.is_flip_x:
+            f.img_data.img = f.img_data.img.transform(Image.FLIP_LEFT_RIGHT)
+        if f.img_data.is_flip_y:
+            f.img_data.img = f.img_data.img.transform(Image.FLIP_TOP_BOTTOM)
+        
         frame_dict_arr.append({
             "id": f, 
             "w": f.img_xml_data.w, 
