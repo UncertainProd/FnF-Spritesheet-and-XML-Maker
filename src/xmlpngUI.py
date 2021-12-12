@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
 from animationwindow import AnimationView
+from frameorderscreen import FrameOrderScreen
 from xmltablewindow import XMLTableView
 import json
 
@@ -140,10 +141,18 @@ class MyApp(QMainWindow):
         self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
         self.ui.actionFlipX.triggered.connect(lambda: self.flip_labels('X'))
         self.ui.actionFlipY.triggered.connect(lambda: self.flip_labels('Y'))
+
+        self.frame_order_screen = FrameOrderScreen()
+        self.ui.actionChange_Frame_Ordering.triggered.connect(self.show_frame_order_screen)
+        self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
         
         # Note: Add any extra windows before this if your want the themes to apply to them
         if prefs.get("theme", 'default') == 'dark':
             self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
+    
+    def show_frame_order_screen(self):
+        self.frame_order_screen.set_frame_dict(self.frame_dict)
+        self.frame_order_screen.show()
     
     def flip_labels(self, dxn='X'):
         for lab in self.selected_labels:
@@ -173,6 +182,7 @@ class MyApp(QMainWindow):
         self.settings_widget.setStyleSheet(stylestr)
         self.anim_view_window.setStyleSheet(stylestr)
         self.xml_table.setStyleSheet(stylestr)
+        self.frame_order_screen.setStyleSheet(stylestr)
         if stylestr == "":
             set_preferences({ "theme":"default" })
         else:
@@ -327,6 +337,7 @@ class MyApp(QMainWindow):
         self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
         self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
+        self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
         
         self.update_frame_dict(sp.img_xml_data.pose_name, sp)
     

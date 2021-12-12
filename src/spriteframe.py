@@ -130,6 +130,7 @@ class SpriteFrame(QWidget):
             parent.ui.posename_btn.setDisabled(True)
             parent.ui.actionPreview_Animation.setEnabled(False)
             parent.ui.actionView_XML_structure.setEnabled(False)
+            parent.ui.actionChange_Frame_Ordering.setEnabled(False)
     
     def add_to_selected_arr(self, parent):
         if self.select_checkbox.checkState() == 0:
