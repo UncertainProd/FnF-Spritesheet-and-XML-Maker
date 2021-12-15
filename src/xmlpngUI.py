@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
 from animationwindow import AnimationView
-from frameorderscreen import FrameOrderScreen
+# from frameorderscreen import FrameOrderScreen
 from xmltablewindow import XMLTableView
 import json
 
@@ -142,17 +142,17 @@ class MyApp(QMainWindow):
         self.ui.actionFlipX.triggered.connect(lambda: self.flip_labels('X'))
         self.ui.actionFlipY.triggered.connect(lambda: self.flip_labels('Y'))
 
-        self.frame_order_screen = FrameOrderScreen()
-        self.ui.actionChange_Frame_Ordering.triggered.connect(self.show_frame_order_screen)
-        self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
+        # self.frame_order_screen = FrameOrderScreen()
+        # self.ui.actionChange_Frame_Ordering.triggered.connect(self.show_frame_order_screen)
+        # self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
         
         # Note: Add any extra windows before this if your want the themes to apply to them
         if prefs.get("theme", 'default') == 'dark':
             self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
     
-    def show_frame_order_screen(self):
-        self.frame_order_screen.set_frame_dict(self.frame_dict)
-        self.frame_order_screen.show()
+    # def show_frame_order_screen(self):
+        # self.frame_order_screen.set_frame_dict(self.frame_dict)
+        # self.frame_order_screen.show()
     
     def flip_labels(self, dxn='X'):
         for lab in self.selected_labels:
@@ -182,7 +182,7 @@ class MyApp(QMainWindow):
         self.settings_widget.setStyleSheet(stylestr)
         self.anim_view_window.setStyleSheet(stylestr)
         self.xml_table.setStyleSheet(stylestr)
-        self.frame_order_screen.setStyleSheet(stylestr)
+        # self.frame_order_screen.setStyleSheet(stylestr)
         if stylestr == "":
             set_preferences({ "theme":"default" })
         else:
