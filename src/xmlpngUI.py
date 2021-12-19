@@ -354,25 +354,25 @@ class MyApp(QMainWindow):
                 print("Error removing spriteframe")
 
     # OBSOLETE!
-    def add_img(self, imgpath, imdat=None, posename="", **texinfo):
-        # print("Adding image, prevcount: ", self.num_labels)
-        self.num_rows = 1 + self.num_labels//self.num_cols
+    # def add_img(self, imgpath, imdat=None, posename="", **texinfo):
+    #     # print("Adding image, prevcount: ", self.num_labels)
+    #     self.num_rows = 1 + self.num_labels//self.num_cols
         
-        self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
-        self.frames_layout.setRowStretch(self.num_rows - 1, 0)
+    #     self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
+    #     self.frames_layout.setRowStretch(self.num_rows - 1, 0)
         
-        vspcr = QSpacerItem(1, 1)
-        self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
+    #     vspcr = QSpacerItem(1, 1)
+    #     self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
 
-        hspcr = QSpacerItem(1, 1)
-        self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
+    #     hspcr = QSpacerItem(1, 1)
+    #     self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
         
-        self.labels.append(SpriteFrame(self, imgpath, imdat, posename, **texinfo))
-        self.frames_layout.removeWidget(self.add_img_button)
-        self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
-        self.num_labels += 1
-        self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
-        self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
+    #     self.labels.append(SpriteFrame(self, imgpath, imdat, posename, **texinfo))
+    #     self.frames_layout.removeWidget(self.add_img_button)
+    #     self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+    #     self.num_labels += 1
+    #     self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
+    #     self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
     
     def re_render_grid(self):
         self.num_rows = 1 + self.num_labels//self.num_cols
