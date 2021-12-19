@@ -319,6 +319,8 @@ def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", pr
     gp.fit(frame_dict_arr)
     
     final_img = Image.new("RGBA", (gp.root['w'], gp.root['h']), (0, 0, 0, 0))
+    frame_dict_arr.sort(key=lambda x: x['id'].img_xml_data.pose_name)
+    prgs = 0
     for r in frame_dict_arr:
         fit = r.get("fit")
         # print("x: ", fit.get("x"), "\t\ty: ", fit.get("y"))
@@ -339,6 +341,8 @@ def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", pr
             "frameHeight": str(r.get('id').img_xml_data.frameh),
         }
         root.append(subtexture_element)
+        prgs += 1
+        progressupdatefn(prgs, r.get("id").img_xml_data.pose_name)
         # im.close()
     print("Saving XML...")
     xmltree = ET.ElementTree(root)
