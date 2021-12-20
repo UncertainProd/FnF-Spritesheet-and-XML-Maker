@@ -14,7 +14,7 @@ class GrowingPacker:
     def __init__(self):
         self.root = None
 
-    def fit(self, blocks: list[dict]):
+    def fit(self, blocks):
         num_blocks = len(blocks)
         w = blocks[0].get("w", 0) if num_blocks > 0 else 0
         h = blocks[0].get("h", 0) if num_blocks > 0 else 0
@@ -26,7 +26,7 @@ class GrowingPacker:
             else:
                 block["fit"] = self.grow_node(block.get("w", 0), block.get("h", 0))
     
-    def find_node(self, root: dict, w: int, h: int):
+    def find_node(self, root, w, h):
         if root.get("used"):
             return self.find_node(root.get("right"), w, h) or self.find_node(root.get("down"), w, h)
         elif w <= root.get("w", 0) and h <= root.get("h", 0):
@@ -34,7 +34,7 @@ class GrowingPacker:
         else:
             return None
     
-    def split_node(self, node: dict, w: int, h: int):
+    def split_node(self, node, w, h):
         node["used"] = True
         node['down'] = { "x": node.get("x"), "y": node.get("y") + h, "w": node.get("w"), "h":node.get("h") - h }
         node['right'] = { "x": node.get("x") + w, "y": node.get("y"), "w": node.get("w") - w, "h": h }
@@ -278,7 +278,7 @@ def superoptimize(single_png_list, pre_exist_dict):
 
     return new_pre_exist_dict, new_single_png_list
 
-def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", progressupdatefn=None, settings=None):
+def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
     clip = settings.get('clip', True)
     reuse_sprites_level = settings.get('reuse_sprites_level', 1)
     prefix_type = settings.get('prefix_type', 'charname')
