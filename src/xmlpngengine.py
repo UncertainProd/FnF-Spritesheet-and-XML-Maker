@@ -4,6 +4,8 @@ from math import sqrt
 from os import path, linesep
 
 from spriteframe import SpriteFrame
+from utils import imghashes
+from pprint import pp
 
 # Packing Algorithm based on https://github.com/jakesgordon/bin-packing/blob/master/js/packer.growing.js
 # converted to python
@@ -143,7 +145,7 @@ def pad_img(img, clip=False, top=DEFAULT_PADDING, right=DEFAULT_PADDING, bottom=
     return result
 
 def adjust_spriteframe_img(sp):
-    img = sp.img_data.img
+    img = imghashes.get(sp.img_data.img_hash)
     img_bbox = img.getbbox()
     sp.change_img_to(img.crop(img_bbox))
     # setting frame properties in order to reconstruct the img (if from single png)
@@ -282,6 +284,9 @@ def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", pr
     prefix_type = settings.get('prefix_type', 'charname')
     custom_prefix = settings.get('custom_prefix', '')
     insist_prefix = settings.get('insist_prefix', False)
+    pp(imghashes)
+    print(len(imghashes))
+    print(len(frames))
     
     # clip images when loaded itself (instead of here)
     # if clip:
@@ -294,15 +299,23 @@ def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", pr
     root.attrib['imagePath'] = f"{character_name}.png"
     
     new_pose_names = add_pose_numbers(frames)
-    # for f, pose in zip(frames, new_pose_names):
-        # f.img_xml_data.pose_name = pose
+    for f, pose in zip(frames, new_pose_names):
+        f.img_xml_data.xml_posename = pose
     
     frame_dict_arr = []
+    for imhash, img in imghashes.items():
+        frame_dict_arr.append({
+            "id": imhash,
+            "w": img.width,
+            "h": img.height
+        })
+    '''
     for f, pose in zip(frames, new_pose_names):
-        f.img_xml_data.pose_name = pose
-        if f.img_data.is_flip_x:
+        f.img_xml_data.xml_posename = pose
+        # TODO: use the flipX and flipY properties in the XML instead of actually flipping the image!
+        if f.img_xml_data.is_flip_x:
             f.img_data.img = f.img_data.img.transpose(Image.FLIP_LEFT_RIGHT)
-        if f.img_data.is_flip_y:
+        if f.img_xml_data.is_flip_y:
             f.img_data.img = f.img_data.img.transpose(Image.FLIP_TOP_BOTTOM)
         
         frame_dict_arr.append({
@@ -312,37 +325,43 @@ def make_png_xml(frames:list[SpriteFrame], save_dir, character_name="Result", pr
         })
         # print(f)
         # print("-------------")
-    
+    '''
     frame_dict_arr.sort(key= lambda rect: rect.get("h", -100), reverse=True)
     
     gp = GrowingPacker()
     gp.fit(frame_dict_arr)
     
     final_img = Image.new("RGBA", (gp.root['w'], gp.root['h']), (0, 0, 0, 0))
-    frame_dict_arr.sort(key=lambda x: x['id'].img_xml_data.pose_name)
+    # frame_dict_arr.sort(key=lambda x: x['id'].img_xml_data.xml_posename)
     prgs = 0
     for r in frame_dict_arr:
         fit = r.get("fit")
         # print("x: ", fit.get("x"), "\t\ty: ", fit.get("y"))
         # im = Image.open(f"{foldername}/" + r.get("id"))
-        final_img.paste( r['id'].img_data.img, (fit["x"], fit["y"]) )
+        final_img.paste( imghashes.get(r['id']), (fit["x"], fit["y"]) )
+        prgs += 1
+        progressupdatefn(prgs, "....")
 
+    # convert frame_dict_arr into a dict:
+    imghash_dict = { rect['id']: (rect['fit']['x'], rect['fit']['y']) for rect in frame_dict_arr }
+    for frame in frames:
         subtexture_element = ET.Element("SubTexture")
         subtexture_element.tail = linesep
+        w, h = imghashes.get(frame.img_data.img_hash).size
         subtexture_element.attrib = {
-            "name" : r.get("id").img_xml_data.pose_name,
-            "x": str(fit.get("x")),
-            "y": str(fit.get("y")),
-            "width": str(r.get("id").img_data.img_width),
-            "height": str(r.get("id").img_data.img_height),
-            "frameX": str(r.get('id').img_xml_data.framex),
-            "frameY": str(r.get('id').img_xml_data.framey),
-            "frameWidth": str(r.get('id').img_xml_data.framew),
-            "frameHeight": str(r.get('id').img_xml_data.frameh),
+            "name" : frame.img_xml_data.xml_posename,
+            "x": str(imghash_dict[frame.img_data.img_hash][0]),
+            "y": str(str(imghash_dict[frame.img_data.img_hash][1])),
+            "width": str(w),
+            "height": str(h),
+            "frameX": str(frame.img_xml_data.framex),
+            "frameY": str(frame.img_xml_data.framey),
+            "frameWidth": str(frame.img_xml_data.framew),
+            "frameHeight": str(frame.img_xml_data.frameh),
         }
         root.append(subtexture_element)
         prgs += 1
-        progressupdatefn(prgs, r.get("id").img_xml_data.pose_name)
+        progressupdatefn(prgs, frame.img_xml_data.xml_posename)
         # im.close()
     print("Saving XML...")
     xmltree = ET.ElementTree(root)
@@ -694,7 +713,7 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
         # sprites.append((sprite_img.toqpixmap(), pose_name, tex_x, tex_y, tex_width, tex_height))
         sprites.append(
             SpriteFrame(
-                None, pngpath, sprite_img.toqpixmap(), pose_name, 
+                None, pngpath, sprite_img, pose_name, 
                 tx=tex_x, ty=tex_y, tw=tex_width, th=tex_height,
                 framex=fx, framey=fy, framew=fw, frameh=fh
             )

@@ -161,9 +161,9 @@ class MyApp(QMainWindow):
             lab.img_label.setPixmap(lab.image_pixmap)
             
             if dxn == 'X':
-                lab.img_data.is_flip_x = not lab.img_data.is_flip_x
+                lab.img_xml_data.is_flip_x = not lab.img_xml_data.is_flip_x
             elif dxn == 'Y':
-                lab.img_data.is_flip_y = not lab.img_data.is_flip_y
+                lab.img_xml_data.is_flip_y = not lab.img_xml_data.is_flip_y
 
     def show_table_view(self):
         print("Showing table view...")
@@ -307,7 +307,7 @@ class MyApp(QMainWindow):
 
             for i, pth in enumerate(imgpaths):
                 # self.add_img(pth)
-                self.add_spriteframe(SpriteFrame(self, pth, None, ""))
+                self.add_spriteframe(SpriteFrame(self, pth))
                 update_prog_bar(i+1, pth)
             progbar.close()
         

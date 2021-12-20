@@ -2,6 +2,7 @@ from animpreviewwindow import Ui_animation_view
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QTimer
 from xmlpngengine import get_true_frame
+from utils import imghashes
 
 class AnimationView(QWidget):
     def __init__(self, *args, **kwargs):
@@ -48,13 +49,13 @@ class AnimationView(QWidget):
     def set_next_frame(self):
         curframe = self.animframes[self.frameindex]
         truframe_pixmap = get_true_frame(
-            curframe.img_data.img,
+            imghashes.get(curframe.img_data.img_hash),
             curframe.img_xml_data.framex if curframe.img_xml_data.framex is not None else 0,
             curframe.img_xml_data.framey if curframe.img_xml_data.framey is not None else 0,
-            curframe.img_xml_data.framew if curframe.img_xml_data.framew is not None else curframe.img_data.img.width,
-            curframe.img_xml_data.frameh if curframe.img_xml_data.frameh is not None else curframe.img_data.img.height,
-            curframe.img_data.is_flip_x,
-            curframe.img_data.is_flip_y
+            curframe.img_xml_data.framew if curframe.img_xml_data.framew is not None else imghashes.get(curframe.img_data.img_hash).width,
+            curframe.img_xml_data.frameh if curframe.img_xml_data.frameh is not None else imghashes.get(curframe.img_data.img_hash).height,
+            curframe.img_xml_data.is_flip_x,
+            curframe.img_xml_data.is_flip_y
         ).toqpixmap()
         self.ui.animation_display_area.setPixmap(truframe_pixmap)
         self.frameindex = (self.frameindex + 1) % len(self.animframes)

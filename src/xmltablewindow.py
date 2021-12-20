@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QWidget
 from PyQt5.QtCore import Qt
-from utils import temp_path_shortener
+from utils import temp_path_shortener, imghashes
 from xmlpngengine import get_true_frame
 from xmltablewindowUI import Ui_TableWidgetThing
 
@@ -66,13 +66,13 @@ class XMLTableView(QWidget):
     def set_true_frame(self):
         # set the frame pixmap
         truframe = get_true_frame(
-            self.selected_row.img_data.img, 
+            imghashes.get(self.selected_row.img_data.img_hash), 
             self.selected_row.img_xml_data.framex if self.selected_row.img_xml_data.framex is not None else 0,
             self.selected_row.img_xml_data.framey if self.selected_row.img_xml_data.framey is not None else 0,
-            self.selected_row.img_xml_data.framew if self.selected_row.img_xml_data.framew is not None else self.selected_row.img_data.img.width,
-            self.selected_row.img_xml_data.frameh if self.selected_row.img_xml_data.frameh is not None else self.selected_row.img_data.img.height,
-            self.selected_row.img_data.is_flip_x,
-            self.selected_row.img_data.is_flip_y
+            self.selected_row.img_xml_data.framew if self.selected_row.img_xml_data.framew is not None else imghashes.get(self.selected_row.img_data.img_hash).width,
+            self.selected_row.img_xml_data.frameh if self.selected_row.img_xml_data.frameh is not None else imghashes.get(self.selected_row.img_data.img_hash).height,
+            self.selected_row.img_xml_data.is_flip_x,
+            self.selected_row.img_xml_data.is_flip_y
         ).toqpixmap()
         self.ui.frame_preview_label.setPixmap(truframe)
         self.ui.frame_preview_label.setFixedSize(truframe.width(), truframe.height())

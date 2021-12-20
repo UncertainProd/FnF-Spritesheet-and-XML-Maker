@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QMessageBox
-
+from PIL import Image
 
 SPRITEFRAME_SIZE = 128
+imghashes:dict[int, Image.Image] = {} # dict[Int(hash) -> PIL.Image object]
 
 def get_stylesheet_from_file(filename):
     with open(filename, 'r') as f:

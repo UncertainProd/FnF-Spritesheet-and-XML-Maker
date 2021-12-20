@@ -19,6 +19,8 @@ class FrameImgData:
             self.img = im.crop((self.tx, self.ty, self.tx + self.tw, self.ty + self.th))
             im.close()
         
+        self.img_hash = hash(self.img.tobytes())
+        self.img.close()
         self.is_flip_x = False
         self.is_flip_y = False
     
@@ -39,7 +41,7 @@ class FrameImgData:
         self.img_height = im.height
 
 class FrameXMLData:
-    def __init__(self, pose_name, x, y, w, h, framex, framey, framew, frameh):
+    def __init__(self, pose_name, x, y, w, h, framex, framey, framew, frameh, flipx=False, flipy=False):
         self.pose_name = pose_name
         self.x = x
         self.y = y
@@ -49,6 +51,11 @@ class FrameXMLData:
         self.framey = framey
         self.framew = framew
         self.frameh = frameh
+        self.is_flip_x = flipx
+        self.is_flip_y = flipy
+        self.xml_posename = None
+        # not exactly relevant to the xml but still
+        self.from_single_png = False
     
     def convert_to_dict(self):
         attribs = {
