@@ -2,6 +2,13 @@ from PyQt5.QtWidgets import QMessageBox
 
 SPRITEFRAME_SIZE = 128
 imghashes = {} # dict[Int(hash) -> PIL.Image object]
+g_settings = {
+    "isclip": 1,
+    "reuse_sprites_level": 1,
+    "prefix_type": "charname",
+    "custom_prefix": "",
+    "must_use_prefix": 0
+} # dict containing all settings (check settingswindow.py)
 
 def get_stylesheet_from_file(filename):
     with open(filename, 'r') as f:
