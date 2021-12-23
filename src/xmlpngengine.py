@@ -4,7 +4,7 @@ from math import sqrt
 from os import path, linesep
 
 from spriteframe import SpriteFrame
-from utils import imghashes
+from utils import imghashes, g_settings
 from pprint import pp
 
 # Packing Algorithm based on https://github.com/jakesgordon/bin-packing/blob/master/js/packer.growing.js
@@ -263,11 +263,13 @@ def superoptimize(single_png_list, pre_exist_dict):
     return new_pre_exist_dict, new_single_png_list
 
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
-    clip = settings.get('clip', True)
+    if settings is None:
+        settings = g_settings
+    clip = settings.get('isclip', 1) != 0
     reuse_sprites_level = settings.get('reuse_sprites_level', 1)
     prefix_type = settings.get('prefix_type', 'charname')
     custom_prefix = settings.get('custom_prefix', '')
-    insist_prefix = settings.get('insist_prefix', False)
+    insist_prefix = settings.get('must_use_prefix', 0) != 0
     pp(imghashes)
     print(len(imghashes))
     print(len(frames))
@@ -324,7 +326,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         # im = Image.open(f"{foldername}/" + r.get("id"))
         final_img.paste( imghashes.get(r['id']), (fit["x"], fit["y"]) )
         prgs += 1
-        progressupdatefn(prgs, "....")
+        progressupdatefn(prgs, "Adding images to spritesheet...")
 
     # convert frame_dict_arr into a dict:
     imghash_dict = { rect['id']: (rect['fit']['x'], rect['fit']['y']) for rect in frame_dict_arr }
@@ -345,7 +347,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         }
         root.append(subtexture_element)
         prgs += 1
-        progressupdatefn(prgs, frame.img_xml_data.xml_posename)
+        progressupdatefn(prgs, f"Saving {frame.img_xml_data.xml_posename} to XML...")
         # im.close()
     print("Saving XML...")
     xmltree = ET.ElementTree(root)
@@ -630,24 +632,17 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150): # savedir,
         icongrid.close()
     return retval, indices, problem_img, exception_msg
 
-def save_img_sequence(frames, savedir, updatefn, clip):
+def save_img_sequence(frames, savedir, updatefn):
     # Saves each frame as a png
     newposes = add_pose_numbers(frames)
     for i, (frame, pose) in enumerate(zip(frames, newposes)):
         try:
             im = imghashes.get(frame.data.img_hash)
             im = get_true_frame(im, frame.data.framex, frame.data.framey, frame.data.framew, frame.data.frameh)
-            # if frame.data.from_single_png:
-                # im = Image.open(frame.data.imgpath).convert('RGBA')
-            # else:
-                # FIXME: get the actual frame img now!
-                # im = Image.open(frame.data.imgpath).convert('RGBA').crop((frame.data.tx, frame.data.ty, frame.data.tx + frame.data.tw, frame.data.ty + frame.data.th))
-            
-            # if clip:
-                # im = im.crop(im.getbbox())
+
             im.save(path.join(savedir, f"{pose}.png"))
             im.close()
-            updatefn(i+1, f"{pose}.png")
+            updatefn(i+1, f"Saving: {pose}.png")
         except Exception as e:
             return str(e)
     return None

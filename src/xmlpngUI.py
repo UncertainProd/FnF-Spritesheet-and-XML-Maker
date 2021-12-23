@@ -12,14 +12,14 @@ import xmlpngengine
 from mainUI import Ui_MainWindow
 from frameadjustwindow import FrameAdjustWindow
 from spriteframe import SpriteFrame
-from utils import SPRITEFRAME_SIZE, get_stylesheet_from_file, g_settings
+from utils import SPRITEFRAME_SIZE, get_stylesheet_from_file
 from settingswindow import SettingsWindow
 
 
 def display_progress_bar(parent, title="Sample text", startlim=0, endlim=100):
-    def update_prog_bar(progress, filename):
+    def update_prog_bar(progress, progresstext):
         progbar.setValue(progress)
-        progbar.setLabel(QLabel(f"Adding: {filename}"))
+        progbar.setLabel(QLabel(progresstext))
     progbar = QProgressDialog(title, None, startlim, endlim, parent)
     progbar.setWindowModality(Qt.WindowModal)
     progbar.show()
@@ -287,7 +287,7 @@ class MyApp(QMainWindow):
                     # spfr.setParent(self)
                     spfr.frameparent = self
                     self.add_spriteframe(spfr)
-                    update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
+                    update_prog_bar(50 + ((i+1)*50//len(sprites)), f"Adding: {imgpath}")
                 progbar.close()
                 
                 self.ui.posename_btn.setDisabled(self.num_labels <= 0)
@@ -306,7 +306,7 @@ class MyApp(QMainWindow):
             for i, pth in enumerate(imgpaths):
                 # self.add_img(pth)
                 self.add_spriteframe(SpriteFrame(self, pth))
-                update_prog_bar(i+1, pth)
+                update_prog_bar(i+1, f"Adding: {pth}")
             progbar.close()
         
         if len(self.labels) > 0:
@@ -399,7 +399,7 @@ class MyApp(QMainWindow):
         updatefn, progbar = display_progress_bar(self, "Exporting Image Sequence", startlim=0, endlim=len(self.labels))
         QApplication.processEvents()
         
-        errmsg = xmlpngengine.save_img_sequence(self.labels, savedir, updatefn, g_settings['isclip'] != 0)
+        errmsg = xmlpngengine.save_img_sequence(self.labels, savedir, updatefn)
         progbar.close()
         if errmsg:
             self.display_msg_box("Error!", text=f"An error occured: {errmsg}", icon=QMessageBox.Critical)
@@ -410,11 +410,11 @@ class MyApp(QMainWindow):
         charname = self.ui.charname_textbox.text()
         charname = charname.strip()
         settings_config = {
-            'clip': self.settings_widget.isclip != 0,
+            'isclip': self.settings_widget.isclip != 0,
             'reuse_sprites_level': self.settings_widget.reuse_sprites_level,
             'prefix_type': self.settings_widget.prefix_type,
             'custom_prefix': self.settings_widget.custom_prefix,
-            'insist_prefix': self.settings_widget.must_use_prefix != 0
+            'must_use_prefix': self.settings_widget.must_use_prefix != 0
         }
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
