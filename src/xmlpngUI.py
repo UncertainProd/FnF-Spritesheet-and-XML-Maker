@@ -164,6 +164,10 @@ class MyApp(QMainWindow):
                 lab.img_xml_data.is_flip_x = not lab.img_xml_data.is_flip_x
             elif dxn == 'Y':
                 lab.img_xml_data.is_flip_y = not lab.img_xml_data.is_flip_y
+        
+        for lab in list(self.selected_labels):
+            # this automatically removes it from self.selected_labels
+            lab.select_checkbox.setChecked(False)
 
     def show_table_view(self):
         print("Showing table view...")
@@ -565,6 +569,7 @@ class MyApp(QMainWindow):
                     label.img_label.setToolTip(label.get_tooltip_string(self))
                 
                 for label in list(self.selected_labels):
+                    # this automatically removes it from self.selected_labels
                     label.select_checkbox.setChecked(False)
             else:
                 print("Cancel pressed!")
