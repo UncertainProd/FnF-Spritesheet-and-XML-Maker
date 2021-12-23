@@ -29,6 +29,7 @@ class SpriteFrame(QWidget):
         true_pname = "idle" if fromsinglepng else posename[:first_num_index]
 
         self.data = FrameData(imgpath, fromsinglepng, true_pname, **texinfo)
+        self.modified = False
 
         # ui stuff
         self.image_pixmap = imghashes.get(self.data.img_hash).toqpixmap()
@@ -202,13 +203,12 @@ class SpriteFrame(QWidget):
         parent.ui.actionEdit_Frame_Properties.setDisabled(len(parent.selected_labels) <= 0)
     
     def get_tooltip_string(self, parent):
-        return "In progress...."
         charname = parent.ui.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
-        inside_subtex_name = f"{charname} {self.img_xml_data.pose_name}####" if self.img_data.from_single_png or self.modified else f"{self.img_xml_data.pose_name}####"
+        inside_subtex_name = f"{charname} {self.data.pose_name}####" if self.data.from_single_png or self.modified else f"{self.data.pose_name}####"
 
-        ttstring = f'''Image: {path.basename(self.img_data.imgpath)}
-Current Pose: {self.img_xml_data.pose_name}
+        ttstring = f'''Image: {path.basename(self.data.imgpath)}
+Current Pose: {self.data.pose_name}
 Will appear in XML as:
 \t<SubTexture name=\"{inside_subtex_name}\" (...) >
 \t# = digit from 0-9'''

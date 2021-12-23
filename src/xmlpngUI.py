@@ -565,7 +565,7 @@ class MyApp(QMainWindow):
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:
                     # self.update_frame_dict(label.img_xml_data.pose_name, label, remove=True)
-                    label.img_xml_data.pose_name = text
+                    label.data.pose_name = text
                     label.modified = True
                     # self.update_frame_dict(text, label)
                     label.img_label.setToolTip(label.get_tooltip_string(self))
