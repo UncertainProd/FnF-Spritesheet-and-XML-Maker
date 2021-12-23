@@ -51,10 +51,10 @@ class FrameData:
                 print("Unable to crop image!")
         
         # get hash
-        self.hash = hash(img.tobytes())
+        self.img_hash = hash(img.tobytes())
         # if hash isnt in imghashes then add it
-        if self.hash not in imghashes:
-            imghashes[self.hash] = img
+        if self.img_hash not in imghashes:
+            imghashes[self.img_hash] = img
         else:
             img.close()
 
