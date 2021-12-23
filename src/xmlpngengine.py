@@ -126,11 +126,6 @@ def get_true_frame(img , framex, framey, framew, frameh, flipx=False, flipy=Fals
     else:
         final_frame = final_frame.crop((0, 0, final_frame.width, frameh))
 
-    if flipx:
-        final_frame = final_frame.transpose(Image.FLIP_LEFT_RIGHT)
-    if flipy:
-        final_frame = final_frame.transpose(Image.FLIP_TOP_BOTTOM)
-
     return final_frame
 
 def pad_img(img, clip=False, top=DEFAULT_PADDING, right=DEFAULT_PADDING, bottom=DEFAULT_PADDING, left=DEFAULT_PADDING):

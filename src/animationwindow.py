@@ -25,10 +25,10 @@ class AnimationView(QWidget):
     
     def parse_and_load_frames(self, frames):
         for f in frames:
-            if f.img_xml_data.pose_name in self.anim_names:
-                self.anim_names[f.img_xml_data.pose_name].append(f)
+            if f.data.pose_name in self.anim_names:
+                self.anim_names[f.data.pose_name].append(f)
             else:
-                self.anim_names[f.img_xml_data.pose_name] = [ f ]
+                self.anim_names[f.data.pose_name] = [ f ]
         self.ui.pose_combobox.addItems(list(self.anim_names.keys()))
     
     def play_animation(self):
@@ -48,14 +48,13 @@ class AnimationView(QWidget):
     
     def set_next_frame(self):
         curframe = self.animframes[self.frameindex]
+        curframeimg = imghashes.get(curframe.data.img_hash)
         truframe_pixmap = get_true_frame(
-            imghashes.get(curframe.img_data.img_hash),
-            curframe.img_xml_data.framex if curframe.img_xml_data.framex is not None else 0,
-            curframe.img_xml_data.framey if curframe.img_xml_data.framey is not None else 0,
-            curframe.img_xml_data.framew if curframe.img_xml_data.framew is not None else imghashes.get(curframe.img_data.img_hash).width,
-            curframe.img_xml_data.frameh if curframe.img_xml_data.frameh is not None else imghashes.get(curframe.img_data.img_hash).height,
-            curframe.img_xml_data.is_flip_x,
-            curframe.img_xml_data.is_flip_y
+            curframeimg,
+            curframe.data.framex if curframe.data.framex is not None else 0,
+            curframe.data.framey if curframe.data.framey is not None else 0,
+            curframe.data.framew if curframe.data.framew is not None else curframeimg.width,
+            curframe.data.frameh if curframe.data.frameh is not None else curframeimg.height,
         ).toqpixmap()
         self.ui.animation_display_area.setPixmap(truframe_pixmap)
         self.frameindex = (self.frameindex + 1) % len(self.animframes)
