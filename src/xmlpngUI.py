@@ -290,7 +290,7 @@ class MyApp(QMainWindow):
                 #     update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
                 for i, spfr in enumerate(sprites):
                     # self.add_img(imgpath, spimg, posename, tx=tx, ty=ty, tw=tw, th=th)
-                    spfr.setParent(self)
+                    # spfr.setParent(self)
                     spfr.frameparent = self
                     self.add_spriteframe(spfr)
                     update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
@@ -320,8 +320,8 @@ class MyApp(QMainWindow):
     
     def add_spriteframe(self, sp):
         # clip img
-        if self.settings_widget.isclip != 0:
-            xmlpngengine.adjust_spriteframe_img(sp)
+        # if self.settings_widget.isclip != 0:
+            # xmlpngengine.adjust_spriteframe_img(sp)
         
         self.num_rows = 1 + self.num_labels//self.num_cols
         
@@ -343,9 +343,11 @@ class MyApp(QMainWindow):
         self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
         self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
         
-        self.update_frame_dict(sp.img_xml_data.pose_name, sp)
+        # self.update_frame_dict(sp.img_xml_data.pose_name, sp)
     
     def update_frame_dict(self, key, val, remove=False):
+        print("NO!")
+        return
         if not remove:
             if self.frame_dict.get(key):
                 self.frame_dict[key].append(val)
@@ -562,10 +564,10 @@ class MyApp(QMainWindow):
             if okPressed and text != '':
                 print("new pose prefix = ", text)
                 for label in self.selected_labels:
-                    self.update_frame_dict(label.img_xml_data.pose_name, label, remove=True)
+                    # self.update_frame_dict(label.img_xml_data.pose_name, label, remove=True)
                     label.img_xml_data.pose_name = text
                     label.modified = True
-                    self.update_frame_dict(text, label)
+                    # self.update_frame_dict(text, label)
                     label.img_label.setToolTip(label.get_tooltip_string(self))
                 
                 for label in list(self.selected_labels):

@@ -50,6 +50,10 @@ class FrameData:
             else:
                 print("Unable to crop image!")
         
+        # storing some img properties here for efficiency(kinda)
+        self.img_width = img.width
+        self.img_height = img.height
+
         # get hash
         self.img_hash = hash(img.tobytes())
         # if hash isnt in imghashes then add it

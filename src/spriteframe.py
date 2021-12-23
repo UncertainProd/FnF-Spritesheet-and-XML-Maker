@@ -2,7 +2,7 @@ from PIL import Image
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QCheckBox, QFrame, QPushButton, QWidget, QLabel
-from framedata import FrameImgData, FrameXMLData
+from framedata import FrameData, FrameImgData, FrameXMLData
 from utils import SPRITEFRAME_SIZE, imghashes
 from os import path
 
@@ -10,6 +10,56 @@ from os import path
 class SpriteFrame(QWidget):
     def __init__(self, parent, imgpath, impixmap = None, posename = "", **texinfo):
         super().__init__(parent)
+        self._frameparent = parent
+
+        # non-ui stuff
+        fromsinglepng = False
+        if impixmap is None:
+            fromsinglepng = True
+        
+        # "calculate" the pose_name
+        first_num_index = 0
+        if not fromsinglepng:
+            first_num_index = len(posename)
+            for i in range(len(posename)-1, 0, -1):
+                if posename[i].isnumeric():
+                    first_num_index = i
+                else:
+                    break
+        true_pname = "idle" if fromsinglepng else posename[:first_num_index]
+
+        self.data = FrameData(imgpath, fromsinglepng, true_pname, **texinfo)
+
+        # ui stuff
+        self.image_pixmap = imghashes.get(self.data.img_hash).toqpixmap()
+        self.myframe = QFrame(self)
+        self.img_label = QLabel(self.myframe)
+
+        # add tooltip stuff here later
+        # ....
+        # ....
+        # end of tooltip stuff
+        self.img_label.setPixmap(self.image_pixmap.scaled(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
+
+        self.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
+
+        self.remove_btn = QPushButton(self.myframe)
+        self.remove_btn.move(90, 90)
+        self.remove_btn.setIcon(QIcon('./assets/remove-frame-icon.svg'))
+        self.remove_btn.setIconSize(QSize(40, 40))
+        self.remove_btn.setFixedSize(40, 40)
+        self.remove_btn.setToolTip("Delete Frame")
+        self.remove_btn.clicked.connect(lambda: self.remove_self(self.frameparent))
+
+        self.select_checkbox = QCheckBox(self.myframe)
+        self.select_checkbox.move(5, 5)
+        self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(self.frameparent))
+
+        self.current_border_color = "black"
+        self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:" + self.current_border_color + "; border-width:2px}")
+        
+        # adding return here to test new stuff above this
+        return
         # stores the PIL image of the frame, along with other data about the image
         self.img_data = FrameImgData(imgpath, not impixmap, **texinfo)
         if impixmap:
@@ -91,6 +141,18 @@ class SpriteFrame(QWidget):
         self.current_border_color = "black"
         self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:" + self.current_border_color + "; border-width:2px}")
     
+    @property
+    def frameparent(self):
+        return self._frameparent
+    
+    @frameparent.setter
+    def frameparent(self, newparent):
+        self._frameparent = newparent
+        self.setParent(self._frameparent)
+        # re-connect slots that depend on frameparent
+        self.remove_btn.clicked.connect(lambda: self.remove_self(self._frameparent))
+        self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(self._frameparent))
+
     # overriding the default mousePressEvent
     def mousePressEvent(self, event):
         btnpressed = event.button()
@@ -140,6 +202,7 @@ class SpriteFrame(QWidget):
         parent.ui.actionEdit_Frame_Properties.setDisabled(len(parent.selected_labels) <= 0)
     
     def get_tooltip_string(self, parent):
+        return "In progress...."
         charname = parent.ui.charname_textbox.text()
         charname = charname.strip() if charname.strip() != "" else "[ENTER YOUR CHARACTER NAME]"
         inside_subtex_name = f"{charname} {self.img_xml_data.pose_name}####" if self.img_data.from_single_png or self.modified else f"{self.img_xml_data.pose_name}####"
