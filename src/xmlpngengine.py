@@ -275,9 +275,6 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     print(len(frames))
     
     # clip images when loaded itself (instead of here)
-    # if clip:
-        # for f in frames:
-            # f.img_data.modify_image_to(f.img_data.img.crop(f.img_data.img.getbbox()))
 
     # init XML
     root = ET.Element("TextureAtlas")
@@ -286,7 +283,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     
     new_pose_names = add_pose_numbers(frames)
     for f, pose in zip(frames, new_pose_names):
-        f.img_xml_data.xml_posename = pose
+        f.data.xml_pose_name = pose
     
     frame_dict_arr = []
     for imhash, img in imghashes.items():
@@ -295,23 +292,6 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             "w": img.width,
             "h": img.height
         })
-    '''
-    for f, pose in zip(frames, new_pose_names):
-        f.img_xml_data.xml_posename = pose
-        # TODO: use the flipX and flipY properties in the XML instead of actually flipping the image!
-        if f.img_xml_data.is_flip_x:
-            f.img_data.img = f.img_data.img.transpose(Image.FLIP_LEFT_RIGHT)
-        if f.img_xml_data.is_flip_y:
-            f.img_data.img = f.img_data.img.transpose(Image.FLIP_TOP_BOTTOM)
-        
-        frame_dict_arr.append({
-            "id": f, 
-            "w": f.img_xml_data.w, 
-            "h": f.img_xml_data.h
-        })
-        # print(f)
-        # print("-------------")
-    '''
     frame_dict_arr.sort(key= lambda rect: rect.get("h", -100), reverse=True)
     
     gp = GrowingPacker()
@@ -328,26 +308,26 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         prgs += 1
         progressupdatefn(prgs, "Adding images to spritesheet...")
 
-    # convert frame_dict_arr into a dict:
+    # convert frame_dict_arr into a dict[image_hash -> position in spritesheet]:
     imghash_dict = { rect['id']: (rect['fit']['x'], rect['fit']['y']) for rect in frame_dict_arr }
     for frame in frames:
         subtexture_element = ET.Element("SubTexture")
         subtexture_element.tail = linesep
-        w, h = imghashes.get(frame.img_data.img_hash).size
+        w, h = imghashes.get(frame.data.img_hash).size
         subtexture_element.attrib = {
-            "name" : frame.img_xml_data.xml_posename,
-            "x": str(imghash_dict[frame.img_data.img_hash][0]),
-            "y": str(str(imghash_dict[frame.img_data.img_hash][1])),
+            "name" : frame.data.xml_pose_name,
+            "x": str(imghash_dict[frame.data.img_hash][0]),
+            "y": str(imghash_dict[frame.data.img_hash][1]),
             "width": str(w),
             "height": str(h),
-            "frameX": str(frame.img_xml_data.framex),
-            "frameY": str(frame.img_xml_data.framey),
-            "frameWidth": str(frame.img_xml_data.framew),
-            "frameHeight": str(frame.img_xml_data.frameh),
+            "frameX": str(frame.data.framex),
+            "frameY": str(frame.data.framey),
+            "frameWidth": str(frame.data.framew),
+            "frameHeight": str(frame.data.frameh),
         }
         root.append(subtexture_element)
         prgs += 1
-        progressupdatefn(prgs, f"Saving {frame.img_xml_data.xml_posename} to XML...")
+        progressupdatefn(prgs, f"Saving {frame.data.xml_pose_name} to XML...")
         # im.close()
     print("Saving XML...")
     xmltree = ET.ElementTree(root)
