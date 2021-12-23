@@ -156,14 +156,7 @@ class MyApp(QMainWindow):
     
     def flip_labels(self, dxn='X'):
         for lab in self.selected_labels:
-            tmpimg = lab.image_pixmap.toImage()
-            lab.image_pixmap = QPixmap().fromImage(tmpimg.mirrored(horizontal=(dxn == 'X'), vertical=(dxn == 'Y'))).scaled(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE)
-            lab.img_label.setPixmap(lab.image_pixmap)
-            
-            if dxn == 'X':
-                lab.img_xml_data.is_flip_x = not lab.img_xml_data.is_flip_x
-            elif dxn == 'Y':
-                lab.img_xml_data.is_flip_y = not lab.img_xml_data.is_flip_y
+            lab.flip_img(dxn)
         
         for lab in list(self.selected_labels):
             # this automatically removes it from self.selected_labels

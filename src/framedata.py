@@ -64,6 +64,18 @@ class FrameData:
 
         self.pose_name = pose_name
         self.xml_pose_name = ""
+    
+    def change_img(self, newimg):
+        # this method will mostly only be called when flipping the images 
+        # so frame data will be unaltered
+        self.img_width = newimg.width
+        self.img_height = newimg.height
+
+        self.img_hash = hash(newimg.tobytes())
+        if self.img_hash not in imghashes:
+            imghashes[self.img_hash] = newimg
+        else:
+            newimg.close()
 
 
 class FrameImgData:

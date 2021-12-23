@@ -146,9 +146,6 @@ class SpriteFrame(QWidget):
     def frameparent(self, newparent):
         self._frameparent = newparent
         self.setParent(self._frameparent)
-        # re-connect slots that depend on frameparent
-        self.remove_btn.clicked.connect(lambda: self.remove_self(self._frameparent))
-        self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(self._frameparent))
 
     # overriding the default mousePressEvent
     def mousePressEvent(self, event):
@@ -212,14 +209,33 @@ Will appear in XML as:
         return ttstring
     
     def change_img_to(self, newimg):
+        print("NOO!")
+        return
         self.img_data.modify_image_to(newimg)
         # make changes in xml data too
         self.img_xml_data.w = newimg.width
         self.img_xml_data.h = newimg.height
     
-    # def __str__(self):
-        # return "ID: " + str(self.ID) + "\n" + str(self.img_data) + "\n" + str(self.img_xml_data)
-        # return str(self.img_data) + "\n" + str(self.img_xml_data)
+    def flip_img(self, dxn):
+        # flip the PIL img of self
+        if dxn == 'X':
+            img = imghashes.get(self.data.img_hash).transpose(Image.FLIP_LEFT_RIGHT)
+        elif dxn == 'Y':
+            img = imghashes.get(self.data.img_hash).transpose(Image.FLIP_TOP_BOTTOM)
+        else:
+            print("Something went wrong!")
+        
+        # change hash accordingly
+        self.data.change_img(img)
+
+        # do pixmap stuff
+        # Note: the above fn could have closed the img so pass the hash instead
+        self.change_ui_img(self.data.img_hash)
+
+    def change_ui_img(self, newimghash):
+        self.image_pixmap = imghashes.get(newimghash).toqpixmap()
+        self.img_label.setPixmap(self.image_pixmap.scaled(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
+
 
 if __name__ == '__main__':
     print("To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")
