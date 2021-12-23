@@ -139,19 +139,8 @@ def pad_img(img, clip=False, top=DEFAULT_PADDING, right=DEFAULT_PADDING, bottom=
     result.paste(img, (left, top))
     return result
 
-def adjust_spriteframe_img(sp):
-    img = imghashes.get(sp.img_data.img_hash)
-    img_bbox = img.getbbox()
-    sp.change_img_to(img.crop(img_bbox))
-    # setting frame properties in order to reconstruct the img (if from single png)
-    if sp.img_data.from_single_png:
-        sp.img_xml_data.framew = img.width
-        sp.img_xml_data.frameh = img.height
-        sp.img_xml_data.framex = -img_bbox[0]
-        sp.img_xml_data.framey = -img_bbox[1]
-
 def add_pose_numbers(frame_arr):
-    pose_arr = [ frame.img_xml_data.pose_name for frame in frame_arr ]
+    pose_arr = [ frame.data.pose_name for frame in frame_arr ]
     unique_poses = list(set(pose_arr))
     pose_counts = dict([ (ele, 0) for ele in unique_poses ])
     new_pose_arr = list(pose_arr)
@@ -642,17 +631,20 @@ def appendIconToIconGrid(icongrid_path, iconpaths, iconsize=150): # savedir,
     return retval, indices, problem_img, exception_msg
 
 def save_img_sequence(frames, savedir, updatefn, clip):
+    # Saves each frame as a png
     newposes = add_pose_numbers(frames)
     for i, (frame, pose) in enumerate(zip(frames, newposes)):
         try:
-            if frame.img_data.from_single_png:
-                im = Image.open(frame.img_data.imgpath).convert('RGBA')
-            else:
+            im = imghashes.get(frame.data.img_hash)
+            im = get_true_frame(im, frame.data.framex, frame.data.framey, frame.data.framew, frame.data.frameh)
+            # if frame.data.from_single_png:
+                # im = Image.open(frame.data.imgpath).convert('RGBA')
+            # else:
                 # FIXME: get the actual frame img now!
-                im = Image.open(frame.img_data.imgpath).convert('RGBA').crop((frame.tex_x, frame.tex_y, frame.tex_x + frame.tex_w, frame.tex_y + frame.tex_h))
+                # im = Image.open(frame.data.imgpath).convert('RGBA').crop((frame.data.tx, frame.data.ty, frame.data.tx + frame.data.tw, frame.data.ty + frame.data.th))
             
-            if clip:
-                im = im.crop(im.getbbox())
+            # if clip:
+                # im = im.crop(im.getbbox())
             im.save(path.join(savedir, f"{pose}.png"))
             im.close()
             updatefn(i+1, f"{pose}.png")

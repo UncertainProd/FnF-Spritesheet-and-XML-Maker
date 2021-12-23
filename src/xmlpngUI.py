@@ -12,7 +12,7 @@ import xmlpngengine
 from mainUI import Ui_MainWindow
 from frameadjustwindow import FrameAdjustWindow
 from spriteframe import SpriteFrame
-from utils import SPRITEFRAME_SIZE, get_stylesheet_from_file
+from utils import SPRITEFRAME_SIZE, get_stylesheet_from_file, g_settings
 from settingswindow import SettingsWindow
 
 
@@ -399,7 +399,7 @@ class MyApp(QMainWindow):
         updatefn, progbar = display_progress_bar(self, "Exporting Image Sequence", startlim=0, endlim=len(self.labels))
         QApplication.processEvents()
         
-        errmsg = xmlpngengine.save_img_sequence(self.labels, savedir, updatefn, self.settings_widget.isclip != 0)
+        errmsg = xmlpngengine.save_img_sequence(self.labels, savedir, updatefn, g_settings['isclip'] != 0)
         progbar.close()
         if errmsg:
             self.display_msg_box("Error!", text=f"An error occured: {errmsg}", icon=QMessageBox.Critical)
