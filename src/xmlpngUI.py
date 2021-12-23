@@ -232,6 +232,7 @@ class MyApp(QMainWindow):
         self.ui.actionImport_Images.setDisabled(newtabind != 0)
         self.ui.actionEdit_Frame_Properties.setDisabled(newtabind != 0 or len(self.selected_labels) <= 0)
         self.ui.menuExport.setDisabled(newtabind != 0)
+        self.ui.menuEdit_Selected_Images.setDisabled(newtabind != 0)
 
         self.ui.actionImport_IconGrid.setDisabled(newtabind != 1)
         self.ui.actionImport_Icons.setDisabled(newtabind != 1)

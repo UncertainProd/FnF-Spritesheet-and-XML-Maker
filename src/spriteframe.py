@@ -36,10 +36,6 @@ class SpriteFrame(QWidget):
         self.myframe = QFrame(self)
         self.img_label = QLabel(self.myframe)
 
-        # add tooltip stuff here later
-        # ....
-        # ....
-        # end of tooltip stuff
         self.img_label.setPixmap(self.image_pixmap.scaled(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
 
         self.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
@@ -179,11 +175,11 @@ class SpriteFrame(QWidget):
         parent.num_labels -= 1
 
         parent.frames_layout.removeWidget(self)
-        parent.update_frame_dict(self.img_xml_data.pose_name, self, remove=True)
+        # parent.update_frame_dict(self.img_xml_data.pose_name, self, remove=True)
         self.deleteLater()
 
         parent.re_render_grid()
-        print("Deleting image, count: ", parent.num_labels, "Len of labels", len(parent.labels))
+        # print("Deleting image, count: ", parent.num_labels, "Len of labels", len(parent.labels))
         if len(parent.labels) == 0:
             parent.ui.posename_btn.setDisabled(True)
             parent.ui.actionPreview_Animation.setEnabled(False)
@@ -221,9 +217,9 @@ Will appear in XML as:
         self.img_xml_data.w = newimg.width
         self.img_xml_data.h = newimg.height
     
-    def __str__(self):
+    # def __str__(self):
         # return "ID: " + str(self.ID) + "\n" + str(self.img_data) + "\n" + str(self.img_xml_data)
-        return str(self.img_data) + "\n" + str(self.img_xml_data)
+        # return str(self.img_data) + "\n" + str(self.img_xml_data)
 
 if __name__ == '__main__':
     print("To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")
