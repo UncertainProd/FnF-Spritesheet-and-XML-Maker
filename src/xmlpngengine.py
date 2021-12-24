@@ -265,7 +265,6 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     if settings is None:
         settings = g_settings
     clip = settings.get('isclip', 1) != 0
-    reuse_sprites_level = settings.get('reuse_sprites_level', 1)
     prefix_type = settings.get('prefix_type', 'charname')
     custom_prefix = settings.get('custom_prefix', '')
     insist_prefix = settings.get('must_use_prefix', 0) != 0

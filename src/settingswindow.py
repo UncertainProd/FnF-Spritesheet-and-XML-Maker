@@ -8,15 +8,8 @@ class SettingsWindow(QWidget):
         self.ui = spritesheetgensettings.Ui_Form()
         self.ui.setupUi(self)
         # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
-        self.ui.reuse_combobox.addItems([
-            "Do not merge duplicate frames\n(Generates bigger spritesheets but is more customizable)", 
-            "Merge frames that are taken from existing XMLs (Recommended option)\n(avoids duplicate frames when importing from existing XMLs)", 
-            "Merge duplicate frames as much as possible\n(Smaller total spritesheet size but takes much longer to generate. Mostly works but still experimental)"
-        ])
-        self.ui.reuse_combobox.setCurrentIndex(1)
 
         # self.isclip = self.ui.clip_checkbox.checkState()
-        # self.reuse_sprites_level = self.ui.reuse_combobox.currentIndex()
         # self.prefix_type = 'custom' if self.ui.custom_prefix_radiobtn.isChecked() else 'charname'
         # self.custom_prefix = self.ui.custom_prefix_text.text()
         # self.must_use_prefix = self.ui.insist_prefix_checkbox.checkState()
@@ -28,7 +21,6 @@ class SettingsWindow(QWidget):
     
     def restoreToNormal(self):
         self.ui.clip_checkbox.setCheckState(self.isclip)
-        self.ui.reuse_combobox.setCurrentIndex(self.reuse_sprites_level)
         self.ui.custom_prefix_radiobtn.setChecked(self.prefix_type == 'custom')
         self.ui.charname_first_radiobtn.setChecked(self.prefix_type != 'custom')
         self.ui.custom_prefix_text.setText(self.custom_prefix)
@@ -37,13 +29,11 @@ class SettingsWindow(QWidget):
     
     def saveSettings(self, shouldclose=True):
         self.isclip = self.ui.clip_checkbox.checkState()
-        self.reuse_sprites_level = self.ui.reuse_combobox.currentIndex()
         self.prefix_type = 'custom' if self.ui.custom_prefix_radiobtn.isChecked() else 'charname'
         self.custom_prefix = self.ui.custom_prefix_text.text()
         self.must_use_prefix = self.ui.insist_prefix_checkbox.checkState()
         # saving to global settings obj
         g_settings['isclip'] = self.isclip
-        g_settings['reuse_sprites_level'] = self.reuse_sprites_level
         g_settings['prefix_type'] = self.prefix_type
         g_settings['custom_prefix'] = self.custom_prefix
         g_settings['must_use_prefix'] = self.must_use_prefix

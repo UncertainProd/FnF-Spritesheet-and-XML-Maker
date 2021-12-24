@@ -376,7 +376,6 @@ class MyApp(QMainWindow):
         charname = charname.strip()
         settings_config = {
             'isclip': self.settings_widget.isclip != 0,
-            'reuse_sprites_level': self.settings_widget.reuse_sprites_level,
             'prefix_type': self.settings_widget.prefix_type,
             'custom_prefix': self.settings_widget.custom_prefix,
             'must_use_prefix': self.settings_widget.must_use_prefix != 0
