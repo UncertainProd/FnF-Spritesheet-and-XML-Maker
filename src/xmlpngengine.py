@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageChops
-from math import sqrt
 from os import path, linesep
 
 from spriteframe import SpriteFrame
