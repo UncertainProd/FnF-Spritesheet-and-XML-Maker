@@ -264,15 +264,11 @@ def superoptimize(single_png_list, pre_exist_dict):
 def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=None, settings=None):
     if settings is None:
         settings = g_settings
-    clip = settings.get('isclip', 1) != 0
-    prefix_type = settings.get('prefix_type', 'charname')
-    custom_prefix = settings.get('custom_prefix', '')
-    insist_prefix = settings.get('must_use_prefix', 0) != 0
-    print(len(imghashes))
-    print(len(frames))
-    
-    # clip images when loaded itself (instead of here)
-
+    prefix_type = settings.get('prefix_type', 'charname') # use character name or use a custom prefix instead
+    custom_prefix = settings.get('custom_prefix', '') # the custom prefix to use
+    must_use_prefix = settings.get('must_use_prefix', 0) != 0 # use the custom prefix even if frame is from existing spritesheet
+    # print(len(imghashes))
+    # print(len(frames))
 
     try:
         # init XML
@@ -282,7 +278,17 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         
         new_pose_names = add_pose_numbers(frames)
         for f, pose in zip(frames, new_pose_names):
-            f.data.xml_pose_name = pose
+            final_pose_name = pose
+            if f.data.from_single_png or (not f.data.from_single_png and f.modified):
+                if prefix_type == 'charname':
+                    final_pose_name = f"{character_name} {final_pose_name}"
+                else:
+                    final_pose_name = f"{custom_prefix} {final_pose_name}"
+            else:
+                if must_use_prefix and prefix_type == 'custom':
+                    final_pose_name = f"{custom_prefix} {final_pose_name}"
+            
+            f.data.xml_pose_name = final_pose_name
         
         frame_dict_arr = []
         for imhash, img in imghashes.items():
@@ -339,175 +345,6 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         print("Done!")
     except Exception as e:
         return -1, str(e)
-    
-    return 0, None
-    clip = settings.get('clip', False)
-    reuse_sprites_level = settings.get('reuse_sprites_level', 1)
-    prefix_type = settings.get('prefix_type', 'charname')
-    custom_prefix = settings.get('custom_prefix', '')
-    insist_prefix = settings.get('insist_prefix', False)
-    # filter for (not from_single_png)
-    # group by imgpath => into a dict { grp: (x, y, w, h)... }
-    # for each imgpath: group by (x, y, w, h) in such a way that
-    # each (x, y, w, h): [pose1, pose2, ...]
-    newPoseNames = add_pose_numbers(frames)
-    existing_img_dict, imlist = group_imgs(frames, newPoseNames)
-    if reuse_sprites_level == 2:
-        existing_img_dict, imlist = superoptimize(imlist, existing_img_dict)
-
-    num_imgs = len(imlist) + get_tot_imgs_from_imdict(existing_img_dict, reuse_sprites_level)
-    num_cols = int(sqrt(num_imgs))
-    final_img_width, final_img_height, max_heights = calculate_final_size(existing_img_dict, imlist, num_cols, clip, reuse_sprites_level)
-
-    # XML Stuff
-    root = ET.Element("TextureAtlas")
-    root.tail = linesep
-    root.attrib['imagePath'] = character_name + ".png"
-
-    final_img = Image.new('RGBA', (final_img_width, final_img_height), color=(0, 0, 0, 0))
-    print("Final image size: ({}, {})".format(final_img_width, final_img_height))
-    
-    # Constructing the img
-    csx = csy = 0
-    i = 0
-    for i, (frame, posename) in enumerate(imlist):
-        # print("Adding {} to final_image...".format(frame.imgpath))
-        try:
-            old_img = Image.open(frame.imgpath).convert('RGBA')
-        except Exception as e:
-            exceptionmsg = str(e)
-            return 1, exceptionmsg
-        else:
-            new_img = pad_img(old_img, clip)
-            row = i // num_cols
-            col = i % num_cols
-            if col == 0:
-                csx = 0
-            csy = sum(max_heights[:row])
-            
-            subtexture_element = ET.Element("SubTexture")
-            subtexture_element.tail = linesep
-            # Note: <SubTexture name:str x:int y:int width:int height:int frame[X,Y,Width,Height]:int />
-            subtexture_element.attrib = {
-                "name" : ((character_name if prefix_type == 'charname' else custom_prefix) + " " if frame.from_single_png or frame.modified else "") + posename,
-                "x": f'{csx}',
-                "y": f'{csy}',
-                "width": f'{new_img.width}',
-                "height": f'{new_img.height}',
-                "frameX": str(frame.framex) if frame.framex and not clip else '0', # checking clip checkbox will override any spriteframe settings
-                "frameY": str(frame.framey) if frame.framey and not clip else '0',
-                "frameWidth": str(frame.framew) if frame.framew and frame.framew != 'default' and str(frame.framew).isnumeric() and not clip else f'{new_img.width}',
-                "frameHeight": str(frame.frameh) if frame.frameh and frame.frameh != 'default' and str(frame.frameh).isnumeric() and not clip else f'{new_img.height}',
-            }
-            root.append(subtexture_element)
-            new_img = new_img.convert('RGBA')
-            
-            if frame.is_flip_x:
-                new_img = new_img.transpose(Image.FLIP_LEFT_RIGHT)
-            if frame.is_flip_y:
-                new_img = new_img.transpose(Image.FLIP_TOP_BOTTOM)
-            
-            final_img.paste(new_img, (csx, csy))
-            
-            csx += new_img.width
-            
-            old_img.close()
-            new_img.close()
-            progressupdatefn(i+1, frame.imgpath)
-    
-    # FOR EXISTING SPRITESHEET FRAMES
-    i += 1
-    for impth, coorddict in existing_img_dict.items(): # {"xyz.png": { (x, y, w, h):[(pose, frameinfo, modified)...] ... }, ... }
-        # print("Adding {} to final_image...".format(impth))
-        spsh = Image.open(impth)
-        for coord, poselist in coorddict.items(): # { (x, y, w, h):[(pose, frameinfo, modified)...], ... }
-            try:
-                x, y, w, h = coord
-                old_img = spsh.crop((x, y, x+w, y+h)).convert('RGBA')
-            except Exception as e:
-                exceptionmsg = str(e)
-                return 1, exceptionmsg
-            else:
-                new_img = pad_img(old_img, clip)
-            
-            if reuse_sprites_level >= 1:
-                row = i // num_cols
-                col = i % num_cols
-                if col == 0:
-                    csx = 0
-                csy = sum(max_heights[:row])
-                new_img = new_img.convert('RGBA')
-                final_img.paste(new_img, (csx, csy))
-                csx += new_img.width
-                i += 1
-            
-            # Adding each pose to poselist
-            for pose, frameinfo, modified in poselist:   
-                if reuse_sprites_level == 0:
-                    row = i // num_cols
-                    col = i % num_cols
-
-                    if col == 0:
-                        csx = 0
-                    csy = sum(max_heights[:row])
-
-                    new_img = new_img.convert('RGBA')
-                    print(f"DEBUGINFO: pasting from existing at {csx, csy}")
-                    
-                    # TODO: Fix sprite flipping for existing XML bois!
-                    # if frame.is_flip_x:
-                        # new_img = new_img.transpose(Image.FLIP_LEFT_RIGHT)
-                    # if frame.is_flip_y:
-                        # new_img = new_img.transpose(Image.FLIP_TOP_BOTTOM)
-                    
-                    final_img.paste(new_img, (csx, csy))
-                    csx += new_img.width
-                    i += 1
-                subtexture_element = ET.Element("SubTexture")
-                subtexture_element.tail = linesep
-                if insist_prefix:
-                    stname = (character_name if prefix_type == 'charname' else custom_prefix) + " " + pose
-                else:
-                    stname = (character_name + " " if modified else "") + pose
-                subtexture_element.attrib = {
-                    "name" : stname,
-                    "x": f'{csx}',
-                    "y": f'{csy}',
-                    "width": f'{new_img.width}',
-                    "height": f'{new_img.height}',
-                    "frameX": f'{frameinfo[0]}' if frameinfo[0] and not clip else '0', # checking clip checkbox will override any spriteframe settings
-                    "frameY": f'{frameinfo[1]}' if frameinfo[1] and not clip else '0',
-                    "frameWidth": f'{frameinfo[2]}' if frameinfo[2] and frameinfo[2] != 'default' and str(frameinfo[2]).isnumeric() and not clip else f'{new_img.width}',
-                    "frameHeight": f'{frameinfo[3]}' if frameinfo[3] and frameinfo[3] != 'default' and str(frameinfo[3]).isnumeric() and not clip else f'{new_img.height}',
-                }
-                root.append(subtexture_element)
-            
-            old_img.close()
-            new_img.close() 
-            progressupdatefn(i+1, pose)
-
-    # Saving png
-    print(f"Saving final image....")
-    try:
-        final_img.save(path.join(save_dir, character_name) + ".png")
-        # final_img.save(save_dir + '\\' + character_name + ".png")
-    except Exception as e:
-        exceptionmsg = str(e)
-        return 1, exceptionmsg
-    else:
-        final_img.close()
-    
-    # Saving XML
-    print("Saving XML")
-    xmltree = ET.ElementTree(root)
-    try:
-        with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
-        # with open(save_dir + '\\' + character_name + ".xml", 'wb') as f:
-            xmltree.write(f, xml_declaration=True, encoding='utf-8')
-        print("Done!")
-    except Exception as e:
-        exceptionmsg = str(e)
-        return 1, exceptionmsg
     
     return 0, None
 
