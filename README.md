@@ -1,5 +1,5 @@
 # FnF-Spritesheet-and-XML-Maker
-A Friday Night Funkin' mod making helper tool that allows you to generate XML files and spritesheets from induvidual pngs. This is a free and open-source mini-replacement tool to the "Generate Spritesheet" functionality in Adobe Animate/Flash
+A Friday Night Funkin' mod making helper tool that allows you to generate XML files and spritesheets from individual pngs. This is a free and open-source mini-replacement tool to the "Generate Spritesheet" functionality in Adobe Animate/Flash
 <br />
 To download the application for windows instead of running it from source click on <a href="https://gamebanana.com/tools/7136">this link</a>.
 
@@ -24,7 +24,7 @@ Use the "Set Animation (Pose) Name" button to name each pose that has been selec
 <img src="./docs/on-mouse-hover.png"> <br />
 
 ### Clip to bounding box
-If your induvidual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files. This checkbox will show up on clicking the "Spritesheet Generation Settings" button<br/>
+If your individual frames have extra whitespace in them and you want them all cropped to just their bounding box, click this checkbox before generating the files. This checkbox will show up on clicking the "Spritesheet Generation Settings" button<br/>
 <img src="./docs/bbox-comparison.png" width="400px" /><br />
 On left is how the image will be considered if this checkbox is left unchecked. On the right is how it'll be considered if it is checked. <small>(Side note: Most of the time you won't really have to use this feature, but it is provided just in case)</small>
 
