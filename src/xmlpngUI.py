@@ -52,7 +52,7 @@ class MyApp(QMainWindow):
         self.num_labels = 0
         self.labels = []
         self.selected_labels = []
-        self.frame_dict = {} # dict< pose_name: str -> frames: list[SpriteFrame] >
+        # self.frame_dict = {} # dict< pose_name: str -> frames: list[SpriteFrame] >
 
         self.add_img_button = QPushButton()
         self.add_img_button.setIcon(QIcon("./assets/AddImg.png"))
@@ -313,10 +313,6 @@ class MyApp(QMainWindow):
             self.ui.posename_btn.setDisabled(False)
     
     def add_spriteframe(self, sp):
-        # clip img
-        # if self.settings_widget.isclip != 0:
-            # xmlpngengine.adjust_spriteframe_img(sp)
-        
         self.num_rows = 1 + self.num_labels//self.num_cols
         
         self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
@@ -335,44 +331,13 @@ class MyApp(QMainWindow):
         self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
         self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
         self.ui.actionView_XML_structure.setEnabled(len(self.labels) > 0)
-        self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
+        # self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
         
         # self.update_frame_dict(sp.img_xml_data.pose_name, sp)
     
     def update_frame_dict(self, key, val, remove=False):
-        print("NO!")
+        # TODO
         return
-        if not remove:
-            if self.frame_dict.get(key):
-                self.frame_dict[key].append(val)
-            else:
-                self.frame_dict[key] = [ val ]
-        else:
-            if self.frame_dict.get(key):
-                self.frame_dict[key].remove(val)
-            else:
-                print("Error removing spriteframe")
-
-    # OBSOLETE!
-    # def add_img(self, imgpath, imdat=None, posename="", **texinfo):
-    #     # print("Adding image, prevcount: ", self.num_labels)
-    #     self.num_rows = 1 + self.num_labels//self.num_cols
-        
-    #     self.frames_layout.setRowMinimumHeight(self.num_rows - 1, 0)
-    #     self.frames_layout.setRowStretch(self.num_rows - 1, 0)
-        
-    #     vspcr = QSpacerItem(1, 1)
-    #     self.frames_layout.addItem(vspcr, self.num_rows, 0, 1, 4)
-
-    #     hspcr = QSpacerItem(1, 1)
-    #     self.frames_layout.addItem(hspcr, 0, self.num_cols, self.num_rows, 1)
-        
-    #     self.labels.append(SpriteFrame(self, imgpath, imdat, posename, **texinfo))
-    #     self.frames_layout.removeWidget(self.add_img_button)
-    #     self.frames_layout.addWidget(self.labels[-1], self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
-    #     self.num_labels += 1
-    #     self.frames_layout.addWidget(self.add_img_button, self.num_labels // self.num_cols, self.num_labels % self.num_cols, Qt.AlignmentFlag(0x1|0x20))
-    #     self.ui.actionPreview_Animation.setEnabled(len(self.labels) > 0)
     
     def re_render_grid(self):
         self.num_rows = 1 + self.num_labels//self.num_cols
