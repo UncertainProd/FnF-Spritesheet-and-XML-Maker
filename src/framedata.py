@@ -77,7 +77,7 @@ class FrameData:
         else:
             newimg.close()
 
-
+# not used as of now
 class FrameImgData:
     def __init__(self, imgpath, from_single_png, **texinfo):
         self.imgpath = imgpath
@@ -118,6 +118,7 @@ class FrameImgData:
         self.img_width = im.width
         self.img_height = im.height
 
+# not used as of now
 class FrameXMLData:
     def __init__(self, pose_name, x, y, w, h, framex, framey, framew, frameh, flipx=False, flipy=False):
         self.pose_name = pose_name

@@ -9,9 +9,7 @@ class AnimationView(QWidget):
         super().__init__(*args, **kwargs)
         self.ui = Ui_animation_view()
         self.ui.setupUi(self)
-        # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
 
-        # self.ui.pose_combobox.addItems([""])
         self.ui.play_anim_button.clicked.connect(self.play_animation)
         self.ui.animation_display_area.setText("Click 'Play Animation' to start the animation preview")
         self.ui.animation_display_area.setStyleSheet("background-color:#696969;")

@@ -1,8 +1,8 @@
 from PIL import Image
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QCheckBox, QFrame, QPushButton, QWidget, QLabel
-from framedata import FrameData, FrameImgData, FrameXMLData
+from framedata import FrameData
 from utils import SPRITEFRAME_SIZE, imghashes
 from os import path
 
@@ -35,89 +35,6 @@ class SpriteFrame(QWidget):
         self.image_pixmap = imghashes.get(self.data.img_hash).toqpixmap()
         self.myframe = QFrame(self)
         self.img_label = QLabel(self.myframe)
-
-        self.img_label.setPixmap(self.image_pixmap.scaled(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
-
-        self.setFixedSize(QSize(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
-
-        self.remove_btn = QPushButton(self.myframe)
-        self.remove_btn.move(90, 90)
-        self.remove_btn.setIcon(QIcon('./assets/remove-frame-icon.svg'))
-        self.remove_btn.setIconSize(QSize(40, 40))
-        self.remove_btn.setFixedSize(40, 40)
-        self.remove_btn.setToolTip("Delete Frame")
-        self.remove_btn.clicked.connect(lambda: self.remove_self(self.frameparent))
-
-        self.select_checkbox = QCheckBox(self.myframe)
-        self.select_checkbox.move(5, 5)
-        self.select_checkbox.stateChanged.connect(lambda : self.add_to_selected_arr(self.frameparent))
-
-        self.current_border_color = "black"
-        self.myframe.setStyleSheet("QFrame{border-style:solid; border-color:" + self.current_border_color + "; border-width:2px}")
-        
-        # adding return here to test new stuff above this
-        return
-        # stores the PIL image of the frame, along with other data about the image
-        self.img_data = FrameImgData(imgpath, not impixmap, **texinfo)
-        if impixmap:
-            # self.img_hash = hash(impixmap.tobytes())
-            imghashes[self.img_data.img_hash] = impixmap
-        else:
-            im = Image.open(imgpath)
-            # self.img_hash = hash(im.tobytes())
-            imghashes[self.img_data.img_hash] = im
-
-        # ID: pose_name + order(index?)
-        # self.ID = [None, -1]
-        self.frameparent = parent
-        # XML related info calculated for a spriteframe
-        # name:str
-        # x:int, y:int, w:int, h:int
-        # frameX:null<int>, frameY:null<int>, frameWidth:null<int>, frameHeight:null<int>
-
-        # Info from the input that I can get
-        # imgpath:str, (w:int, h:int) --derived from--> img:Image
-        # from_single_png:bool
-        # if from_single_png:-
-        # spritesheet_path:str, xml_path:str
-        # src_info: xml related info (see above)
-
-
-        self.modified = False
-        self.image_pixmap = imghashes.get(self.img_data.img_hash).toqpixmap() # QPixmap(imgpath) if self.img_data.from_single_png else impixmap.toqpixmap()
-
-        first_num_index = 0
-        if not self.img_data.from_single_png:
-            first_num_index = len(posename)
-            for i in range(len(posename)-1, 0, -1):
-                if posename[i].isnumeric():
-                    first_num_index = i
-                else:
-                    break
-        true_pname = "idle" if self.img_data.from_single_png else posename[:first_num_index]
-
-        self.myframe = QFrame(self)
-
-        # store data about this frame that will be needed for the XML
-        w, h = imghashes.get(self.img_data.img_hash).size
-        self.img_xml_data = FrameXMLData(
-            true_pname, 
-            None, None, 
-            w, h, 
-            texinfo.get("framex", 0), texinfo.get("framey", 0), 
-            texinfo.get("framew", w), texinfo.get("frameh", h)
-        )
-        
-        self.img_label = QLabel(self.myframe)
-
-        if self.img_data.from_single_png:
-            self.img_label.setToolTip(self.get_tooltip_string(self.frameparent))
-        else:
-            ttstring = f'''Image:(part of) {path.basename(imgpath)}
-            Current Pose: {self.img_xml_data.pose_name}
-            Will appear in XML as:\n\t<SubTexture name=\"{posename}\" (...) >\n\t# = digit from 0-9'''
-            self.img_label.setToolTip(ttstring)
-
 
         self.img_label.setPixmap(self.image_pixmap.scaled(SPRITEFRAME_SIZE, SPRITEFRAME_SIZE))
 
