@@ -3,7 +3,7 @@ from PIL import Image, ImageChops
 from os import path, linesep
 
 from spriteframe import SpriteFrame
-from utils import imghashes, g_settings
+from utils import imghashes, g_settings, spritesheet_split_cache
 
 # Packing Algorithm based on https://github.com/jakesgordon/bin-packing/blob/master/js/packer.growing.js
 # converted to python
@@ -350,7 +350,7 @@ def save_img_sequence(frames, savedir, updatefn):
     return None
 
 def split_spsh(pngpath, xmlpath, udpdatefn):
-    spritesheet = Image.open(pngpath)
+    # spritesheet = Image.open(pngpath)
     try:
         cleaned_xml = ""
         quotepairity = 0
@@ -381,6 +381,13 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
     subtextures = root.findall("SubTexture")
     # get_true_val = lambda val: int(val) if val else None
 
+    # initialize cache for this spritesheet
+    if not spritesheet_split_cache.get(pngpath):
+        spritesheet_split_cache[pngpath] = {}
+    
+    # debug: current cache
+    print("Current cache:\n", spritesheet_split_cache)
+
     for i, subtex in enumerate(subtextures):
         tex_x = int(subtex.attrib['x'])
         tex_y = int(subtex.attrib['y'])
@@ -391,13 +398,13 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
         fy = int(subtex.attrib.get("frameY", 0))
         fw = int(subtex.attrib.get("frameWidth", tex_width))
         fh = int(subtex.attrib.get("frameHeight", tex_height))
-        sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height)).convert('RGBA')
-        sprite_img = sprite_img.convert('RGBA')
+        # sprite_img = spritesheet.crop((tex_x, tex_y, tex_x+tex_width, tex_y+tex_height)).convert('RGBA')
+        # sprite_img = sprite_img.convert('RGBA')
         # qim = ImageQt(sprite_img)
         # sprites.append((sprite_img.toqpixmap(), pose_name, tex_x, tex_y, tex_width, tex_height))
         sprites.append(
             SpriteFrame(
-                None, pngpath, sprite_img, pose_name, 
+                None, pngpath, False, pose_name, 
                 tx=tex_x, ty=tex_y, tw=tex_width, th=tex_height,
                 framex=fx, framey=fy, framew=fw, frameh=fh
             )

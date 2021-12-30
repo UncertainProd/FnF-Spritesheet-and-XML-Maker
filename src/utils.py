@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 SPRITEFRAME_SIZE = 128
 imghashes = {} # dict[Int(hash) -> PIL.Image object]
+spritesheet_split_cache = {} # dict[str(spritesheet_path) -> dict[ (x,y,w,h, clipped)-> int(hash) ] ]
 g_settings = {
     "isclip": 1,
     "prefix_type": "charname",

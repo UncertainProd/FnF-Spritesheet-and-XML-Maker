@@ -262,13 +262,15 @@ class MyApp(QMainWindow):
                 if trubasenamefn(imgpath) != trubasenamefn(xmlpath):
                     self.msgbox = QMessageBox(self)
                     self.msgbox.setWindowTitle("Conflicting file names")
-                    self.msgbox.setText("The Spritesheet and the XML file have different file names.\nWhich one would you like to use for the character?")
+                    self.msgbox.setText("The Spritesheet and the XML file have different file names.\nThe character name will not be auto-filled")
                     self.msgbox.setIcon(QMessageBox.Warning)
-                    self.msgbox.addButton("Use XML filename", QMessageBox.YesRole)
-                    usespsh = self.msgbox.addButton("Use Spritesheet filename", QMessageBox.NoRole)
+                    self.msgbox.addButton("OK", QMessageBox.YesRole)
+                    cancel_import = self.msgbox.addButton("Cancel import", QMessageBox.NoRole)
                     x = self.msgbox.exec_()
                     clickedbtn = self.msgbox.clickedButton()
-                    charname = trubasenamefn(imgpath) if clickedbtn == usespsh else trubasenamefn(xmlpath)
+                    if clickedbtn == cancel_import:
+                        return
+                    charname = self.ui.charname_textbox.text() # trubasenamefn(imgpath) if clickedbtn == usespsh else trubasenamefn(xmlpath)
                     print("[DEBUG] Exit status of msgbox: "+str(x))
 
 
@@ -276,12 +278,7 @@ class MyApp(QMainWindow):
                 QApplication.processEvents()
 
                 sprites = xmlpngengine.split_spsh(imgpath, xmlpath, update_prog_bar)
-                # for i, (spimg, posename, tx, ty, tw, th) in enumerate(sprites):
-                #     self.add_img(imgpath, spimg, posename, tx=tx, ty=ty, tw=tw, th=th)
-                #     update_prog_bar(50 + ((i+1)*50//len(sprites)), imgpath)
                 for i, spfr in enumerate(sprites):
-                    # self.add_img(imgpath, spimg, posename, tx=tx, ty=ty, tw=tw, th=th)
-                    # spfr.setParent(self)
                     spfr.frameparent = self
                     self.add_spriteframe(spfr)
                     update_prog_bar(50 + ((i+1)*50//len(sprites)), f"Adding: {imgpath}")

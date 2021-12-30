@@ -1,5 +1,5 @@
 from PIL import Image
-from utils import g_settings, imghashes
+from utils import g_settings, imghashes, spritesheet_split_cache
 
 class FrameData:
     def __init__(self, impath, from_single_png, pose_name, **xmlinfo):
@@ -23,21 +23,31 @@ class FrameData:
         self.framey = 0
         self.framew = img.width
         self.frameh = img.height
+        should_clip = g_settings['isclip'] != 0
+        cached_hash = None
         if not self.from_single_png:
             self.tx = xmlinfo.get("tx", 0)
             self.ty = xmlinfo.get("ty", 0)
             self.tw = xmlinfo.get("tw", 0)
             self.th = xmlinfo.get("th", 0)
-            # crop the image
-            img = img.crop((self.tx, self.ty, self.tx + self.tw, self.ty + self.th))
+            # impath, tex_coords (, clip) -> img
+            # if clip == True here, then skip clip step ("if should_clip:...")
+            # check if this img is in cache
+            cached_hash = spritesheet_split_cache[impath].get((self.tx, self.ty, self.tw, self.th, should_clip))
+            if not cached_hash:
+                # crop the image
+                img = img.crop((self.tx, self.ty, self.tx + self.tw, self.ty + self.th))
+            else:
+                # print("[DEBUG] Img found in cache!")
+                img = imghashes.get(cached_hash)
             # set frame properties from xml
             self.framex = xmlinfo.get("framex", 0)
             self.framey = xmlinfo.get("framey", 0)
             self.framew = xmlinfo.get("framew", 0)
             self.frameh = xmlinfo.get("frameh", 0)
         
-        # clipping the image
-        if g_settings['isclip'] != 0:
+        # clipping the image if i didn't already find it in the cache
+        if not cached_hash and should_clip:
             imbbox = img.getbbox()
             if imbbox:
                 # crop img
@@ -55,10 +65,15 @@ class FrameData:
         self.img_height = img.height
 
         # get hash
-        self.img_hash = hash(img.tobytes())
+        self.img_hash = cached_hash if cached_hash else hash(img.tobytes())
         # if hash isnt in imghashes then add it
         if self.img_hash not in imghashes:
             imghashes[self.img_hash] = img
+            # cache image for re-use (only imgs from xmls are cached this way)
+            if not self.from_single_png:
+                spritesheet_split_cache[impath][(self.tx, self.ty, self.tw, self.th, should_clip)] = self.img_hash
+        elif cached_hash:
+            pass
         else:
             img.close()
 

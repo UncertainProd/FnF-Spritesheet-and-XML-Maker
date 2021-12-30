@@ -8,14 +8,14 @@ from os import path
 
 
 class SpriteFrame(QWidget):
-    def __init__(self, parent, imgpath, impixmap = None, posename = "", **texinfo):
+    def __init__(self, parent, imgpath, from_single_png = True, posename = "", **texinfo):
         super().__init__(parent)
         self._frameparent = parent
 
         # non-ui stuff
-        fromsinglepng = False
-        if impixmap is None:
-            fromsinglepng = True
+        fromsinglepng = from_single_png
+        # if from_single_png is None:
+            # fromsinglepng = True
         
         # "calculate" the pose_name
         first_num_index = 0
