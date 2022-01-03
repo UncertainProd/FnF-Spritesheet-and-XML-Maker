@@ -20,6 +20,9 @@ A clear and concise description of what was expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
+**Which version was it on?**
+The version number of the tool this bug was found on.
+
 **Application ran from exe or from source?**
  - OS: 
  - Was the application run from source or was it the executable from gamebanana?
