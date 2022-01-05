@@ -177,12 +177,14 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             f.data.xml_pose_name = final_pose_name
         
         frame_dict_arr = []
+        current_img_hashes = set([x.data.img_hash for x in frames])
         for imhash, img in imghashes.items():
-            frame_dict_arr.append({
-                "id": imhash,
-                "w": img.width,
-                "h": img.height
-            })
+            if imhash in current_img_hashes:
+                frame_dict_arr.append({
+                    "id": imhash,
+                    "w": img.width,
+                    "h": img.height
+                })
         frame_dict_arr.sort(key= lambda rect: rect.get("h", -100), reverse=True)
         
         gp = GrowingPacker()
