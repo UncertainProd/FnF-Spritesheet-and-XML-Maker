@@ -356,7 +356,7 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
     try:
         cleaned_xml = ""
         quotepairity = 0
-        with open(xmlpath, 'r') as f:
+        with open(xmlpath, 'r', encoding='utf-8') as f:
             ch = f.read(1)
             while ch and ch != '<':
                 ch = f.read(1)
