@@ -39,20 +39,20 @@ jobs:
           - os: macos-latest
             TARGET: macos
             CMD_BUILD: >
-                pyinstaller --noconfirm --onedir --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/assets:assets/"  "./src/xmlpngUI.py" &&
+                pyinstaller --noconfirm --onefile --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/assets:assets/"  "./src/xmlpngUI.py" &&
                 cd dist/ &&
                 zip -r9 "FnFXMLGen-MacOS.zip" "Spritesheet and XML Generator for Friday Night Funkin/"
             OUT_FILE_NAME: FnFXMLGen-MacOS.zip
             ASSET_MIME: application/zip
           - os: windows-latest
             TARGET: windows
-            CMD_BUILD: pyinstaller --noconfirm --onedir --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet-and-XML-Generator-for-Friday-Night-Funkin" --noupx --add-data "./src/assets;assets/"  "./src/xmlpngUI.py" && cd dist/ && powershell Compress-Archive -LiteralPath ".\Spritesheet-and-XML-Generator-for-Friday-Night-Funkin" -DestinationPath ".\Spritesheet-XML-Generator-FnF-Windows.zip"
+            CMD_BUILD: pyinstaller --noconfirm --onefile --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet-and-XML-Generator-for-Friday-Night-Funkin" --noupx --add-data "./src/assets;assets/"  "./src/xmlpngUI.py" && cd dist/ && powershell Compress-Archive -LiteralPath ".\Spritesheet-and-XML-Generator-for-Friday-Night-Funkin" -DestinationPath ".\Spritesheet-XML-Generator-FnF-Windows.zip"
             OUT_FILE_NAME: Spritesheet-XML-Generator-FnF-Windows.zip
             ASSET_MIME: application/zip
           - os: ubuntu-latest
             TARGET: ubuntu
             CMD_BUILD: >
-                pyinstaller --noconfirm --onedir --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/assets:assets/"  "./src/xmlpngUI.py" &&
+                pyinstaller --noconfirm --onefile --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/assets:assets/"  "./src/xmlpngUI.py" &&
                 cd dist/ &&
                 zip -r9 "FnFXMLGen-Linux.zip" "Spritesheet and XML Generator for Friday Night Funkin/"
             OUT_FILE_NAME: FnFXMLGen-Linux.zip
