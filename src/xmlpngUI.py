@@ -8,7 +8,7 @@ from animationwindow import AnimationView
 from xmltablewindow import XMLTableView
 import json
 
-import xmlpngengine
+import engine.xmlpngengine as xmlpngengine
 from mainUI import Ui_MainWindow
 from spriteframe import SpriteFrame
 from utils import SPRITEFRAME_SIZE, get_stylesheet_from_file
@@ -451,7 +451,7 @@ class MyApp(QMainWindow):
             print("Valid!")
             # savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
             # if savedir != '':
-            stat, newinds, problemimg, exception_msg = xmlpngengine.appendIconToIconGrid(self.icongrid_path, self.iconpaths) #, savedir)
+            stat, newinds, problemimg, exception_msg = xmlpngengine._appendIconToGrid(self.icongrid_path, self.iconpaths) #, savedir)
             print("[DEBUG] Function finished with status: ", stat)
             errmsgs = [
                 'Icon grid was too full to insert a new icon', 

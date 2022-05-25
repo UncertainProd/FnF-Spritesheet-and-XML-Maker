@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QWidget
 from PyQt5.QtCore import Qt
 from utils import temp_path_shortener, imghashes
-from xmlpngengine import get_true_frame
+from engine.xmlpngengine import get_true_frame
 from xmltablewindowUI import Ui_TableWidgetThing
 
 class XMLTableView(QWidget):

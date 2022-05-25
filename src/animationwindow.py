@@ -1,7 +1,7 @@
 from animpreviewwindow import Ui_animation_view
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QTimer
-from xmlpngengine import get_true_frame
+from engine.xmlpngengine import get_true_frame
 from utils import imghashes
 
 class AnimationView(QWidget):
