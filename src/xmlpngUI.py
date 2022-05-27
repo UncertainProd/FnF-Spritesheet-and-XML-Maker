@@ -4,6 +4,8 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction, QActionGroup, QApplication, QGridLayout, QInputDialog, QLineEdit, QMainWindow, QMessageBox, QProgressDialog, QPushButton, QSpacerItem, QLabel, QFileDialog
 from os import path
 from animationwindow import AnimationView
+import engine.icongridutils as icongridutils
+import engine.spritesheetutils as spritesheetutils
 # from frameorderscreen import FrameOrderScreen
 from xmltablewindow import XMLTableView
 import json
@@ -277,7 +279,7 @@ class MyApp(QMainWindow):
                 update_prog_bar, progbar = display_progress_bar(self, "Extracting sprite frames....")
                 QApplication.processEvents()
 
-                sprites = xmlpngengine.split_spsh(imgpath, xmlpath, update_prog_bar)
+                sprites = spritesheetutils.split_spsh(imgpath, xmlpath, update_prog_bar)
                 for i, spfr in enumerate(sprites):
                     spfr.frameparent = self
                     self.add_spriteframe(spfr)
@@ -451,7 +453,7 @@ class MyApp(QMainWindow):
             print("Valid!")
             # savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
             # if savedir != '':
-            stat, newinds, problemimg, exception_msg = xmlpngengine._appendIconToGrid(self.icongrid_path, self.iconpaths) #, savedir)
+            stat, newinds, problemimg, exception_msg = icongridutils.appendIconToGrid(self.icongrid_path, self.iconpaths) #, savedir)
             print("[DEBUG] Function finished with status: ", stat)
             errmsgs = [
                 'Icon grid was too full to insert a new icon', 

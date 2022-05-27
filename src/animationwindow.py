@@ -1,7 +1,7 @@
 from animpreviewwindow import Ui_animation_view
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QTimer
-from engine.xmlpngengine import get_true_frame
+import engine.spritesheetutils as spritesheetutils
 from utils import imghashes
 
 class AnimationView(QWidget):
@@ -47,7 +47,7 @@ class AnimationView(QWidget):
     def set_next_frame(self):
         curframe = self.animframes[self.frameindex]
         curframeimg = imghashes.get(curframe.data.img_hash)
-        truframe_pixmap = get_true_frame(
+        truframe_pixmap = spritesheetutils.get_true_frame(
             curframeimg,
             curframe.data.framex if curframe.data.framex is not None else 0,
             curframe.data.framey if curframe.data.framey is not None else 0,

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QTableWidgetItem, QWidget
 from PyQt5.QtCore import Qt
 from utils import temp_path_shortener, imghashes
-from engine.xmlpngengine import get_true_frame
+import engine.spritesheetutils as spritesheetutils
 from xmltablewindowUI import Ui_TableWidgetThing
 
 class XMLTableView(QWidget):
@@ -66,7 +66,7 @@ class XMLTableView(QWidget):
     def set_true_frame(self):
         # set the frame pixmap
         curimg = imghashes.get(self.selected_row.data.img_hash)
-        truframe = get_true_frame(
+        truframe = spritesheetutils.get_true_frame(
             curimg, 
             self.selected_row.data.framex if self.selected_row.data.framex is not None else 0,
             self.selected_row.data.framey if self.selected_row.data.framey is not None else 0,
