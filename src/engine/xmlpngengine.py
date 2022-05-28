@@ -6,7 +6,7 @@ from utils import imghashes, g_settings
 
 from engine.growingpacker import GrowingPacker
 from engine.spritesheetutils import get_true_frame, add_pose_numbers
-from engine.imgutils import clean_up
+from engine.imgutils import clean_up, pad_img
 
 
 def fast_image_cmp(im1, im2): # im1 == im2 ?
@@ -23,6 +23,8 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     prefix_type = settings.get('prefix_type', 'charname') # use character name or use a custom prefix instead
     custom_prefix = settings.get('custom_prefix', '') # the custom prefix to use
     must_use_prefix = settings.get('must_use_prefix', 0) != 0 # use the custom prefix even if frame is from existing spritesheet
+    padding_pixels = settings.get('frame_padding', 0)
+
     # print(len(imghashes))
     # print(len(frames))
 
@@ -49,12 +51,14 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         
         frame_dict_arr = []
         current_img_hashes = set([x.data.img_hash for x in frames])
+
+        # add the padding to width and height, then actually padding the images (kind of a hack but it works TODO: work out a better way to do this)
         for imhash, img in imghashes.items():
             if imhash in current_img_hashes:
                 frame_dict_arr.append({
                     "id": imhash,
-                    "w": img.width,
-                    "h": img.height
+                    "w": img.width + 2*padding_pixels,
+                    "h": img.height + 2*padding_pixels
                 })
         frame_dict_arr.sort(key= lambda rect: rect.get("h", -100), reverse=True)
         
@@ -66,7 +70,12 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         prgs = 0
         for r in frame_dict_arr:
             fit = r.get("fit")
-            final_img.paste( imghashes.get(r['id']), (fit["x"], fit["y"]) )
+
+            # accounting for user-defined padding
+            imhash_img = imghashes.get(r['id'])
+            imhash_img = pad_img(imhash_img, False, padding_pixels, padding_pixels, padding_pixels, padding_pixels)
+            
+            final_img.paste( imhash_img, (fit["x"], fit["y"]) )
             prgs += 1
             progressupdatefn(prgs, "Adding images to spritesheet...")
 
@@ -80,8 +89,8 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                 "name" : frame.data.xml_pose_name,
                 "x": str(imghash_dict[frame.data.img_hash][0]),
                 "y": str(imghash_dict[frame.data.img_hash][1]),
-                "width": str(w),
-                "height": str(h),
+                "width": str(w + 2*padding_pixels),
+                "height": str(h + 2*padding_pixels),
                 "frameX": str(frame.data.framex),
                 "frameY": str(frame.data.framey),
                 "frameWidth": str(frame.data.framew),

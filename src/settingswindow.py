@@ -39,7 +39,7 @@ class SettingsWindow(QWidget):
         g_settings['prefix_type'] = self.prefix_type
         g_settings['custom_prefix'] = self.custom_prefix
         g_settings['must_use_prefix'] = self.must_use_prefix
-        g_settings['frame_adding'] = self.frame_padding
+        g_settings['frame_padding'] = self.frame_padding
         if shouldclose:
             self.close()
     
