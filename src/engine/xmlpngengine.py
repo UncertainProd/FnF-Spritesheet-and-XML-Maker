@@ -29,6 +29,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     try:
         # init XML
         root = ET.Element("TextureAtlas")
+        root.text = "\n"
         root.tail = linesep
         root.attrib['imagePath'] = f"{character_name}.png"
         

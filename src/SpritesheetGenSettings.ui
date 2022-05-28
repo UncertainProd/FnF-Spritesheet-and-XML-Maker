@@ -9,14 +9,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>583</width>
+    <width>611</width>
     <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Spritesheet Generation Settings</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0,0">
    <item>
     <widget class="QCheckBox" name="clip_checkbox">
      <property name="font">
@@ -115,6 +115,13 @@ Before Animation Prefix</string>
         </layout>
        </widget>
       </item>
+      <item>
+       <widget class="QRadioButton" name="no_prefix_radiobtn">
+        <property name="text">
+         <string>Don't use any prefix (what you type in the prefix box is exactly what will show up in the XML)</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -128,6 +135,36 @@ Before Animation Prefix</string>
      <property name="text">
       <string>Use Prefix even if frame is imported from existing XML</string>
      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame_4">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+      <item>
+       <widget class="QSpinBox" name="frame_padding_spinbox">
+        <property name="suffix">
+         <string>px</string>
+        </property>
+        <property name="maximum">
+         <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="frame_padding_label">
+        <property name="text">
+         <string>Frame Padding (use this to add empty pixels to the edge of each frame, helps prevent 
+ sprites clipping into each other)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>

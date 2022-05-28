@@ -25,6 +25,7 @@ class SettingsWindow(QWidget):
         self.ui.charname_first_radiobtn.setChecked(self.prefix_type != 'custom')
         self.ui.custom_prefix_text.setText(self.custom_prefix)
         self.ui.insist_prefix_checkbox.setCheckState(self.must_use_prefix)
+        self.ui.frame_padding_spinbox.setValue(self.frame_padding)
         self.close()
     
     def saveSettings(self, shouldclose=True):
@@ -32,11 +33,13 @@ class SettingsWindow(QWidget):
         self.prefix_type = 'custom' if self.ui.custom_prefix_radiobtn.isChecked() else 'charname'
         self.custom_prefix = self.ui.custom_prefix_text.text()
         self.must_use_prefix = self.ui.insist_prefix_checkbox.checkState()
+        self.frame_padding = self.ui.frame_padding_spinbox.value()
         # saving to global settings obj
         g_settings['isclip'] = self.isclip
         g_settings['prefix_type'] = self.prefix_type
         g_settings['custom_prefix'] = self.custom_prefix
         g_settings['must_use_prefix'] = self.must_use_prefix
+        g_settings['frame_adding'] = self.frame_padding
         if shouldclose:
             self.close()
     

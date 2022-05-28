@@ -375,12 +375,6 @@ class MyApp(QMainWindow):
     def generate_xml(self):
         charname = self.ui.charname_textbox.text()
         charname = charname.strip()
-        settings_config = {
-            'isclip': self.settings_widget.isclip != 0,
-            'prefix_type': self.settings_widget.prefix_type,
-            'custom_prefix': self.settings_widget.custom_prefix,
-            'must_use_prefix': self.settings_widget.must_use_prefix != 0
-        }
         if self.num_labels > 0 and charname != '':
             savedir = QFileDialog.getExistingDirectory(caption="Save files to...")
             print("Stuff saved to: ", savedir)
@@ -392,8 +386,7 @@ class MyApp(QMainWindow):
                     self.labels, 
                     savedir, 
                     charname, 
-                    update_prog_bar,
-                    settings_config
+                    update_prog_bar
                 )
                 progbar.close()
                 if errmsg is None:
