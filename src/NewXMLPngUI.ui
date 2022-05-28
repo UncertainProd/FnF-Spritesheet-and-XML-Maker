@@ -68,7 +68,7 @@
     <item>
      <widget class="QTabWidget" name="myTabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="xmlframes_tab">
        <attribute name="title">
@@ -236,7 +236,7 @@ Generation Settings</string>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,0,0,1,1">
+             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,0,0,0,1,1">
               <item>
                <widget class="QPushButton" name="uploadicongrid_btn">
                 <property name="minimumSize">
@@ -260,6 +260,16 @@ Generation Settings</string>
                 </property>
                 <property name="text">
                  <string>Upload Icons</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="use_psychengine_checkbox">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>Psych Engine mode</string>
                 </property>
                </widget>
               </item>

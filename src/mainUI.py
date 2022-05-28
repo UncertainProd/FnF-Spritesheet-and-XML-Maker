@@ -141,6 +141,10 @@ class Ui_MainWindow(object):
         self.uploadicons_btn.setMinimumSize(QtCore.QSize(0, 50))
         self.uploadicons_btn.setObjectName("uploadicons_btn")
         self.horizontalLayout_3.addWidget(self.uploadicons_btn)
+        self.use_psychengine_checkbox = QtWidgets.QCheckBox(self.controls_frame_icongrid)
+        self.use_psychengine_checkbox.setEnabled(True)
+        self.use_psychengine_checkbox.setObjectName("use_psychengine_checkbox")
+        self.horizontalLayout_3.addWidget(self.use_psychengine_checkbox)
         self.iconselected_label = QtWidgets.QLabel(self.controls_frame_icongrid)
         self.iconselected_label.setAlignment(QtCore.Qt.AlignCenter)
         self.iconselected_label.setObjectName("iconselected_label")
@@ -162,8 +166,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.generateicongrid_btn)
         self.horizontalLayout_3.setStretch(0, 1)
         self.horizontalLayout_3.setStretch(1, 1)
-        self.horizontalLayout_3.setStretch(4, 1)
         self.horizontalLayout_3.setStretch(5, 1)
+        self.horizontalLayout_3.setStretch(6, 1)
         self.verticalLayout_5.addWidget(self.controls_frame_icongrid)
         self.verticalLayout_5.setStretch(0, 10)
         self.verticalLayout_5.setStretch(1, 1)
@@ -273,7 +277,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuView.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.myTabs.setCurrentIndex(0)
+        self.myTabs.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -288,6 +292,7 @@ class Ui_MainWindow(object):
         self.myTabs.setTabText(self.myTabs.indexOf(self.xmlframes_tab), _translate("MainWindow", "XML from Frames"))
         self.uploadicongrid_btn.setText(_translate("MainWindow", "Upload Icon-grid"))
         self.uploadicons_btn.setText(_translate("MainWindow", "Upload Icons"))
+        self.use_psychengine_checkbox.setText(_translate("MainWindow", "Psych Engine mode"))
         self.iconselected_label.setText(_translate("MainWindow", "No. of\n"
 "icons selected:\n"
 "0"))

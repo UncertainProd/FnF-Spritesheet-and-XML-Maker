@@ -95,10 +95,48 @@ def appendIconToGrid(icongrid_path, iconpaths, iconsize=150):
                 icongrid = _icongrid_add_row(icongrid)
             
             icongrid.paste(icon_img, (new_col_idx*iconsize, new_row_idx*iconsize))
+            icon_img.close()
         icongrid.save(icongrid_path)
+        icongrid.close()
     except Exception as e:
         return_status = -1
         exception_msg = f"{e.__class__.__name__} : {str(e)}"
 
 
     return return_status, indices, problem_icon, exception_msg
+
+def makePsychEngineIconGrid(iconpaths, savepath, img_size=150):
+    # this function works for any number of icons that you provide, even though psych engine uses 2 icons for a character
+    status = 0
+    problemimg = None
+    exception_msg = None
+
+    good_icons = []
+    for iconpath in iconpaths:
+        try:
+            icon = Image.open(iconpath)
+        except Exception as e:
+            exception_msg = f"{e.__class__.__name__} : {str(e)}"
+            continue
+        fit_status = _check_icon_size(icon)
+        if fit_status == ICON_BIGGER_THAN_AREA:
+            problemimg = iconpath
+            status = 1
+            continue
+        elif fit_status == ICON_SMALLER_THAN_AREA:
+            print(f"Icon: {iconpath} is smaller than 150x150, centering it....")
+            icon = _center_icon(icon)
+        good_icons.append(icon)
+    
+    if len(good_icons) == 0:
+        return 1, problemimg, exception_msg
+
+    final_icongrid = Image.new('RGBA', (img_size*len(good_icons), img_size), (0, 0, 0, 0))
+    for i, icon in enumerate(good_icons):
+        final_icongrid.paste(icon, (i*img_size, 0))
+        icon.close()
+    
+    final_icongrid.save(savepath)
+    final_icongrid.close()
+
+    return status, problemimg, exception_msg

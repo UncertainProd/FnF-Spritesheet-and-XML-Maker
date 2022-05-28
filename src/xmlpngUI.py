@@ -141,6 +141,8 @@ class MyApp(QMainWindow):
         self.ui.actionFlipX.triggered.connect(lambda: self.flip_labels('X'))
         self.ui.actionFlipY.triggered.connect(lambda: self.flip_labels('Y'))
 
+        self.ui.use_psychengine_checkbox.clicked.connect(self.handle_psychengine_checkbox)
+
         # self.frame_order_screen = FrameOrderScreen()
         # self.ui.actionChange_Frame_Ordering.triggered.connect(self.show_frame_order_screen)
         # self.ui.actionChange_Frame_Ordering.setEnabled(len(self.labels) > 0)
@@ -148,6 +150,9 @@ class MyApp(QMainWindow):
         # Note: Add any extra windows before this if your want the themes to apply to them
         if prefs.get("theme", 'default') == 'dark':
             self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
+    
+    def handle_psychengine_checkbox(self, checked):
+        self.ui.uploadicongrid_btn.setEnabled(not checked)
     
     # def show_frame_order_screen(self):
         # self.frame_order_screen.set_frame_dict(self.frame_dict)
@@ -449,6 +454,47 @@ class MyApp(QMainWindow):
         self.ui.icongrid_holder_label.clear()
     
     def getNewIconGrid(self):
+        if self.ui.use_psychengine_checkbox.isChecked():
+            if len(self.iconpaths) > 0:
+                print("Using psych engine style icon grid generation....")
+                savepath, _ = QFileDialog.getSaveFileName(self, "Save as filename", filter="PNG files (*.png)")
+
+                stat, problemimg, exception_msg = icongridutils.makePsychEngineIconGrid(self.iconpaths, savepath)
+
+                if exception_msg is not None:
+                    self.display_msg_box(
+                        window_title="Error!", 
+                        text=f"An error occured: {exception_msg}",
+                        icon=QMessageBox.Critical
+                    )
+                else:
+                    if stat == 0:
+                        self.display_msg_box(
+                            window_title="Done!", 
+                            text="Your icon-grid has been generated!",
+                            icon=QMessageBox.Information
+                        )
+                        # display final image onto the icon display area 
+                        icongrid_pixmap = QPixmap(savepath)
+                        self.ui.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+                        self.ui.scrollAreaWidgetContents_2.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
+                        self.ui.icongrid_holder_label.setPixmap(icongrid_pixmap)
+                    elif stat == 1:
+                        self.display_msg_box(
+                            window_title="Icon image error",
+                            text=f"The icon {problemimg} is bigger than 150x150 and couldn't be added to the final grid\nThe final grid was generated without it",
+                            icon=QMessageBox.Warning
+                        )
+            else:
+                self.display_msg_box(
+                    window_title="Error!", 
+                    text="Please select some icons",
+                    icon=QMessageBox.Critical
+                )
+            
+            # no need to continue past this if in psych-engine mode
+            return
+        
         if self.icongrid_path != '' and len(self.iconpaths) > 0:
             print("Valid!")
             # savedir = QFileDialog.getExistingDirectory(caption="Save New Icongrid to...")
