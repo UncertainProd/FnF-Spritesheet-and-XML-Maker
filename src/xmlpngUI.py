@@ -464,27 +464,27 @@ class MyApp(QMainWindow):
             if exception_msg is not None:
                 self.display_msg_box(
                     window_title="An Error occured", 
-                    text=("An Exception (Error) oeccured somewhere\nError message:"+exception_msg),
+                    text=("An Exception (Error) occurred somewhere\nError message:\n"+exception_msg),
                     icon=QMessageBox.Critical
-                )
-
-            if stat == 0:
-                self.display_msg_box(
-                    window_title="Done!", 
-                    text="Your icon-grid has been generated!\nYour icon's indices are {}".format(newinds),
-                    icon=QMessageBox.Information
-                )
-            elif stat == 4:
-                self.display_msg_box(
-                    window_title="Warning!", 
-                    text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your icon-grid is generated but the icon has been re-adjusted. \nYour icon's indices: {}".format(newinds),
-                    icon=QMessageBox.Warning
                 )
             else:
-                self.display_msg_box(
-                    window_title="Error!", 
-                    text=errmsgs[stat - 1].format(problemimg),
-                    icon=QMessageBox.Critical
+                if stat == 0:
+                    self.display_msg_box(
+                        window_title="Done!", 
+                        text="Your icon-grid has been generated!\nYour icon's indices are {}".format(newinds),
+                        icon=QMessageBox.Information
+                    )
+                elif stat == 4:
+                    self.display_msg_box(
+                        window_title="Warning!", 
+                        text="One of your icons was smaller than the 150 x 150 icon size!\nHowever, your icon-grid is generated but the icon has been re-adjusted. \nYour icon's indices: {}".format(newinds),
+                        icon=QMessageBox.Warning
+                    )
+                else:
+                    self.display_msg_box(
+                        window_title="Error!", 
+                        text=errmsgs[stat - 1].format(problemimg),
+                        icon=QMessageBox.Critical
                 )
             icongrid_pixmap = QPixmap(self.icongrid_path)
             self.ui.icongrid_holder_label.setFixedSize(icongrid_pixmap.width(), icongrid_pixmap.height())
@@ -504,7 +504,9 @@ class MyApp(QMainWindow):
         print("Got icon: ", self.iconpaths)
         if len(self.iconpaths) > 0:
             print("Valid selected")
-            self.ui.iconselected_label.setText("Number of\nicons selected:\n{}".format(len(self.iconpaths)))
+            self.ui.iconselected_label.setText("No. of\nicons selected:\n{}".format(len(self.iconpaths)))
+        else:
+            self.ui.iconselected_label.setText("No. of\nicons selected:\n0")
     
     def clearSelectedIcons(self):
         self.iconpaths = []

@@ -33,28 +33,72 @@ def _get_last_row_and_col(icongrid, iconsize=150):
     
     return last_row_index, last_col_index
 
+ICON_PERFECT_FIT = 0
+ICON_BIGGER_THAN_AREA = 1
+ICON_SMALLER_THAN_AREA = 2
+
+def _check_icon_size(icon, check_width=150, check_height=150):
+    # 0 = icon is 150x150
+    # 1 = icon is too wide/tall
+    # 2 = icon is smaller than 150x150 area
+    if icon.width == check_width and icon.height == check_height:
+        return ICON_PERFECT_FIT
+    elif icon.width > 150 or icon.height > 150:
+        return ICON_BIGGER_THAN_AREA
+    else:
+        return ICON_SMALLER_THAN_AREA
+
+def _center_icon(icon):
+    w, h = icon.size
+    final_icon = Image.new('RGBA', (150, 150), (0, 0, 0, 0))
+    dx = (150 - w) // 2
+    dy = (150 - h) // 2
+    final_icon.paste(icon, (dx, dy))
+    return final_icon
+
 def appendIconToGrid(icongrid_path, iconpaths, iconsize=150):
     print("Icongrid from: {} \nIcons: {}".format(icongrid_path, len(iconpaths)))
 
-    IMAGES_PER_COLUMN = 10
-    icongrid = Image.open(icongrid_path)
+    return_status = 0
     indices = []
-    for iconpath in iconpaths:
-        icon_img = Image.open(iconpath)
+    problem_icon = None
+    exception_msg = None
 
-        # get location to paste it
-        last_row_idx, last_col_idx = _get_last_row_and_col(icongrid)
-        new_index = last_row_idx*IMAGES_PER_COLUMN + last_col_idx + 1
-        indices.append(new_index)
-        new_row_idx = new_index // IMAGES_PER_COLUMN
-        new_col_idx = new_index % IMAGES_PER_COLUMN
+    IMAGES_PER_COLUMN = 10
 
-        if new_row_idx * iconsize >= icongrid.height:
-            print("Icongrid is full. Expanding it....")
-            icongrid = _icongrid_add_row(icongrid)
-        
-        # paste image there
-        # ...
-        icongrid.paste(icon_img, (new_col_idx*iconsize, new_row_idx*iconsize))
-    icongrid.save(icongrid_path)
-    return 0, indices, None, None
+    try:
+        icongrid = Image.open(icongrid_path)
+        for iconpath in iconpaths:
+            icon_img = Image.open(iconpath)
+
+            # check if icon_img is 150x150
+            can_fit = _check_icon_size(icon_img)
+            if can_fit == ICON_BIGGER_THAN_AREA:
+                # if the icon is too big, ignore it (for now)
+                return_status = 2
+                problem_icon = iconpath
+                continue
+            elif can_fit == ICON_SMALLER_THAN_AREA:
+                print(f"Icon: {iconpath} is smaller than 150x150, centering it....")
+                icon_img = _center_icon(icon_img)
+
+            # get location to paste it
+            last_row_idx, last_col_idx = _get_last_row_and_col(icongrid)
+            
+            new_index = last_row_idx*IMAGES_PER_COLUMN + last_col_idx + 1
+            indices.append(new_index)
+            new_row_idx = new_index // IMAGES_PER_COLUMN
+            new_col_idx = new_index % IMAGES_PER_COLUMN
+
+            if new_row_idx * iconsize >= icongrid.height:
+                print("Icongrid is full. Expanding it....")
+                icongrid = _icongrid_add_row(icongrid)
+            
+            icongrid.paste(icon_img, (new_col_idx*iconsize, new_row_idx*iconsize))
+        icongrid.save(icongrid_path)
+    except Exception as e:
+        return_status = -1
+        exception_msg = f"{e.__class__.__name__} : {str(e)}"
+
+
+    return return_status, indices, problem_icon, exception_msg
