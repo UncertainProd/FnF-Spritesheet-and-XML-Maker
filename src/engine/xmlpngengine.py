@@ -41,7 +41,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             if f.data.from_single_png or (not f.data.from_single_png and f.modified):
                 if prefix_type == 'charname':
                     final_pose_name = f"{character_name} {final_pose_name}"
-                else:
+                elif prefix_type == 'custom':
                     final_pose_name = f"{custom_prefix} {final_pose_name}"
             else:
                 if must_use_prefix and prefix_type == 'custom':
