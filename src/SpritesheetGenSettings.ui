@@ -16,7 +16,7 @@
   <property name="windowTitle">
    <string>Spritesheet Generation Settings</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0,0,0">
    <item>
     <widget class="QCheckBox" name="clip_checkbox">
      <property name="font">
@@ -163,6 +163,28 @@ Before Animation Prefix</string>
  sprites clipping into each other)</string>
         </property>
        </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame_5">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
+      <item>
+       <widget class="QLabel" name="packingalgo_label">
+        <property name="text">
+         <string>Packing Algorithm</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="packingalgo_combobox"/>
       </item>
      </layout>
     </widget>

@@ -80,3 +80,64 @@ class GrowingPacker:
             return self.split_node(node, w, h)
         else:
             return None
+
+
+# This algorithm does not change the order of the sprites (so no "scrambling" of sprites)
+# but at the cost of being *slightly* less space-efficient (so you get a slightly bigger spritesheet)
+class OrderedPacker:
+    def __init__(self):
+        self.blocks = None
+        self.root = None # not actually a root but named so for consistency
+
+    def fit(self, blocks):
+        self.blocks = blocks
+        
+        blocks_per_row = int(self._get_blocks_per_row_estimate())
+        blocks_matrix = []
+        for i in range(len(self.blocks)//blocks_per_row + 1):
+            blocks_matrix.append( self.blocks[i*blocks_per_row:(i+1)*blocks_per_row] )
+        
+        if blocks_matrix[-1] == []:
+            blocks_matrix = blocks_matrix[:-1]
+        
+        final_w = self._get_final_width(blocks_matrix)
+        final_h = self._get_final_height(blocks_matrix)
+
+        self.root = {
+            'w': final_w,
+            'h': final_h
+        }
+
+        curr_x = 0
+        curr_y = 0
+        max_heights = [ max([b["h"] for b in row]) for row in blocks_matrix ]
+
+        for i, row in enumerate(blocks_matrix):
+            for bl in row:
+                bl["fit"] = {
+                    'x': curr_x,
+                    'y': curr_y
+                }
+                curr_x += bl["w"]
+            curr_y += max_heights[i]
+            curr_x = 0
+
+
+    def _get_blocks_per_row_estimate(self):
+        tot_area = sum([ x["w"]*x["h"] for x in self.blocks ])
+        estimated_sidelen = tot_area**0.5
+        avg_width = self._get_total_width()/len(self.blocks)
+        return estimated_sidelen // avg_width
+
+    def _get_total_width(self):
+        return sum([ x["w"] for x in self.blocks ])
+    
+    def _get_final_width(self, rows):
+        # maximum value of total width among all the rows
+        row_sums = [ sum([b["w"] for b in row]) for row in rows ]
+        return max(row_sums)
+    
+    def _get_final_height(self, rows):
+        # sum of the maximum heights of each row
+        max_heights = [ max([b["h"] for b in row]) for row in rows ]
+        return sum(max_heights)

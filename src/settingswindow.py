@@ -7,6 +7,12 @@ class SettingsWindow(QWidget):
         super().__init__(*args, **kwargs)
         self.ui = spritesheetgensettings.Ui_Form()
         self.ui.setupUi(self)
+
+        self.ui.packingalgo_combobox.addItems([
+            "Growing Packer (Fits the frames as tightly as possible but doesn't maintain frame ordering)",
+            "Ordered Packer (Fits the frames in the order they were added but produces a slightly bigger spritesheet)"
+        ])
+        self.ui.packingalgo_combobox.setCurrentIndex(0)
         # self.setStyleSheet(get_stylesheet_from_file("app-styles.qss"))
 
         # self.isclip = self.ui.clip_checkbox.checkState()
@@ -38,6 +44,7 @@ class SettingsWindow(QWidget):
         self.ui.custom_prefix_text.setText(self.custom_prefix)
         self.ui.insist_prefix_checkbox.setCheckState(self.must_use_prefix)
         self.ui.frame_padding_spinbox.setValue(self.frame_padding)
+        self.ui.packingalgo_combobox.setCurrentIndex(self.packing_algo)
         self.close()
     
     def saveSettings(self, shouldclose=True):
@@ -47,12 +54,14 @@ class SettingsWindow(QWidget):
         self.custom_prefix = self.ui.custom_prefix_text.text()
         self.must_use_prefix = self.ui.insist_prefix_checkbox.checkState()
         self.frame_padding = self.ui.frame_padding_spinbox.value()
+        self.packing_algo = self.ui.packingalgo_combobox.currentIndex()
         # saving to global settings obj
         g_settings['isclip'] = self.isclip
         g_settings['prefix_type'] = self.prefix_type
         g_settings['custom_prefix'] = self.custom_prefix
         g_settings['must_use_prefix'] = self.must_use_prefix
         g_settings['frame_padding'] = self.frame_padding
+        g_settings['packing_algo'] = self.packing_algo
         if shouldclose:
             self.close()
     

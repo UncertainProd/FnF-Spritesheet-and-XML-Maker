@@ -4,7 +4,7 @@ from os import path, linesep
 
 from utils import imghashes, g_settings
 
-from engine.growingpacker import GrowingPacker
+from engine.packingalgorithms import GrowingPacker, OrderedPacker
 from engine.spritesheetutils import get_true_frame, add_pose_numbers
 from engine.imgutils import clean_up, pad_img
 
@@ -24,6 +24,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     custom_prefix = settings.get('custom_prefix', '') # the custom prefix to use
     must_use_prefix = settings.get('must_use_prefix', 0) != 0 # use the custom prefix even if frame is from existing spritesheet
     padding_pixels = settings.get('frame_padding', 0)
+    packing_algorithm = settings.get('packing_algo', 0) # 0 = Growing Packer, 1 = Ordered Packer
 
     # print(len(imghashes))
     # print(len(frames))
@@ -60,12 +61,16 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
                     "w": img.width + 2*padding_pixels,
                     "h": img.height + 2*padding_pixels
                 })
-        frame_dict_arr.sort(key= lambda rect: rect.get("h", -100), reverse=True)
         
-        gp = GrowingPacker()
-        gp.fit(frame_dict_arr)
+        if packing_algorithm == 1:
+            packer = OrderedPacker()
+        else:
+            packer = GrowingPacker()
+            frame_dict_arr.sort(key= lambda rect: rect.get("h", -100), reverse=True)
         
-        final_img = Image.new("RGBA", (gp.root['w'], gp.root['h']), (0, 0, 0, 0))
+        packer.fit(frame_dict_arr)
+
+        final_img = Image.new("RGBA", (packer.root['w'], packer.root['h']), (0, 0, 0, 0))
         # frame_dict_arr.sort(key=lambda x: x['id'].img_xml_data.xml_posename)
         prgs = 0
         for r in frame_dict_arr:
