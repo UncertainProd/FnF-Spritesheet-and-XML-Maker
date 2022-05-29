@@ -39,7 +39,7 @@ jobs:
           - os: macos-latest
             TARGET: macos
             CMD_BUILD: >
-                pip install pyinstaller==4.0 && pyinstaller --noconfirm --onedir --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/assets:assets/"  "./src/xmlpngUI.py" &&
+                pyinstaller --noconfirm --onedir --windowed --icon "./src/assets/appicon.ico" --name "Spritesheet and XML Generator for Friday Night Funkin" --noupx --add-data "./src/assets:assets/"  "./src/xmlpngUI.py" &&
                 cd dist/ &&
                 zip -r9 "FnFXMLGen-MacOS.zip" "Spritesheet and XML Generator for Friday Night Funkin/"
             OUT_FILE_NAME: FnFXMLGen-MacOS.zip
