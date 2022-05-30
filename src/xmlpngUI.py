@@ -99,6 +99,7 @@ class MyApp(QMainWindow):
 
         self.ui.actionImport_Images.triggered.connect(self.open_frame_imgs)
         self.ui.action_import_existing.triggered.connect(self.open_existing_spsh_xml)
+        self.ui.actionImport_from_GIF.triggered.connect(self.open_gif)
 
         self.num_rows = 1 + self.num_labels//self.num_cols
         
@@ -151,6 +152,21 @@ class MyApp(QMainWindow):
         if prefs.get("theme", 'default') == 'dark':
             self.set_theme(get_stylesheet_from_file("assets/app-styles.qss"))
     
+
+    def open_gif(self):
+        gifpath = self.get_asset_path("Select the GIF file", "GIF images (*.gif)")
+        update_prog_bar, progbar = display_progress_bar(self, "Extracting sprite frames....")
+        QApplication.processEvents()
+
+        sprites = spritesheetutils.get_gif_frames(gifpath, update_prog_bar)
+        for i, spfr in enumerate(sprites):
+            spfr.frameparent = self
+            self.add_spriteframe(spfr)
+            update_prog_bar(50 + ((i+1)*50//len(sprites)), f"Adding frames from: {gifpath}")
+        progbar.close()
+        
+        self.ui.posename_btn.setDisabled(self.num_labels <= 0)
+
     def handle_psychengine_checkbox(self, checked):
         self.ui.uploadicongrid_btn.setEnabled(not checked)
     

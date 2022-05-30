@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 from engine.imgutils import pad_img
 from utils import spritesheet_split_cache
 from spriteframe import SpriteFrame
+from PIL import Image
 
 def get_true_frame(img , framex, framey, framew, frameh, flipx=False, flipy=False):
     # if framex < 0, we pad, else we crop
@@ -105,3 +106,16 @@ def split_spsh(pngpath, xmlpath, udpdatefn):
         udpdatefn((i+1)*50//len(subtextures), pose_name)
     
     return sprites
+
+def get_gif_frames(gifpath, updatefn=None):
+    sprites = []
+    with Image.open(gifpath) as gif:
+        for i in range(gif.n_frames):
+            gif.seek(i)
+            gif.save("_tmp.png")
+            sprites.append(SpriteFrame(None, "_tmp.png", True))
+            if updatefn is not None:
+                updatefn((i+1)*50//gif.n_frames, f"Adding Frame-{i+1}")
+    
+    return sprites
+            

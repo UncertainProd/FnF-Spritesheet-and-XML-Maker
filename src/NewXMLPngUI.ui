@@ -68,7 +68,7 @@
     <item>
      <widget class="QTabWidget" name="myTabs">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="xmlframes_tab">
        <attribute name="title">
@@ -354,8 +354,15 @@ Icon-grid</string>
      <addaction name="actionExport_as_Spritesheet_and_XML"/>
      <addaction name="actionExport_induvidual_images"/>
     </widget>
-    <addaction name="action_import_existing"/>
-    <addaction name="actionImport_Images"/>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import...</string>
+     </property>
+     <addaction name="action_import_existing"/>
+     <addaction name="actionImport_Images"/>
+     <addaction name="actionImport_from_GIF"/>
+    </widget>
+    <addaction name="menuImport"/>
     <addaction name="separator"/>
     <addaction name="actionImport_IconGrid"/>
     <addaction name="actionImport_Icons"/>
@@ -540,6 +547,16 @@ Icon-grid</string>
   <action name="actionFlipY">
    <property name="text">
     <string>FlipY</string>
+   </property>
+  </action>
+  <action name="actiontets">
+   <property name="text">
+    <string>tets</string>
+   </property>
+  </action>
+  <action name="actionImport_from_GIF">
+   <property name="text">
+    <string>Import from GIF</string>
    </property>
   </action>
  </widget>

@@ -8,3 +8,4 @@ env
 preferences.json
 BIG_REMINDER_DO_NOT_FORGET.txt
 *.log
+_tmp.png
