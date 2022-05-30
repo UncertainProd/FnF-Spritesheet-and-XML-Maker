@@ -125,14 +125,6 @@ Will appear in XML as:
 
         return ttstring
     
-    def change_img_to(self, newimg):
-        print("NOO!")
-        return
-        self.img_data.modify_image_to(newimg)
-        # make changes in xml data too
-        self.img_xml_data.w = newimg.width
-        self.img_xml_data.h = newimg.height
-    
     def flip_img(self, dxn):
         # flip the PIL img of self
         if dxn == 'X':

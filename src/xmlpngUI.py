@@ -215,6 +215,7 @@ class MyApp(QMainWindow):
     def handle_tab_change(self, newtabind):
         self.ui.actionClear_Spritesheet_Grid.setDisabled(newtabind != 0)
         self.ui.action_import_existing.setDisabled(newtabind != 0)
+        self.ui.actionImport_from_GIF.setDisabled(newtabind != 0)
         self.ui.actionImport_Images.setDisabled(newtabind != 0)
         self.ui.actionEdit_Frame_Properties.setDisabled(newtabind != 0 or len(self.selected_labels) <= 0)
         self.ui.menuExport.setDisabled(newtabind != 0)

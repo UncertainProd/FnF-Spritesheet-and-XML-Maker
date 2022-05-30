@@ -96,9 +96,7 @@ def appendIconToGrid(icongrid_path, iconpaths, iconsize=150):
                         icongrid = _icongrid_add_row(icongrid)
                     
                     icongrid.paste(icon_img, (new_col_idx*iconsize, new_row_idx*iconsize))
-                # icon_img.close()
             icongrid.save(icongrid_path)
-        # icongrid.close()
     except Exception as e:
         return_status = -1
         exception_msg = f"{e.__class__.__name__} : {str(e)}"
