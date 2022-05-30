@@ -67,37 +67,38 @@ def appendIconToGrid(icongrid_path, iconpaths, iconsize=150):
     IMAGES_PER_COLUMN = 10
 
     try:
-        icongrid = Image.open(icongrid_path)
-        for iconpath in iconpaths:
-            icon_img = Image.open(iconpath)
+        # icongrid = Image.open(icongrid_path)
+        with Image.open(icongrid_path) as icongrid:
+            for iconpath in iconpaths:
+                # icon_img = Image.open(iconpath)
+                with Image.open(iconpath) as icon_img:
+                    # check if icon_img is 150x150
+                    can_fit = _check_icon_size(icon_img)
+                    if can_fit == ICON_BIGGER_THAN_AREA:
+                        # if the icon is too big, ignore it (for now)
+                        return_status = 2
+                        problem_icon = iconpath
+                        continue
+                    elif can_fit == ICON_SMALLER_THAN_AREA:
+                        print(f"Icon: {iconpath} is smaller than 150x150, centering it....")
+                        icon_img = _center_icon(icon_img)
 
-            # check if icon_img is 150x150
-            can_fit = _check_icon_size(icon_img)
-            if can_fit == ICON_BIGGER_THAN_AREA:
-                # if the icon is too big, ignore it (for now)
-                return_status = 2
-                problem_icon = iconpath
-                continue
-            elif can_fit == ICON_SMALLER_THAN_AREA:
-                print(f"Icon: {iconpath} is smaller than 150x150, centering it....")
-                icon_img = _center_icon(icon_img)
+                    # get location to paste it
+                    last_row_idx, last_col_idx = _get_last_row_and_col(icongrid)
+                    
+                    new_index = last_row_idx*IMAGES_PER_COLUMN + last_col_idx + 1
+                    indices.append(new_index)
+                    new_row_idx = new_index // IMAGES_PER_COLUMN
+                    new_col_idx = new_index % IMAGES_PER_COLUMN
 
-            # get location to paste it
-            last_row_idx, last_col_idx = _get_last_row_and_col(icongrid)
-            
-            new_index = last_row_idx*IMAGES_PER_COLUMN + last_col_idx + 1
-            indices.append(new_index)
-            new_row_idx = new_index // IMAGES_PER_COLUMN
-            new_col_idx = new_index % IMAGES_PER_COLUMN
-
-            if new_row_idx * iconsize >= icongrid.height:
-                print("Icongrid is full. Expanding it....")
-                icongrid = _icongrid_add_row(icongrid)
-            
-            icongrid.paste(icon_img, (new_col_idx*iconsize, new_row_idx*iconsize))
-            icon_img.close()
-        icongrid.save(icongrid_path)
-        icongrid.close()
+                    if new_row_idx * iconsize >= icongrid.height:
+                        print("Icongrid is full. Expanding it....")
+                        icongrid = _icongrid_add_row(icongrid)
+                    
+                    icongrid.paste(icon_img, (new_col_idx*iconsize, new_row_idx*iconsize))
+                # icon_img.close()
+            icongrid.save(icongrid_path)
+        # icongrid.close()
     except Exception as e:
         return_status = -1
         exception_msg = f"{e.__class__.__name__} : {str(e)}"
@@ -122,6 +123,7 @@ def makePsychEngineIconGrid(iconpaths, savepath, img_size=150):
         if fit_status == ICON_BIGGER_THAN_AREA:
             problemimg = iconpath
             status = 1
+            icon.close()
             continue
         elif fit_status == ICON_SMALLER_THAN_AREA:
             print(f"Icon: {iconpath} is smaller than 150x150, centering it....")
