@@ -211,33 +211,6 @@ class MyApp(QMainWindow):
     
     def show_settings(self):
         self.settings_widget.show()
-    
-    # def edit_frame_handler(self):
-    #     self.framexy_window = FrameAdjustWindow()
-    #     self.framexy_window.submitbtn.clicked.connect(self.get_frame_stuff)
-    #     self.framexy_window.show()
-    
-    # def get_frame_stuff(self):
-    #     self.framexy_window.close()
-    #     try:
-    #         fx = int(self.framexy_window.frame_x_input.text())
-    #         fy = int(self.framexy_window.frame_y_input.text())
-    #         fw = self.framexy_window.frame_w_input.text()
-    #         fh = self.framexy_window.frame_h_input.text()
-    #         for sel_lab in self.selected_labels:
-    #             sel_lab.framex = fx
-    #             sel_lab.framey = fy
-    #             sel_lab.framew = fw if fw == 'default' else int(fw)
-    #             sel_lab.frameh = fh if fh == 'default' else int(fh)
-            
-    #         for label in list(self.selected_labels):
-    #             label.select_checkbox.setChecked(False)
-    #     except ValueError:
-    #         self.display_msg_box(
-    #             window_title="Error!",
-    #             text="One of the values you entered was an invalid integer!",
-    #             icon=QMessageBox.Critical
-    #         )
 
     def handle_tab_change(self, newtabind):
         self.ui.actionClear_Spritesheet_Grid.setDisabled(newtabind != 0)

@@ -6,7 +6,7 @@ from utils import imghashes, g_settings
 
 from engine.packingalgorithms import GrowingPacker, OrderedPacker
 from engine.spritesheetutils import get_true_frame, add_pose_numbers
-from engine.imgutils import clean_up, pad_img
+from engine.imgutils import pad_img
 
 
 def fast_image_cmp(im1, im2): # im1 == im2 ?
