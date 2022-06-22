@@ -1,7 +1,7 @@
 from PIL import Image
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QCheckBox, QFrame, QPushButton, QWidget, QLabel
+from PyQt5.QtWidgets import QCheckBox, QFrame, QPushButton, QWidget, QLabel, QApplication
 from framedata import FrameData
 from utils import SPRITEFRAME_SIZE, imghashes
 from os import path
@@ -71,8 +71,13 @@ class SpriteFrame(QWidget):
             prevstate = self.select_checkbox.checkState()
             newstate = 0 if prevstate != 0 else 1
             self.select_checkbox.setChecked(newstate)
+            modifiers = QApplication.keyboardModifiers()
+            if modifiers == Qt.ShiftModifier:
+                self.frameparent.ranged_selection_handler(self)
         else:
-            print("Click with the left mouse button")
+            modifiers = QApplication.keyboardModifiers()
+            if modifiers == Qt.ShiftModifier:
+                self.frameparent.ranged_deletion_handler(self)
     
     # overriding the default enterEvent
     def enterEvent(self, event):

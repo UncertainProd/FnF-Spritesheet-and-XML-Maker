@@ -1,8 +1,10 @@
-from PyQt5.QtWidgets import QTableWidgetItem, QWidget
+from PyQt5.QtWidgets import QTableWidgetItem, QWidget, QMenu, QAction, QMessageBox, QLineEdit, QInputDialog
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor
 from utils import temp_path_shortener, imghashes
 import engine.spritesheetutils as spritesheetutils
 from xmltablewindowUI import Ui_TableWidgetThing
+from utils import display_msg_box
 
 class XMLTableView(QWidget):
     def __init__(self, table_headings):
@@ -10,14 +12,17 @@ class XMLTableView(QWidget):
         self.ui = Ui_TableWidgetThing()
         self.ui.setupUi(self)
 
+        self.table_headings = table_headings
         self.ui.xmltable.setColumnCount(len(table_headings))
         self.ui.xmltable.setHorizontalHeaderLabels(table_headings)
+        self.ui.xmltable.contextMenuEvent = self.handle_context_menu_event
 
         # self.ui.xmltable.cellClicked.connect(self.handle_cell_click)
         # self.ui.xmltable.cellActivated.connect(self.handle_cell_click)
         # self.ui.xmltable.cellPressed.connect(self.handle_cell_click)
+        self.ui.xmltable.currentCellChanged.connect(self.handle_curr_cell_change)
         self.ui.frame_preview_label.setStyleSheet("QFrame{ border: 1px solid black; }")
-        self.ui.xmltable.selectionModel().selectionChanged.connect(self.handle_cell_selection)
+        # self.ui.xmltable.selectionModel().selectionChanged.connect(self.handle_cell_selection)
 
         # list[SpriteFrame]
         self.tabledata = []
@@ -34,6 +39,55 @@ class XMLTableView(QWidget):
         self.selected_row_index = None
 
         self.was_opened = False
+
+        self.selected_cells = []
+    
+    def handle_curr_cell_change(self, current_row, current_col, prev_row, prev_col):
+        self.selected_row_index = current_row
+        self.handle_display_stuff(self.selected_row_index)
+    
+    def handle_context_menu_event(self, event):
+        self.menu = QMenu(self)
+        renameAction = QAction('Set Value', self)
+        renameAction.triggered.connect(lambda: self.set_value_handle())
+        self.menu.addAction(renameAction)
+        # add other required actions
+        self.menu.popup(QCursor.pos())
+    
+    def set_value_handle(self):
+        _cells = self.ui.xmltable.selectedItems()
+        idx = -1
+        for _cell in _cells:
+            if not (_cell.flags() & Qt.ItemIsEditable):
+                display_msg_box(self, "Bad cell selection", "There are un-editable cells in your selection!\nSelect cells from the same column, valid columns being\nFrameX, FrameY, FrameWidth or FrameHeight", QMessageBox.Critical)
+                return
+            else:
+                if idx != -1 and _cell.column() != idx:
+                    display_msg_box(self, "Multiple Columns Selected", "Your selection spans multiple columns. Make sure to select cells that belong to the same column, valid columns being\nFrameX, FrameY, FrameWidth or FrameHeight", QMessageBox.Critical)
+                    return
+                else:
+                    idx = _cell.column()
+
+        rows = [ x.row() for x in _cells ]
+        text, okPressed = QInputDialog.getText(self, f"Change Value of {self.table_headings[idx - 4]}", "New value:"+(" "*50), QLineEdit.Normal)
+        is_real_number = lambda s: s.isnumeric() or (s[0] == '-' and s[1:].isnumeric())
+        if okPressed and text != '' and is_real_number(text):
+            val = int(text)
+            old_selected_row_index = self.selected_row_index
+            old_selected_row = self.selected_row
+            for row_num in rows:
+                self.ui.xmltable.setItem(row_num, idx, QTableWidgetItem(str(val)))
+                self.selected_row_index = row_num
+                self.selected_row = self.tabledata[row_num]
+                self.handle_cell_change(row_num, idx)
+            
+            # restoring things back to normal
+            self.selected_row_index = old_selected_row_index
+            self.selected_row = old_selected_row
+            self.set_true_frame()
+        else:
+            print("Text invalid / cancel was pressed")
+
 
     def handle_framex_change(self, newval):
         if self.canchange:
@@ -146,15 +200,20 @@ class XMLTableView(QWidget):
             
             self.set_true_frame()
 
-    def handle_cell_selection(self, selected, deselected):
-        if selected.indexes():
-            self.selected_row_index = selected.indexes()[-1].row()
-            self.handle_display_stuff(self.selected_row_index)
-        elif deselected.indexes():
-            self.selected_row_index = deselected.indexes()[-1].row()
-            self.handle_display_stuff(self.selected_row_index)
-        else:
-            print("Something's weird here")
+    # def handle_cell_selection(self, selected, deselected):
+    #     if selected.indexes():
+    #         self.selected_cells.extend(selected.indexes())
+    #         self.selected_row_index = selected.indexes()[-1].row()
+    #         self.handle_display_stuff(self.selected_row_index)
+    #     elif deselected.indexes():
+    #         for _cell in deselected.indexes():
+    #             print(f"Removing: {_cell.row()}, {_cell.column()}")
+    #             self.selected_cells.remove(_cell)
+    #         self.selected_row_index = deselected.indexes()[-1].row()
+    #         self.handle_display_stuff(self.selected_row_index)
+    #         print(f'{[ (c.row(), c.column()) for c in self.selected_cells ]}')
+    #     else:
+    #         print("Something's weird here")
 
     def handle_display_stuff(self, row):
         self.selected_row = self.tabledata[row]
