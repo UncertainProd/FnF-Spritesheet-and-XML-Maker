@@ -6,6 +6,9 @@ To download the application for windows instead of running it from source click 
 ##### Disclaimer: The execuatable on gamebanana only works on windows. Other operating system users should run this from source (or try out the experimental build from the releases here). Instructions to run from source at the bottom of this page.
 
 ## How to generate spritesheet and XML files for your character:
+### Update: The instructions below may be a bit outdated, so consider using this video tutorial instead:
+<a href="https://www.youtube.com/watch?v=lcxpa7Gc3i0">Youtube Video tutorial</a>
+
 <img src="./docs/InitScreen.png" />
 The name of your character goes into the textbox at the top. This is necessary as the final xml and png files will be named accordingly.
 Eg: If you name you character <b>Pixel-GF</b> the files generated will be named <b>Pixel-GF.png</b> and <b>Pixel-GF.xml</b>
