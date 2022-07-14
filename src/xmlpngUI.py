@@ -202,17 +202,18 @@ class MyApp(QMainWindow):
 
     def open_gif(self):
         gifpath = self.get_asset_path("Select the GIF file", "GIF images (*.gif)")
-        update_prog_bar, progbar = display_progress_bar(self, "Extracting sprite frames....")
-        QApplication.processEvents()
-
-        sprites = spritesheetutils.get_gif_frames(gifpath, update_prog_bar)
-        for i, spfr in enumerate(sprites):
-            spfr.frameparent = self
-            self.add_spriteframe(spfr)
-            update_prog_bar(50 + ((i+1)*50//len(sprites)), f"Adding frames from: {gifpath}")
-        progbar.close()
-        
-        self.ui.posename_btn.setDisabled(self.num_labels <= 0)
+        if gifpath != '':
+            update_prog_bar, progbar = display_progress_bar(self, "Extracting sprite frames....")
+            QApplication.processEvents()
+            
+            sprites = spritesheetutils.get_gif_frames(gifpath, update_prog_bar)
+            for i, spfr in enumerate(sprites):
+                spfr.frameparent = self
+                self.add_spriteframe(spfr)
+                update_prog_bar(50 + ((i+1)*50//len(sprites)), f"Adding frames from: {gifpath}")
+            progbar.close()
+            
+            self.ui.posename_btn.setDisabled(self.num_labels <= 0)
 
     def handle_psychengine_checkbox(self, checked):
         self.ui.uploadicongrid_btn.setEnabled(not checked)
