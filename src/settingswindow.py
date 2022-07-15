@@ -45,6 +45,7 @@ class SettingsWindow(QWidget):
         self.ui.insist_prefix_checkbox.setCheckState(self.must_use_prefix)
         self.ui.frame_padding_spinbox.setValue(self.frame_padding)
         self.ui.packingalgo_combobox.setCurrentIndex(self.packing_algo)
+        self.ui.no_merge_checkbox.setCheckState(self.no_merge)
         self.close()
     
     def saveSettings(self, shouldclose=True):
@@ -55,6 +56,7 @@ class SettingsWindow(QWidget):
         self.must_use_prefix = self.ui.insist_prefix_checkbox.checkState()
         self.frame_padding = self.ui.frame_padding_spinbox.value()
         self.packing_algo = self.ui.packingalgo_combobox.currentIndex()
+        self.no_merge = self.ui.no_merge_checkbox.checkState()
         # saving to global settings obj
         g_settings['isclip'] = self.isclip
         g_settings['prefix_type'] = self.prefix_type
@@ -62,6 +64,7 @@ class SettingsWindow(QWidget):
         g_settings['must_use_prefix'] = self.must_use_prefix
         g_settings['frame_padding'] = self.frame_padding
         g_settings['packing_algo'] = self.packing_algo
+        g_settings['no_merge'] = self.no_merge
         if shouldclose:
             self.close()
     

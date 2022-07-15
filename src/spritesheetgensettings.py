@@ -15,7 +15,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.setWindowModality(QtCore.Qt.ApplicationModal)
-        Form.resize(611, 520)
+        Form.resize(603, 552)
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.clip_checkbox = QtWidgets.QCheckBox(Form)
@@ -78,6 +78,9 @@ class Ui_Form(object):
         self.insist_prefix_checkbox.setFont(font)
         self.insist_prefix_checkbox.setObjectName("insist_prefix_checkbox")
         self.verticalLayout_3.addWidget(self.insist_prefix_checkbox)
+        self.no_merge_checkbox = QtWidgets.QCheckBox(Form)
+        self.no_merge_checkbox.setObjectName("no_merge_checkbox")
+        self.verticalLayout_3.addWidget(self.no_merge_checkbox)
         self.frame_4 = QtWidgets.QFrame(Form)
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -146,6 +149,10 @@ class Ui_Form(object):
         self.label_2.setText(_translate("Form", "Custom Prefix:"))
         self.no_prefix_radiobtn.setText(_translate("Form", "Don\'t use any prefix (what you type in the prefix box is exactly what will show up in the XML)"))
         self.insist_prefix_checkbox.setText(_translate("Form", "Use Prefix even if frame is imported from existing XML"))
+        self.no_merge_checkbox.setText(_translate("Form", "Do not merge look-alike frames\n"
+"(WARNING: Can cause extremely large spritesheets which may cause windows to\n"
+"refuse to open them.\n"
+"May also cause crashes!)"))
         self.frame_padding_spinbox.setSuffix(_translate("Form", "px"))
         self.frame_padding_label.setText(_translate("Form", "Frame Padding (use this to add empty pixels to the edge of each frame, helps prevent \n"
 " sprites clipping into each other)"))

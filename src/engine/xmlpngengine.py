@@ -25,6 +25,7 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
     must_use_prefix = settings.get('must_use_prefix', 0) != 0 # use the custom prefix even if frame is from existing spritesheet
     padding_pixels = settings.get('frame_padding', 0)
     packing_algorithm = settings.get('packing_algo', 0) # 0 = Growing Packer, 1 = Ordered Packer
+    no_merge = settings.get('no_merge', 0) != 0 # no merging lookalike frames
 
     # print(len(imghashes))
     # print(len(frames))
@@ -53,14 +54,23 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
         frame_dict_arr = []
         current_img_hashes = set([x.data.img_hash for x in frames])
 
-        # add the padding to width and height, then actually padding the images (kind of a hack but it works TODO: work out a better way to do this)
-        for imhash, img in imghashes.items():
-            if imhash in current_img_hashes:
+        if no_merge:
+            for f in frames:
                 frame_dict_arr.append({
-                    "id": imhash,
-                    "w": img.width + 2*padding_pixels,
-                    "h": img.height + 2*padding_pixels
+                    "id": f.data.img_hash,
+                    "w": imghashes.get(f.data.img_hash).width + 2*padding_pixels,
+                    "h": imghashes.get(f.data.img_hash).height + 2*padding_pixels,
+                    "frame": f # this comes in handy later on
                 })
+        else:
+        # add the padding to width and height, then actually padding the images (kind of a hack but it works TODO: work out a better way to do this)
+            for imhash, img in imghashes.items():
+                if imhash in current_img_hashes:
+                    frame_dict_arr.append({
+                        "id": imhash,
+                        "w": img.width + 2*padding_pixels,
+                        "h": img.height + 2*padding_pixels
+                    })
         
         if packing_algorithm == 1:
             packer = OrderedPacker()
@@ -84,26 +94,47 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             prgs += 1
             progressupdatefn(prgs, "Adding images to spritesheet...")
 
+        if no_merge:
+            for framedict in frame_dict_arr:
+                frame = framedict['frame']
+                subtexture_element = ET.Element("SubTexture")
+                subtexture_element.tail = linesep
+                w, h = imghashes.get(frame.data.img_hash).size
+                subtexture_element.attrib = {
+                    "name" : frame.data.xml_pose_name,
+                    "x": str(framedict['fit']['x']),
+                    "y": str(framedict['fit']['y']),
+                    "width": str(w + 2*padding_pixels),
+                    "height": str(h + 2*padding_pixels),
+                    "frameX": str(frame.data.framex),
+                    "frameY": str(frame.data.framey),
+                    "frameWidth": str(frame.data.framew),
+                    "frameHeight": str(frame.data.frameh),
+                }
+                root.append(subtexture_element)
+                prgs += 1
+                progressupdatefn(prgs, f"Saving {frame.data.xml_pose_name} to XML...")
+        else:
         # convert frame_dict_arr into a dict[image_hash -> position in spritesheet]:
-        imghash_dict = { rect['id']: (rect['fit']['x'], rect['fit']['y']) for rect in frame_dict_arr }
-        for frame in frames:
-            subtexture_element = ET.Element("SubTexture")
-            subtexture_element.tail = linesep
-            w, h = imghashes.get(frame.data.img_hash).size
-            subtexture_element.attrib = {
-                "name" : frame.data.xml_pose_name,
-                "x": str(imghash_dict[frame.data.img_hash][0]),
-                "y": str(imghash_dict[frame.data.img_hash][1]),
-                "width": str(w + 2*padding_pixels),
-                "height": str(h + 2*padding_pixels),
-                "frameX": str(frame.data.framex),
-                "frameY": str(frame.data.framey),
-                "frameWidth": str(frame.data.framew),
-                "frameHeight": str(frame.data.frameh),
-            }
-            root.append(subtexture_element)
-            prgs += 1
-            progressupdatefn(prgs, f"Saving {frame.data.xml_pose_name} to XML...")
+            imghash_dict = { rect['id']: (rect['fit']['x'], rect['fit']['y']) for rect in frame_dict_arr }
+            for frame in frames:
+                subtexture_element = ET.Element("SubTexture")
+                subtexture_element.tail = linesep
+                w, h = imghashes.get(frame.data.img_hash).size
+                subtexture_element.attrib = {
+                    "name" : frame.data.xml_pose_name,
+                    "x": str(imghash_dict[frame.data.img_hash][0]),
+                    "y": str(imghash_dict[frame.data.img_hash][1]),
+                    "width": str(w + 2*padding_pixels),
+                    "height": str(h + 2*padding_pixels),
+                    "frameX": str(frame.data.framex),
+                    "frameY": str(frame.data.framey),
+                    "frameWidth": str(frame.data.framew),
+                    "frameHeight": str(frame.data.frameh),
+                }
+                root.append(subtexture_element)
+                prgs += 1
+                progressupdatefn(prgs, f"Saving {frame.data.xml_pose_name} to XML...")
             # im.close()
         print("Saving XML...")
         xmltree = ET.ElementTree(root)

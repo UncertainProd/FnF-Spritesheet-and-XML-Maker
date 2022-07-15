@@ -9,14 +9,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
-    <height>520</height>
+    <width>603</width>
+    <height>552</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Spritesheet Generation Settings</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0,0,0,0">
    <item>
     <widget class="QCheckBox" name="clip_checkbox">
      <property name="font">
@@ -134,6 +134,16 @@ Before Animation Prefix</string>
      </property>
      <property name="text">
       <string>Use Prefix even if frame is imported from existing XML</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="no_merge_checkbox">
+     <property name="text">
+      <string>Do not merge look-alike frames
+(WARNING: Can cause extremely large spritesheets which may cause windows to
+refuse to open them.
+May also cause crashes!)</string>
      </property>
     </widget>
    </item>

@@ -18,7 +18,7 @@ class FrameData:
         self.th = None
         self.from_single_png = from_single_png
 
-        img = Image.open(impath)
+        img = Image.open(impath).convert('RGBA')
         self.framex = 0
         self.framey = 0
         self.framew = img.width
@@ -134,46 +134,46 @@ class FrameImgData:
         self.img_height = im.height
 
 # not used as of now
-class FrameXMLData:
-    def __init__(self, pose_name, x, y, w, h, framex, framey, framew, frameh, flipx=False, flipy=False):
-        self.pose_name = pose_name
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.framex = framex
-        self.framey = framey
-        self.framew = framew
-        self.frameh = frameh
-        self.is_flip_x = flipx
-        self.is_flip_y = flipy
-        self.xml_posename = None
-        # not exactly relevant to the xml but still
-        self.from_single_png = False
+# class FrameXMLData:
+#     def __init__(self, pose_name, x, y, w, h, framex, framey, framew, frameh, flipx=False, flipy=False):
+#         self.pose_name = pose_name
+#         self.x = x
+#         self.y = y
+#         self.w = w
+#         self.h = h
+#         self.framex = framex
+#         self.framey = framey
+#         self.framew = framew
+#         self.frameh = frameh
+#         self.is_flip_x = flipx
+#         self.is_flip_y = flipy
+#         self.xml_posename = None
+#         # not exactly relevant to the xml but still
+#         self.from_single_png = False
     
-    def convert_to_dict(self):
-        attribs = {
-            "name": self.pose_name,
-            "x": self.x,
-            "y": self.y,
-            "width": self.w,
-            "height": self.h
-        }
+#     def convert_to_dict(self):
+#         attribs = {
+#             "name": self.pose_name,
+#             "x": self.x,
+#             "y": self.y,
+#             "width": self.w,
+#             "height": self.h
+#         }
 
-        if self.framex:
-            attribs.update({
-                "frameX": self.framex,
-                "frameY": self.framey,
-                "frameWidth": self.framew,
-                "frameHeight": self.frameh,
-            })
+#         if self.framex:
+#             attribs.update({
+#                 "frameX": self.framex,
+#                 "frameY": self.framey,
+#                 "frameWidth": self.framew,
+#                 "frameHeight": self.frameh,
+#             })
         
-        return attribs
+#         return attribs
     
-    def __str__(self):
-        return f"""Frame XML data:
-            FrameX: {repr(self.framex)}
-            FrameY: {repr(self.framey)}
-            FrameWidth: {repr(self.framew)}
-            FrameHeight: {repr(self.frameh)}
-        """
+#     def __str__(self):
+#         return f"""Frame XML data:
+#             FrameX: {repr(self.framex)}
+#             FrameY: {repr(self.framey)}
+#             FrameWidth: {repr(self.framew)}
+#             FrameHeight: {repr(self.frameh)}
+#         """

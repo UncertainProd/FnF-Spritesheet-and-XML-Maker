@@ -68,10 +68,11 @@ def appendIconToGrid(icongrid_path, iconpaths, iconsize=150):
 
     try:
         # icongrid = Image.open(icongrid_path)
-        with Image.open(icongrid_path) as icongrid:
+        with Image.open(icongrid_path).convert('RGBA') as icongrid:
+            # icongrid = icongrid.convert('RGBA')
             for iconpath in iconpaths:
                 # icon_img = Image.open(iconpath)
-                with Image.open(iconpath) as icon_img:
+                with Image.open(iconpath).convert('RGBA') as icon_img:
                     # check if icon_img is 150x150
                     can_fit = _check_icon_size(icon_img)
                     if can_fit == ICON_BIGGER_THAN_AREA:
@@ -113,7 +114,7 @@ def makePsychEngineIconGrid(iconpaths, savepath, img_size=150):
     good_icons = []
     for iconpath in iconpaths:
         try:
-            icon = Image.open(iconpath)
+            icon = Image.open(iconpath).convert('RGBA')
         except Exception as e:
             exception_msg = f"{e.__class__.__name__} : {str(e)}"
             continue
