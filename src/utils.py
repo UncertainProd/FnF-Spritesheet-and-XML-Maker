@@ -46,5 +46,21 @@ def parse_value(val, exceptions=None, fallback=0, dtype=int):
             print(e)
             return fallback
 
+def clean_filename(filename):
+    replacers = {
+        '\\': '_backslash_',
+        '/': '_fwdslash_',
+        ':': '_colon_',
+        '*': '_asterisk_',
+        '?': '_questionmark_',
+        '"': '_quot_',
+        '<': '_lt_',
+        '>': '_gt_',
+        '|': '_pipe_'
+    }
+    for ch, replch in replacers.items():
+        filename = filename.replace(ch, replch)
+    return filename
+
 if __name__ == '__main__':
     print("To run the actual application, Please type: \npython xmlpngUI.py\nor \npython3 xmlpngUI.py \ndepending on what works")

@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from PIL import Image, ImageChops
 from os import path, linesep
 
-from utils import imghashes, g_settings
+from utils import imghashes, g_settings, clean_filename
 
 from engine.packingalgorithms import GrowingPacker, OrderedPacker
 from engine.spritesheetutils import get_true_frame, add_pose_numbers
@@ -142,12 +142,13 @@ def make_png_xml(frames, save_dir, character_name="Result", progressupdatefn=Non
             # im.close()
         print("Saving XML...")
         xmltree = ET.ElementTree(root)
-        with open(path.join(save_dir, character_name) + ".xml", 'wb') as f:
+        cleanpath = path.join(save_dir, clean_filename(character_name))
+        with open(cleanpath + ".xml", 'wb') as f:
             xmltree.write(f, xml_declaration=True, encoding='utf-8')
         
         print("Saving Image...")
         final_img = final_img.crop(final_img.getbbox())
-        final_img.save(path.join(save_dir, character_name) + ".png")
+        final_img.save(cleanpath + ".png")
         final_img.close()
         
         print("Done!")
@@ -164,7 +165,8 @@ def save_img_sequence(frames, savedir, updatefn):
             im = imghashes.get(frame.data.img_hash)
             im = get_true_frame(im, frame.data.framex, frame.data.framey, frame.data.framew, frame.data.frameh)
 
-            im.save(path.join(savedir, f"{pose}.png"))
+            cleanpath = path.join(savedir, clean_filename(f"{pose}.png"))
+            im.save(cleanpath)
             im.close()
             updatefn(i+1, f"Saving: {pose}.png")
         except Exception as e:
