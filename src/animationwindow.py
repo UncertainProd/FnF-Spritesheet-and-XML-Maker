@@ -42,7 +42,7 @@ class AnimationView(QWidget):
             self.frameindex = 0
             print(f"Playing {animname} at {framerate}fps with nframes:{len(self.animframes)}")
             self.ui.play_anim_button.setText("Stop Animation")
-            self.timer.start(1000/framerate)
+            self.timer.start(int(1000/framerate))
     
     def set_next_frame(self):
         curframe = self.animframes[self.frameindex]
