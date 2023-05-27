@@ -1,0 +1,53 @@
+name: Build Android with Buildozer
+
+on:
+
+  push:
+
+    branches:
+
+      - main
+
+  pull_request:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout code
+
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+
+      uses: actions/setup-python@v2
+
+      with:
+
+        python-version: 3.x
+
+    - name: Install buildozer
+
+      run: pip install buildozer
+
+    - name: Install dependencies
+
+      run: buildozer android debug
+
+    - name: Build Android APK
+
+      run: buildozer android debug deploy run
+
+    - name: Upload APK artifact
+
+      uses: actions/upload-artifact@v2
+
+      with:
+
+        name: my-app.apk
+
+        path: path/to/apk
