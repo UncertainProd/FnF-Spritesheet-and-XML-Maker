@@ -3,7 +3,8 @@ A Friday Night Funkin' mod making helper tool that allows you to generate XML fi
 <br />
 To download the application for windows instead of running it from source click on <a href="https://gamebanana.com/tools/7136">this link</a>.
 
-#### Big Update: There is a web version of this tool available [here](https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web). If the desktop app does not work for you, then you can try this out instead. [Instructions and source code of the web version](https://github.com/UncertainProd/FNF-Spritesheet-XML-generator-Web)
+## Big Update: There is a web version of this tool available [here](https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web). If the desktop app does not work for you, then you can try this out instead. [Instructions and source code of the web version](https://github.com/UncertainProd/FNF-Spritesheet-XML-generator-Web)
+
 ##### Disclaimer: The execuatable on gamebanana only works on windows. Other operating system users should run this from source (or try out the experimental build from the releases here). Instructions to run from source at the bottom of this page.
 
 ## How to generate spritesheet and XML files for your character:
